@@ -77,10 +77,11 @@ As an example, the below template is given:
 
 %% Homework 10: Structures
 %
-%% General Information
+%% Honor Code Agreement
 %
 % By entering my name, GT Username, and Section below, I am confirming that I am bound by the Georgia Tech
-% Honor Code, which can be found here: http://osi.gatech.edu/content/honor-code
+% Honor Code, which can be found here: http://osi.gatech.edu/content/honor-code. Failing to agree will
+% result in a 0 for the entire assignment.
 %
 % Name: <Your Name Here>
 % GT Username (gburdell3): <Your GT Username Here>
