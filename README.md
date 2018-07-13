@@ -4,8 +4,8 @@ The **Homework Compiler** is actually _two_ products: the `Test Case Compiler` a
 
 ## Test Case Compiler
 
-The `Test Case Compiler` is responsible for collecting all the test cases needed for a single `Problem`. This means it formally defines everything needed to run and grade the `Problem`. For a complete list, refer to the `Test Case Compiler` documentation.
+The [`Test Case Compiler`](https://github.gatech.edu/CS1371/homework-compiler/blob/Development/TestCaseCompiler/README.md) is responsible for collecting all the test cases needed for a single `Problem`. This means it formally defines everything needed to run and grade the `Problem`. For a complete list, refer to the `Test Case Compiler` documentation.
 
 ## Assignment Compiler
 
-The `Assignment Compiler` pulls together a set of `Problem`s, and creates a single, cohesive definition for the assignment. This compiler then repackages that for all the different necessary distributions.
+The [`Assignment Compiler`](https://github.gatech.edu/CS1371/homework-compiler/blob/Development/AssignmentCompiler/README.md) pulls together a set of `Problem`s, and creates a single, cohesive definition for the assignment. This compiler then repackages that for all the different necessary distributions.
