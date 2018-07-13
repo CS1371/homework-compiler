@@ -54,7 +54,7 @@ The `student` distribution is quite a bit different from the submission and resu
 - Each solution file is then obfuscated via `pcode`
 - The `inputs.mat` file is renamed to `<problemName>_inputs.mat`
 - The Google Doc used to create the problem statements is downloaded and converted to PDF format, and included as `Homework ##.pdf`
-- A `hw##.m` file is created, which details the homework and allows students to easily test their code. See the [Manifest Documentation]() for more information.
+- A `hw##.m` file is created, which details the homework and allows students to easily test their code. See the [Manifest Documentation](https://github.gatech.edu/CS1371/homework-compiler/edit/Development/AssignmentCompiler/MANIFEST.md) for more information.
 
 ### Version Check
 
