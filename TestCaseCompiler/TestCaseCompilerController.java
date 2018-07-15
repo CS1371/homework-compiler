@@ -9,19 +9,17 @@ import javafx.scene.control.Button;
  * @version 1.0
  */
 public class TestCaseCompilerController {
-    @FXML
-    private Button testButton;
-    boolean buttonPressed;
+//    private Button testButton;
+//    boolean buttonPressed;
 
-    @FXML
     protected void handleTestButtonPress(ActionEvent e) {
         System.out.println("Button was pressed");
         System.out.println(e.getSource());
-        if (!buttonPressed) {
-            testButton.setText("Fuck off");
-            buttonPressed = true;
-        } else {
-            testButton.setText("You already pressed the button, go to hell and die");
-        }
+//        if (!buttonPressed) {
+//            testButton.setText("Fuck off");
+//            buttonPressed = true;
+//        } else {
+//            testButton.setText("You already pressed the button, go to hell and die");
+//        }
     }
 }
