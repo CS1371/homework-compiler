@@ -1,3 +1,4 @@
+package testcasecompiler.control;
 
 import java.io.IOException;
 import javafx.application.Application;
@@ -14,6 +15,7 @@ public class TestCaseCompiler extends Application {
     public void start(Stage primaryStage) {
         this.primaryStage = primaryStage;
         this.primaryStage.setTitle("AddressApp");
+        @FXML
 
         initRootLayout();
 
