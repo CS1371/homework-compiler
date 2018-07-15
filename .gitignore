@@ -28,4 +28,3 @@ hs_err_pid*
 # Custom
 tmp/
 TestCaseCompiler/.idea/
-.idea
