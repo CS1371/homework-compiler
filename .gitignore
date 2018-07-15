@@ -29,3 +29,7 @@ hs_err_pid*
 tmp/
 TestCaseCompiler/.idea/
 .idea
+*.iml
+*.swp
+*.swo
+*.sw*
