@@ -21,12 +21,6 @@
 %
 % Pair names are case-insensitive.
 %
-% UserName: A character vector or scalar string. The username for the
-% server.
-%
-% Password: A character vector or scalar string. The password for the
-% server
-%
 % ClientID: A character vector or scalar string. The Google Client ID.
 %
 % ClientSecret: A character vector or scalar string. The Google Client
@@ -39,8 +33,6 @@ function assignmentCompiler(varargin)
     parser.FunctionName = 'assignmentCompiler';
     parser.CaseSensitive = false;
     parser.StructExpand = true;
-    parser.addParameter('UserName', '', @(u)(ischar(u) || (isstring(u) && isscalar(u))));
-    parser.addParameter('Password', '', @(u)(ischar(u) || (isstring(u) && isscalar(u))));
     parser.addParameter('ClientID', '', @(u)(ischar(u) || (isstring(u) && isscalar(u))));
     parser.addParameter('ClientSecret', '', @(u)(ischar(u) || (isstring(u) && isscalar(u))));
     parser.addParameter('ClientKey', '', @(u)(ischar(u) || (isstring(u) && isscalar(u))));
@@ -49,11 +41,8 @@ function assignmentCompiler(varargin)
     clientId = parser.Results.ClientID;
     clientSecret = parser.Results.ClientSecret;
     clientKey = parser.Results.ClientKey;
-    username = parser.Results.UserName;
-    password = parser.Results.Password;
     % Steps:
     % 
-    % 0. Get settings file
     % 1. Ask for Google Drive Folder
     % 2. Download all folders and convert/download PDF
     % 3. Ask about order
@@ -61,10 +50,8 @@ function assignmentCompiler(varargin)
     % 5. Compile Assignment
     % 6. Verify Assignment as a whole
     % 7. Upload Assignment to Drive
-    % 8. Ask for Server User/Pass
-    % 9. Upload to Server
     
-    % Get Settings File
+    %% Get Google Authorization
     tokenPath = [fileparts(mfilename('fullpath')) filesep 'google.token'];
     fid = fopen(tokenPath, 'rt');
     if fid == -1
@@ -91,5 +78,247 @@ function assignmentCompiler(varargin)
     end
     token = refresh2access(token, clientId, clientSecret);
     
+    % create temporary folder
+    workDir = tempname;
+    mkdir(workDir);
+    currDir = cd(workDir);
+    clean = onCleanup(@()(cleaner(workDir, currDir)));
     
+    browser = GoogleDriveBrowser(token);
+    uiwait(browser.UIFigure);
+    if isempty(browser.selectedId)
+        % die
+    end
+    id = browser.selectedId;
+    close(browser.UIFigure);
+    % downloadFolder
+    downloadFromDrive(id, token, workDir, clientKey);
+    % parse folder names; get the names of the problems...
+    %% Parse Problems
+    flds = dir();
+    flds(~[flds.isdir]) = [];
+    flds(strncmp({flds.name}, '.', 1)) = [];
+    flds(strcmp({flds.name}, 'release')) = [];
+    % flds are folders that are actually packages; names are those
+    problems = {flds.name};
+    chooser = ProblemChooser();
+    chooser.Problems.Items = problems;
+    chooser.Problems.ItemsData = 1:numel(problems);
+    uiwait(chooser.UIFigure);
+    problems = chooser.Problems.Items;
+    close(chooser.UIFigure);
+    % Now problems is in correct order; compile and engage
+    %% Verification
+    % Verify!
+    for p = 1:numel(problems)
+        problemDir = [pwd filesep problems{p} filesep];
+        isCorrect = verify([problemDir problems{p} '.m'], ...
+            [problemDir filesep 'submission']);
+        isCorrect = isCorrect && verify([problemDir problems{p} '.m'], ...
+            [problemDir filesep 'resubmission']);
+        isCorrect = isCorrect && verify([problemDir problems{p} '.m'], ...
+            [problemDir filesep 'student']);
+        if ~isCorrect
+            throw(MException('ASSIGNMENTCOMPILER:verify:verificationError', ...
+                'Problem %s failed verification', problems{p}));
+        end
+    end
+    
+    % all clear. Create release folder and compile
+    mkdir('release');
+    
+    %% Create Students
+    mkdir(['release' filesep 'student']);
+    % for each problem, compile student
+    problemInfo = struct('name', problems, ...
+        'calls', '', ...
+        'banned', '', ...
+        'isRecursive', false);
+    for p = 1:numel(problems)
+        problemDir = [pwd filesep problems{p} filesep];
+        %%% Compile student
+        % copy over soln file, rename, and pcode
+        copyfile([problemDir problems{p} '.m'], ...
+            [pwd filesep 'release' filesep 'student' filesep problems{p} '_soln.m']);
+        pcode([pwd filesep 'release' filesep 'student' filesep problems{p} '_soln.m'], '-inplace');
+        delete([pwd filesep 'release' filesep 'student' filesep problems{p} '_soln.m']);
+        
+        % copy over supporting files
+        copyfile([problemDir 'student'], ...
+            [pwd filesep 'release' filesep 'student']);
+        % rename mat file
+        movefile([pwd filesep 'release' filesep 'student' filesep 'inputs.mat'], ...
+            [pwd filesep 'release' filesep 'student' filesep problems{p} '.mat']);
+        % parse rubric
+        fid = fopen([pwd filesep 'release' filesep 'student' filesep 'rubric.json'], 'rt');
+        lines = char(fread(fid)');
+        fclose(fid);
+        json = jsondecode(lines);
+        problemInfo(p).calls = json.calls;
+        problemInfo(p).banned = json.banned;
+        problemInfo(p).isRecursive = json.isRecursive;
+        % delete rubric
+        delete([pwd filesep 'release' filesep 'student' filesep 'rubric.json']);
+    end
+    
+    % create manifest for student
+    lines = createManifest(num, topic, problems);
+    fid = fopen([pwd filesep 'release' filesep 'student' filesep sprintf('hw%02d.m', num)], 'wt');
+    fwrite(fid, lines);
+    fclose(fid);
+    
+    %% Create Submission
+    mkdir(['release' filesep 'submission']);
+    problemInfo = struct('name', problems, ...
+        'calls', '', ...
+        'banned', '', ...
+        'isRecursive', false, ...
+        'supportingFiles', '');
+    for p = 1:numel(problems)
+        problemDir = [pwd filesep problems{p} filesep];
+        % copy over soln file
+        copyfile([problemDir problems{p} '.m'], ...
+            [pwd filesep 'release' filesep 'submission' filesep problems{p} '.m']);
+        
+        % copy over supporting files
+        copyfile([problemDir 'submission'], ...
+            [pwd filesep 'release' filesep 'submission']);
+        supFiles = dir([problemDir 'submission']);
+        supFiles([supFiles.isdir]) = [];
+        supFiles(strcmp({supFiles.name}, 'rubric.json')) = [];
+        supFiles(strcmp({supFiles.name}, 'inputs.mat')) = [];
+        problemInfo(p).supportingFiles = {supFiles.name};
+        % rename mat file
+        movefile([pwd filesep 'release' filesep 'submission' filesep 'inputs.mat'], ...
+            [pwd filesep 'release' filesep 'submission' filesep problems{p} '.mat']);
+        % parse rubric
+        fid = fopen([pwd filesep 'release' filesep 'submission' filesep 'rubric.json'], 'rt');
+        lines = char(fread(fid)');
+        fclose(fid);
+        json = jsondecode(lines);
+        problemInfo(p).calls = json.calls;
+        problemInfo(p).banned = json.banned;
+        problemInfo(p).isRecursive = json.isRecursive;
+        % delete rubric
+        delete([pwd filesep 'release' filesep 'submission' filesep 'rubric.json']);
+    end
+    % Create overarching rubric
+    %
+    % Rubric Structure:
+    % problem:
+    %   name:
+    %   isRecursive:
+    %   banned:
+    %   supportingFiles:
+    %   loadFile:
+    %   testCases:
+    %       call:
+    %       initializer: ""
+    %       points: ???
+    %
+    % points split evenly over problems; i.e, if 10 problems, each PROBLEM
+    % worth 10 points.later problems get more points if necessary
+    problemPoints = pointAllocate(100, numel(problems));
+    problemJson = struct('name', problems, ...
+        'isRecursive', {problemInfo.isRecursive}, ...
+        'banned', {problemInfo.banned}, ...
+        'supportingFiles', {problemInfo.supportingFiles}, ...
+        'loadFile', problems, ...
+        'testCases', []);
+    for p = 1:numel(problems)
+        json = problemJson(p);
+        
+        json.loadFile = [json.loadFile '.mat'];
+        testPoints = pointAllocate(problemPoints(p), numel(problemInfo(p).calls));
+        for t = numel(testPoints):-1:1
+            testCases(t).call = problemInfo(p).calls{t};
+            testCases(t).initializer = '';
+            testCases(t).points = testPoints(t);
+        end
+        json.testCases = testCases;
+        problemJson(p) = json;
+    end
+    lines = jsonencode(problemJson);
+    fid = fopen([pwd filesep 'release' filesep 'submission' filesep 'rubric.json'], 'wt');
+    fwrite(fid, lines);
+    fclose(fid);
+    
+    %% Create Resubmission
+    mkdir(['release' filesep 'resubmission']);
+    problemInfo = struct('name', problems, ...
+        'calls', '', ...
+        'banned', '', ...
+        'isRecursive', false);
+    for p = 1:numel(problems)
+        problemDir = [pwd filesep problems{p} filesep];
+        % copy over soln file
+        copyfile([problemDir problems{p} '.m'], ...
+            [pwd filesep 'release' filesep 'resubmission' filesep problems{p} '.m']);
+        
+        % copy over supporting files
+        copyfile([problemDir 'resubmission'], ...
+            [pwd filesep 'release' filesep 'resubmission']);
+        supFiles = dir([problemDir 'submission']);
+        supFiles([supFiles.isdir]) = [];
+        supFiles(strcmp({supFiles.name}, 'rubric.json')) = [];
+        supFiles(strcmp({supFiles.name}, 'inputs.mat')) = [];
+        problemInfo(p).supportingFiles = {supFiles.name};
+        % rename mat file
+        movefile([pwd filesep 'release' filesep 'resubmission' filesep 'inputs.mat'], ...
+            [pwd filesep 'release' filesep 'resubmission' filesep problems{p} '.mat']);
+        % parse rubric
+        fid = fopen([pwd filesep 'release' filesep 'resubmission' filesep 'rubric.json'], 'rt');
+        lines = char(fread(fid)');
+        fclose(fid);
+        json = jsondecode(lines);
+        problemInfo(p).calls = json.calls;
+        problemInfo(p).banned = json.banned;
+        problemInfo(p).isRecursive = json.isRecursive;
+        % delete rubric
+        delete([pwd filesep 'release' filesep 'resubmission' filesep 'rubric.json']);
+    end
+    
+    problemPoints = pointAllocate(100, numel(problems));
+    problemJson = struct('name', problems, ...
+        'isRecursive', {problemInfo.isRecursive}, ...
+        'banned', {problemInfo.banned}, ...
+        'supportingFiles', {problemInfo.supportingFiles}, ...
+        'loadFile', problems, ...
+        'testCases', []);
+    for p = 1:numel(problems)
+        json = problemJson(p);
+        
+        json.loadFile = [json.loadFile '.mat'];
+        testPoints = pointAllocate(problemPoints(p), numel(problemInfo(p).calls));
+        for t = numel(testPoints):-1:1
+            testCases(t).call = problemInfo(p).calls{t};
+            testCases(t).initializer = '';
+            testCases(t).points = testPoints(t);
+        end
+        json.testCases = testCases;
+        problemJson(p) = json;
+    end
+    lines = jsonencode(problemJson);
+    fid = fopen([pwd filesep 'release' filesep 'resubmission' filesep 'rubric.json'], 'wt');
+    fwrite(fid, lines);
+    fclose(fid);
+    
+    %% Upload to Drive
+    uploadToDrive([pwd filesep 'release'], id, clientToken, clientKey);
+    
+end
+
+function cleaner(work, curr)
+    cd(curr);
+    [~] = rmdir(work, 's');
+end
+
+%%% pointAllocate: Allocate points to a distribution
+function dist = pointAllocate(points, num)
+    base = floor(points / num);
+    extra = points - (base * num);
+    % add extra to end
+    dist(1:num) = base;
+    dist(end) = dist(end) + extra;
+end
     
