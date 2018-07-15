@@ -29,19 +29,13 @@
 %   There is now a grader folder in the current directory
 %
 function downloadFromDrive(folderId, token, path, key, progress)
-    progress.Indeterminate = 'off';
+    progress.Indeterminate = 'on';
     progress.Value = 0;
     progress.Message = 'Downloading Solution Archive from Google Drive';
-    workers = downloadFolder(folderId, token, key, path);
-    tot = numel(workers);
-    while ~all([workers.Read])
-        fetchNext(workers);
-        progress.Value = min([progress.Value + 1/tot, 1]);
-    end
-    delete(workers);
+    downloadFolder(folderId, token, key, path, progress);
 end
 
-function workers = downloadFolder(folderId, token, key, path)
+function downloadFolder(folderId, token, key, path)
     FOLDER_TYPE = 'application/vnd.google-apps.folder';
     INVALID_TYPES = {
     'application/vnd.google-apps.audio', ...
@@ -73,21 +67,16 @@ function workers = downloadFolder(folderId, token, key, path)
     % create directory for this root folder and cd to it
     % for all the files inside, download them here
     contents = getFolderContents(folder.id, token, key);
-    workers = cell(1, numel(contents));
     for c = numel(contents):-1:1
         content = contents(c);
         if strcmp(content.mimeType, FOLDER_TYPE)
             % folder; call recursively
             mkdir([path filesep content.name]);
-            workers{c} = downloadFolder(content.id, token, key, [path filesep content.name]);
+            downloadFolder(content.id, token, key, [path filesep content.name]);
         elseif ~any(contains(content.mimeType, INVALID_TYPES))
             % file; download
-            workers{c} = parfeval(@downloadFile, 0, content, token, key, path);
+            downloadFile(content, token, key, path);
         end
-    end
-    workers = [workers{:}];
-    if ~isempty(workers)
-        workers([workers.ID] == -1) = [];
     end
 end
 
