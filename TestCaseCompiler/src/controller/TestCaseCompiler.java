@@ -8,51 +8,40 @@ import javafx.scene.Scene;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.BorderPane;
 import javafx.stage.Stage;
+import java.util.concurrent.ThreadLocalRandom;
 public class TestCaseCompiler extends Application {
     private Stage primaryStage;
     private BorderPane rootLayout;
+    private final String[] messages = {"Monotonic nondecreasing fun!",
+                                        "Is a zebra white with white stripes or black with black stripes?",
+                                        "Shoot for the stars and you'll miss",
+                                        "Jason Mraz is a talentless hack",
+                                        "Full communism 2020",
+                                        "Now with more ducks!",
+                                        "I went to film school for this",
+                                        "AVL Lavigne is dead #woke",
+                                        "Poptarts are sandwiches @zacc",
+                                        "Above average abs",
+                                        "#summersCount",
+                                        "#summersDontCount",
+                                        "This guy's living in R3018b unlike the rest of us"};
 
     @Override
     public void start(Stage primaryStage) {
         this.primaryStage = primaryStage;
-        this.primaryStage.setTitle("AddressApp");
-
-        initRootLayout();
-
-        showPersonOverview();
+//        Generate a random message
+        int n = ThreadLocalRandom.current().nextInt(0, messages.length + 1);
+        this.primaryStage.setTitle("CS1371 Test Case Compiler (" + messages[n] + ")");
+        showRoot();
     }
 
-    /**
-     * Initializes the root layout.
-     */
-    public void initRootLayout() {
+    private void showRoot() {
         try {
-            // Load root layout from fxml file.
-            FXMLLoader loader = new FXMLLoader();
-            loader.setLocation(TestCaseCompiler.class.getResource("/resources/RootLayout.fxml"));
-            rootLayout = (BorderPane) loader.load();
-
-            // Show the scene containing the root layout.
-            Scene scene = new Scene(rootLayout);
-            primaryStage.setScene(scene);
-            primaryStage.show();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
-    /**
-     * Shows the person overview inside the root layout.
-     */
-    public void showPersonOverview() {
-        try {
-            // Load person overview.
             FXMLLoader loader = new FXMLLoader();
             loader.setLocation(TestCaseCompiler.class.getResource("/resources/TestCaseCompiler.fxml"));
-            AnchorPane personOverview = (AnchorPane) loader.load();
-
-            // Set person overview into the center of root layout.
-            rootLayout.setCenter(personOverview);
+            BorderPane root = loader.load();
+            primaryStage.setScene(new Scene(root));
+            primaryStage.show();
         } catch (IOException e) {
             e.printStackTrace();
         }
