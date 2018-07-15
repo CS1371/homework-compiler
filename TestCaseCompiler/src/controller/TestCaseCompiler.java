@@ -35,6 +35,9 @@ public class TestCaseCompiler extends Application {
         showRoot();
     }
 
+    /**
+     * Shows the main GUI.
+     */
     private void showRoot() {
         try {
             FXMLLoader loader = new FXMLLoader();
