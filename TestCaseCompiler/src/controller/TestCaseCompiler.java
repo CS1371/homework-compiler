@@ -1,4 +1,5 @@
 package controller;
+
 import java.io.IOException;
 import javafx.application.Application;
 import javafx.fxml.FXML;
@@ -28,7 +29,7 @@ public class TestCaseCompiler extends Application {
         try {
             // Load root layout from fxml file.
             FXMLLoader loader = new FXMLLoader();
-            loader.setLocation(TestCaseCompiler.class.getResource("resources/RootLayout.fxml"));
+            loader.setLocation(TestCaseCompiler.class.getResource("/resources/RootLayout.fxml"));
             rootLayout = (BorderPane) loader.load();
 
             // Show the scene containing the root layout.
@@ -47,7 +48,7 @@ public class TestCaseCompiler extends Application {
         try {
             // Load person overview.
             FXMLLoader loader = new FXMLLoader();
-            loader.setLocation(TestCaseCompiler.class.getResource("resources/TestCaseCompiler.fxml"));
+            loader.setLocation(TestCaseCompiler.class.getResource("/resources/TestCaseCompiler.fxml"));
             AnchorPane personOverview = (AnchorPane) loader.load();
 
             // Set person overview into the center of root layout.
