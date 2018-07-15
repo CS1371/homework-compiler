@@ -1,4 +1,4 @@
-package testcasecompiler.control;
+package controller;
 
 import javafx.fxml.FXML;
 import javafx.event.ActionEvent;
