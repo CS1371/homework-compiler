@@ -8,7 +8,6 @@
 <?import javafx.scene.paint.Stop?>
 <?import javafx.scene.text.Font?>
 
-
 <VBox maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="500.0" prefWidth="500.0" xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1">
    <children>
       <Label id="title" alignment="CENTER" contentDisplay="CENTER" text="Choose The Folder From Google Drive" translateX="40.0">
@@ -16,8 +15,8 @@
             <Font size="24.0" />
          </font>
       </Label>
-      <TreeView id="driveBrowser" prefHeight="400.0" prefWidth="558.0" translateY="10.0" />
-      <Button id="confirmButton" mnemonicParsing="false" prefWidth="100.0" text="Confirm" translateX="350.0" translateY="30.0">
+      <TreeView id="browser" prefHeight="400.0" prefWidth="558.0" translateY="10.0" />
+      <Button id="confirm" mnemonicParsing="false" prefWidth="100.0" text="Confirm" translateX="350.0" translateY="30.0">
          <textFill>
             <LinearGradient endX="1.0" endY="1.0">
                <stops>
@@ -27,7 +26,7 @@
             </LinearGradient>
          </textFill>
       </Button>
-      <Button id="cancelButton" mnemonicParsing="false" prefWidth="100.0" text="Cancel" translateX="50.0" translateY="3.0">
+      <Button id="cancel" mnemonicParsing="false" prefWidth="100.0" text="Cancel" translateX="50.0" translateY="3.0">
          <textFill>
             <LinearGradient endX="1.0" endY="1.0">
                <stops>

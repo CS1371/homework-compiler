@@ -15,6 +15,13 @@ public class GoogleFolder {
     private static final String API_ROOT = "https://www.googleapis.com/drive/v3/files/";
 
     public GoogleFolder(String id, String token) throws Exception {
+        if (id == null) {
+            // Special Case: To String should just be "Loading..."
+            this.name = "Loading...";
+            this.id = "";
+            this.token = token;
+            return;
+        }
         this.id = id;
         this.token = token;
         // Make request for other information
@@ -58,27 +65,39 @@ public class GoogleFolder {
     }
 
     public ArrayList<GoogleFolder> getChildren() throws Exception {
+        return getChildren(0);
+    }
+    private ArrayList<GoogleFolder> getChildren(int tries) {
         // Make Request for children and populate
         String searchTerm = "'" + this.id + "'%20in%20parents%20and%20trashed%20=%20false%20and%20mimeType=%20'application/vnd.google-apps.folder'";
+        try {
 
-        URL url = new URL(API_ROOT + "?key=" + APPLICATION_KEY + "&q=" + searchTerm);
-        HttpURLConnection con = (HttpURLConnection) url.openConnection();
-        con.setRequestMethod("GET");
-        con.setRequestProperty("Authorization", "Bearer " + this.token);
-        con.setRequestProperty("Accept", "application/json");
+            URL url = new URL(API_ROOT + "?key=" + APPLICATION_KEY + "&q=" + searchTerm);
+            HttpURLConnection con = (HttpURLConnection) url.openConnection();
+            con.setRequestMethod("GET");
+            con.setRequestProperty("Authorization", "Bearer " + this.token);
+            con.setRequestProperty("Accept", "application/json");
 
-        BufferedReader reader = new BufferedReader(new InputStreamReader(con.getInputStream()));
-        String ln;
-        ArrayList<GoogleFolder> children = new ArrayList<>();
-        while ((ln = reader.readLine()) != null) {
-            // Just look for id
-            if (ln.startsWith("   \"id\"")) {
-                int index = ln.indexOf(":") + 3;
-                String tmp = ln.substring(index, ln.length() - 2);
-                children.add(new GoogleFolder(tmp, this.token));
+            BufferedReader reader = new BufferedReader(new InputStreamReader(con.getInputStream()));
+            String ln;
+            ArrayList<GoogleFolder> children = new ArrayList<>();
+            while ((ln = reader.readLine()) != null) {
+                // Just look for id
+                if (ln.startsWith("   \"id\"")) {
+                    int index = ln.indexOf(":") + 3;
+                    String tmp = ln.substring(index, ln.length() - 2);
+                    children.add(new GoogleFolder(tmp, this.token));
+                }
+            }
+            return children;
+        } catch (Exception e) {
+            if (tries < 10) {
+                return getChildren(tries + 1);
+            } else {
+                e.printStackTrace();
+                return null;
             }
         }
-        return children;
     }
 
     public void download(String path) {

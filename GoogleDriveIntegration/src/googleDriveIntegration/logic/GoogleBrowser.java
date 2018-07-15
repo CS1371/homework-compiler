@@ -1,15 +1,21 @@
 package googleDriveIntegration.logic;
 
+import javafx.beans.property.BooleanProperty;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
+import javafx.collections.ObservableList;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.control.TreeView;
+import javafx.scene.control.*;
+import javafx.scene.control.Button;
+import javafx.scene.control.Label;
 import javafx.stage.Stage;
 
 import java.awt.*;
 import java.io.*;
 import java.net.*;
-import java.nio.CharBuffer;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.Matcher;
@@ -17,8 +23,12 @@ import java.util.regex.Pattern;
 
 
 public class GoogleBrowser {
-    private GoogleFolder root = null;
+    private Scene scene;
+    private Stage stage;
     private String token;
+    private GoogleFolder selected = null;
+    private TreeView<GoogleFolder> tree;
+
     private static final String CLIENT_ID = "52505024621-k0m7bhjhamnfpj04j2ec5uon8m94cvqh.apps.googleusercontent.com";
     private static final String CLIENT_SECRET = "qhcHF-mQ3asZBnWed3nLfAUf";
 
@@ -30,21 +40,98 @@ public class GoogleBrowser {
     public GoogleBrowser(String prompt, String refresh) throws Exception {
         // Create Stage
         Parent root = FXMLLoader.load(getClass().getResource("../resources/view.fxml"));
-        Stage stage = new Stage();
+        stage = new Stage();
         stage.setTitle("Google Drive Browser");
-        stage.setScene(new Scene(root));
-        // get list of google folders under root
+        scene = new Scene(root);
+        stage.setScene(scene);
 
-        this.token = this.refresh2access(null);
+        Label title = (Label)scene.lookup("#title");
+        title.setText(prompt);
+
+        Button confirm = (Button)scene.lookup("#confirm");
+        confirm.setOnAction(event -> onConfirm());
+
+        Button cancel = (Button)scene.lookup("#cancel");
+        cancel.setOnAction(event -> onCancel());
+
+        @SuppressWarnings("unchecked")
+        TreeView<GoogleFolder> tmp = (TreeView<GoogleFolder>)(scene.lookup("#browser"));
+        tree = tmp;
+
+        // get list of google folders under root
+        this.token = this.refresh2access(refresh);
         GoogleFolder folder = new GoogleFolder("root", this.token);
-        folder.getChildren();
-        // TreeView<GoogleFolder> tree;
+        ArrayList<GoogleFolder> children = folder.getChildren();
+
+        TreeItem<GoogleFolder> trunk = new TreeItem<>(folder);
+        trunk.setExpanded(true);
+        for (GoogleFolder g: children) {
+            TreeItem<GoogleFolder> item = new TreeItem<>(g);
+            TreeItem<GoogleFolder> loader = new TreeItem<>(new GoogleFolder(null, token));
+            item.getChildren().add(loader);
+            item.expandedProperty().addListener(new ChangeListener<Boolean>() {
+                @Override
+                public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
+                    if (newValue) {
+                        BooleanProperty bean = (BooleanProperty) observable;
+                        onFolderClick((TreeItem) bean.getBean());
+                    } else {
+
+                    }
+                }
+            });
+            trunk.getChildren().add(item);
+        }
+        tree.setRoot(trunk);
+
         stage.showAndWait();
         // if null, then we didn't get anything; die
-        if (this.root == null) {
+        if (this.selected == null) {
             throw new Exception();
         }
     }
+    public GoogleFolder getSelected() {
+        return this.selected;
+    }
+
+    private void onFolderClick(TreeItem node) {
+
+        node.getChildren().clear();
+        try {
+            ArrayList<GoogleFolder> children = ((GoogleFolder) node.getValue()).getChildren();
+            for (GoogleFolder g : children) {
+                TreeItem<GoogleFolder> item = new TreeItem<>(g);
+                TreeItem<GoogleFolder> loader = new TreeItem<>(new GoogleFolder(null, token));
+                item.getChildren().add(loader);
+                item.expandedProperty().addListener(new ChangeListener<Boolean>() {
+                    @Override
+                    public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
+                        if (newValue) {
+                            BooleanProperty bean = (BooleanProperty) observable;
+                            onFolderClick((TreeItem) bean.getBean());
+                        } else {
+
+                        }
+                    }
+                });
+                node.getChildren().add(item);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+    }
+
+    private void onConfirm() {
+        // get selected treeitem
+        this.selected = tree.getSelectionModel().getSelectedItem().getValue();
+        stage.close();
+    }
+
+    private void onCancel() {
+        stage.close();
+    }
+
 
     /**
      * downloadFolder will download the selected folder to the given destination
