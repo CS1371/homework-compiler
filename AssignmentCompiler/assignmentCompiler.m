@@ -90,6 +90,8 @@ function assignmentCompiler(varargin)
         % die
     end
     id = browser.selectedId;
+    name = browser.selectedName;
+    num = str2double(name(name >= '0' & name <= '9'));
     close(browser.UIFigure);
     % downloadFolder
     downloadFromDrive(id, token, workDir, clientKey);
