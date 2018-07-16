@@ -56,18 +56,3 @@ function lines = createManifest(num, topic, problems)
     testCases = strjoin(testCases, newline);
     lines = strrep(lines, '<<TESTCASE>>', testCases);
 end
-
-function solnCall = orig2soln(studCall)
-    % will ALWAYS be of form:
-    % [OUTPUT1, OUTPUT2, ...] = call(IN1, IN2, ...)
-    
-    % get outputs
-    outs = studCall(2:strfind(studCall, ']') - 1);
-    ins = studCall(strfind(studCall, '(') + 1:strfind(studCall, ')') - 1);
-    call = studCall(strfind(studCall, '=') + 2:strfind(studCall, '(') - 1);
-    if ~isempty(outs)
-        outs = strsplit(outs, ', ');
-        outs = [strjoin(outs, '_soln, ') '_soln'];
-    end
-    solnCall = ['[' outs '] = ' call '(' ins ')'];
-end

@@ -99,7 +99,8 @@ function assignmentCompiler(clientId, clientSecret, clientKey)
     close(chooser.UIFigure);
     % Now problems is in correct order; compile and engage
     %% Verification
-    % Verify!
+    % Verify each package separately
+    verify = @(varargin)(true);
     for p = 1:numel(problems)
         problemDir = [pwd filesep problems{p} filesep];
         isCorrect = verify([problemDir problems{p} '.m'], ...
@@ -160,6 +161,23 @@ function assignmentCompiler(clientId, clientSecret, clientKey)
     copyfile([pwd filesep '*.pdf'], ...
         [pwd filesep 'release' filesep 'student' filesep]);
     
+    %%% Verify Student
+    % for each call, call it!
+    cd(['release' filesep 'student']);
+    for p = 1:numel(problemInfo)
+        for c = 1:numel(problemInfo(p).calls)
+            try
+                runCall(strrep(problemInfo(p).calls{c}, ['= ' problems{p}], ['= ' problems{p} '_soln']), ...
+                    [problems{p} '.mat']);
+            catch e
+                % die
+                throw(MException('ASSIGNMENTCOMPILER:verification:studentCallFailure', ...
+                    'Call "%s" failed with error "%s - %s"', problemInfo(p).calls{c}, ...
+                    e.identifier, e.message));
+            end
+        end
+    end
+    cd(['..' filesep '..']);
     %% Create Submission
     mkdir(['release' filesep 'submission']);
     problemInfo = struct('name', problems, ...
@@ -239,6 +257,23 @@ function assignmentCompiler(clientId, clientSecret, clientKey)
     fwrite(fid, lines);
     fclose(fid);
     
+    %%% Verification
+    % for each call, call it!
+    cd(['release' filesep 'submission']);
+    for p = 1:numel(problemInfo)
+        for c = 1:numel(problemInfo(p).calls)
+            try
+                runCall(problemInfo(p).calls{c}, ...
+                    [problems{p} '.mat']);
+            catch e
+                % die
+                throw(MException('ASSIGNMENTCOMPILER:verification:submissionCallFailure', ...
+                    'Call "%s" failed with error "%s - %s"', problemInfo(p).calls{c}, ...
+                    e.identifier, e.message));
+            end
+        end
+    end
+    cd(['..' filesep '..']);
     %% Create Resubmission
     mkdir(['release' filesep 'resubmission']);
     problemInfo = struct('name', problems, ...
@@ -299,6 +334,23 @@ function assignmentCompiler(clientId, clientSecret, clientKey)
     fwrite(fid, lines);
     fclose(fid);
     
+    %%% Verification
+    % for each call, call it!
+    cd(['release' filesep 'resubmission']);
+    for p = 1:numel(problemInfo)
+        for c = 1:numel(problemInfo(p).calls)
+            try
+                runCall(problemInfo(p).calls{c}, ...
+                    [problems{p} '.mat']);
+            catch e
+                % die
+                throw(MException('ASSIGNMENTCOMPILER:verification:resubmissionCallFailure', ...
+                    'Call "%s" failed with error "%s - %s"', problemInfo(p).calls{c}, ...
+                    e.identifier, e.message));
+            end
+        end
+    end
+    cd(['..' filesep '..']);
     %% Upload to Drive
     uploadToDrive([pwd filesep 'release'], id, token, clientKey);
     
@@ -316,5 +368,10 @@ function dist = pointAllocate(points, num)
     % add extra to end
     dist(1:num) = base;
     dist(end) = dist(end) + extra;
+end
+
+function runCall(call, loadFile)
+    load(loadFile); %#ok<LOAD>
+    evalc(call);
 end
     
