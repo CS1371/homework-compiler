@@ -54,9 +54,9 @@
                                                           <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
                                                         </rowConstraints>
                                                          <children>
-                                                            <CheckBox fx:id="driveCheckbox" contentDisplay="RIGHT" mnemonicParsing="false" onAction="#driveCheckboxClicked" prefHeight="40.0" prefWidth="136.0" text="Google Drive" />
-                                                            <CheckBox fx:id="localCheckbox" mnemonicParsing="false" onAction="#localCheckboxClicked" prefHeight="17.0" prefWidth="300.0" text="Local Disk" GridPane.rowIndex="1" />
-                                                            <Button fx:id="remoteButton" disable="true" mnemonicParsing="false" text="Choose remote folder..." GridPane.columnIndex="1" />
+                                                            <CheckBox fx:id="driveCheckbox" contentDisplay="RIGHT" mnemonicParsing="false" onAction="#destinationCheckboxClicked" prefHeight="40.0" prefWidth="136.0" selected="true" text="Google Drive" />
+                                                            <CheckBox fx:id="localCheckbox" mnemonicParsing="false" onAction="#destinationCheckboxClicked" prefHeight="17.0" prefWidth="300.0" text="Local Disk" GridPane.rowIndex="1" />
+                                                            <Button fx:id="remoteButton" mnemonicParsing="false" text="Choose remote folder..." GridPane.columnIndex="1" />
                                                             <Button fx:id="localButton" disable="true" mnemonicParsing="false" onAction="#localButtonPressed" text="Choose local folder..." GridPane.columnIndex="1" GridPane.rowIndex="1" />
                                                          </children>
                                                       </GridPane>

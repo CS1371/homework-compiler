@@ -53,16 +53,30 @@ public class TestCaseCompilerController {
     @FXML
     private AnchorPane statusBarAnchorPane;
 
-    // UI specific instance fields
-    private File localOutputDirectory;
-    @FXML
-    void driveCheckboxClicked(ActionEvent event) {
-        remoteButton.setDisable(!driveCheckbox.isSelected());
-    }
+    /* UI specific instance fields */
 
+    // User-selected local output directory
+    private File localOutputDirectory;
+
+    // Whether or not the user wants to export to local disk
+    private boolean isLocalExport;
+
+    // Whether or not the user wants to export to Google Drive
+    private boolean isDriveExport = true;
+
+    /**
+     * Toggles the destination button when the corresponding checkbox is toggled.
+     * @param event
+     */
     @FXML
-    void localCheckboxClicked(ActionEvent event) {
-        localButton.setDisable(!localCheckbox.isSelected());
+    void destinationCheckboxClicked(ActionEvent event) {
+        if (event.getSource() == localCheckbox) {
+            localButton.setDisable(!localCheckbox.isSelected());
+            isLocalExport = localCheckbox.isSelected();
+        } else {
+            remoteButton.setDisable(!driveCheckbox.isSelected());
+            isDriveExport = driveCheckbox.isSelected();
+        }
     }
 
     @FXML
