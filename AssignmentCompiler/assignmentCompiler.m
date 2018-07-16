@@ -69,7 +69,7 @@ function assignmentCompiler(clientId, clientSecret, clientKey)
     
     browser = GoogleDriveBrowser(token);
     uiwait(browser.UIFigure);
-    if isempty(browser.selectedId)
+    if ~isvalid(browser) || isempty(browser.selectedId)
         return;
     end
     id = browser.selectedId;
@@ -78,6 +78,7 @@ function assignmentCompiler(clientId, clientSecret, clientKey)
     close(browser.UIFigure);
     % downloadFolder
     downloadFromDrive(id, token, workDir, clientKey);
+    [~] = rmdir('release', 's');
     % parse folder names; get the names of the problems...
     %% Parse Problems
     flds = dir();
@@ -88,6 +89,9 @@ function assignmentCompiler(clientId, clientSecret, clientKey)
     problems = {flds.name};
     chooser = ProblemChooser(problems);
     uiwait(chooser.UIFigure);
+    if ~isvalid(chooser)
+        return;
+    end
     problems = chooser.Problems.Items;
     ecProblems = [chooser.Checks.Value];
     ecPoints = [chooser.Points.Value];
