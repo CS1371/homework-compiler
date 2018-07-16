@@ -4,6 +4,7 @@
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.CheckBox?>
 <?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ListView?>
 <?import javafx.scene.control.Menu?>
 <?import javafx.scene.control.MenuBar?>
 <?import javafx.scene.control.MenuItem?>
@@ -66,7 +67,14 @@
                                         </TitledPane>
                                         <TitledPane animated="false" text="Problem Settings">
                                           <content>
-                                            <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0" />
+                                            <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+                                                   <children>
+                                                      <ListView fx:id="bannedFunctionsListView" editable="true" layoutX="10.0" layoutY="33.0" onEditCommit="#bannedFunctionsListViewEdited" prefHeight="76.0" prefWidth="177.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" />
+                                                      <CheckBox layoutX="218.0" layoutY="1.0" mnemonicParsing="false" prefHeight="26.0" prefWidth="85.0" text="Recursive?" />
+                                                      <Label layoutX="10.0" layoutY="6.0" text="Banned Functions" AnchorPane.topAnchor="0.0" />
+                                                      <Button layoutX="212.0" layoutY="37.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="59.0" text="Add..." />
+                                                      <Button layoutX="212.0" layoutY="77.0" mnemonicParsing="false" text="Remove" />
+                                                   </children></AnchorPane>
                                           </content>
                                         </TitledPane>
                                       </panes>
@@ -96,7 +104,7 @@
                                     <AnchorPane fx:id="resubmissionTab" minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0" />
                                  </content>
                               </Tab>
-                              <Tab text="Resubmission">
+                              <Tab fx:id="resubmissionTab" text="Resubmission">
                                  <content>
                                     <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0" />
                                  </content>

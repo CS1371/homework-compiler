@@ -10,6 +10,7 @@ import javafx.stage.DirectoryChooser;
 import javafx.stage.FileChooser;
 import javafx.stage.DirectoryChooser;
 import javafx.event.ActionEvent;
+import javafx.scene.control.ListView;
 
 import java.io.File;
 
@@ -53,6 +54,9 @@ public class TestCaseCompilerController {
     @FXML
     private AnchorPane statusBarAnchorPane;
 
+    @FXML
+    private ListView<String> bannedFunctionsListView;
+
     /* UI specific instance fields */
 
     // User-selected local output directory
@@ -88,5 +92,10 @@ public class TestCaseCompilerController {
         if (selected != null) {
             localOutputDirectory = selected;
         }
+    }
+
+    @FXML
+    void bannedFunctionsListViewEdited(ListView.EditEvent<String> e) {
+        System.out.println(e);
     }
 }
