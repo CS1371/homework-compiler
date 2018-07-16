@@ -7,8 +7,10 @@
 % Google Drive, then asking for an order. assignmentCompiler will then do
 % the rest of the necessary operations
 %
-% assignmentCompiler(P1, V1, ...) will use Name-Value pairs P and V to
-% augment the behavior. The possible pairs are discussed in Remarks
+% assignmentCompiler(I, S, K) will use ID I, Secret S, and Key K to
+% authorize with Google Drive. If this is your first time using this, OR
+% you have moved this function to a different folder, you will need to
+% provide these inputs.
 %
 %%% Remarks
 %
@@ -16,31 +18,7 @@
 % that all packages within the chosen Google Drive folder be of the
 % testCaseCompiler format. For more information on this format, look at the
 % documentation for testCaseCompiler
-%
-% Pairs
-%
-% Pair names are case-insensitive.
-%
-% ClientID: A character vector or scalar string. The Google Client ID.
-%
-% ClientSecret: A character vector or scalar string. The Google Client
-% Secret.
-%
-% ClientKey: A character vector or scalar string. The Google Client Key.
-function assignmentCompiler(varargin)
-    
-    parser = inputParser();
-    parser.FunctionName = 'assignmentCompiler';
-    parser.CaseSensitive = false;
-    parser.StructExpand = true;
-    parser.addParameter('ClientID', '', @(u)(ischar(u) || (isstring(u) && isscalar(u))));
-    parser.addParameter('ClientSecret', '', @(u)(ischar(u) || (isstring(u) && isscalar(u))));
-    parser.addParameter('ClientKey', '', @(u)(ischar(u) || (isstring(u) && isscalar(u))));
-    parser.parse(varargin{:});
-    
-    clientId = parser.Results.ClientID;
-    clientSecret = parser.Results.ClientSecret;
-    clientKey = parser.Results.ClientKey;
+function assignmentCompiler(clientId, clientSecret, clientKey)
     % Add correct path
     addpath([fileparts(fileparts(mfilename('fullpath'))) filesep 'GoogleDriveIntegration']);
     addpath([fileparts(fileparts(mfilename('fullpath'))) filesep 'TestCaseCompiler']);
@@ -60,7 +38,7 @@ function assignmentCompiler(varargin)
     fid = fopen(tokenPath, 'rt');
     if fid == -1
         % No Token; authorize (if ID and SECRET given; otherwise, die?)
-        if ~isempty(clientId) && ~isempty(clientSecret)
+        if nargin == 3 && (~isempty(clientId) && ~isempty(clientSecret) && ~isempty(clientKey))
             token = authorizeWithGoogle(clientId, clientSecret);
             % write all to file
             fid = fopen(tokenPath, 'wt');
@@ -71,7 +49,8 @@ function assignmentCompiler(varargin)
                 token);
             fclose(fid);
         else
-            % Die
+            throw(MException('ASSIGNMENTCOMPILER:authorization:notEnoughCredentials', ...
+                'For Initial Authorization, you must provide all credentials'));
         end
     else
         lines = char(fread(fid)');
@@ -91,7 +70,7 @@ function assignmentCompiler(varargin)
     browser = GoogleDriveBrowser(token);
     uiwait(browser.UIFigure);
     if isempty(browser.selectedId)
-        % die
+        return;
     end
     id = browser.selectedId;
     name = browser.selectedName;
