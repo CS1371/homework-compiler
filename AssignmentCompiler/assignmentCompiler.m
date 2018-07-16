@@ -41,6 +41,10 @@ function assignmentCompiler(varargin)
     clientId = parser.Results.ClientID;
     clientSecret = parser.Results.ClientSecret;
     clientKey = parser.Results.ClientKey;
+    % Add correct path
+    addpath([fileparts(fileparts(mfilename('fullpath'))) filesep 'GoogleDriveIntegration']);
+    addpath([fileparts(fileparts(mfilename('fullpath'))) filesep 'TestCaseCompiler']);
+    addpath([fileparts(fileparts(mfilename('fullpath'))) filesep 'AssignmentCompiler']);
     % Steps:
     % 
     % 1. Ask for Google Drive Folder
@@ -103,11 +107,12 @@ function assignmentCompiler(varargin)
     flds(strcmp({flds.name}, 'release')) = [];
     % flds are folders that are actually packages; names are those
     problems = {flds.name};
-    chooser = ProblemChooser();
-    chooser.Problems.Items = problems;
-    chooser.Problems.ItemsData = 1:numel(problems);
+    chooser = ProblemChooser(problems);
     uiwait(chooser.UIFigure);
     problems = chooser.Problems.Items;
+    ecProblems = [chooser.Checks.Value];
+    ecPoints = [chooser.Points.Value];
+    topic = chooser.Topic.Value;
     close(chooser.UIFigure);
     % Now problems is in correct order; compile and engage
     %% Verification
@@ -164,10 +169,13 @@ function assignmentCompiler(varargin)
     end
     
     % create manifest for student
-    lines = createManifest(num, topic, problems);
+    lines = createManifest(num, topic, problemInfo);
     fid = fopen([pwd filesep 'release' filesep 'student' filesep sprintf('hw%02d.m', num)], 'wt');
     fwrite(fid, lines);
     fclose(fid);
+    % Copy over any PDFs
+    copyfile([pwd filesep '*.pdf'], ...
+        [pwd filesep 'release' filesep 'student' filesep]);
     
     %% Create Submission
     mkdir(['release' filesep 'submission']);
@@ -187,6 +195,7 @@ function assignmentCompiler(varargin)
             [pwd filesep 'release' filesep 'submission']);
         supFiles = dir([problemDir 'submission']);
         supFiles([supFiles.isdir]) = [];
+        supFiles(strncmp({supFiles.name}, '.', 1)) = [];
         supFiles(strcmp({supFiles.name}, 'rubric.json')) = [];
         supFiles(strcmp({supFiles.name}, 'inputs.mat')) = [];
         problemInfo(p).supportingFiles = {supFiles.name};
@@ -220,7 +229,9 @@ function assignmentCompiler(varargin)
     %
     % points split evenly over problems; i.e, if 10 problems, each PROBLEM
     % worth 10 points.later problems get more points if necessary
-    problemPoints = pointAllocate(100, numel(problems));
+    problemPoints = zeros(1, numel(problems));
+    problemPoints(ecProblems) = ecPoints(ecProblems);
+    problemPoints(~ecProblems) = pointAllocate(100, sum(~ecProblems));
     problemJson = struct('name', problems, ...
         'isRecursive', {problemInfo.isRecursive}, ...
         'banned', {problemInfo.banned}, ...
@@ -262,6 +273,7 @@ function assignmentCompiler(varargin)
             [pwd filesep 'release' filesep 'resubmission']);
         supFiles = dir([problemDir 'submission']);
         supFiles([supFiles.isdir]) = [];
+        supFiles(strncmp({supFiles.name}, '.', 1)) = [];
         supFiles(strcmp({supFiles.name}, 'rubric.json')) = [];
         supFiles(strcmp({supFiles.name}, 'inputs.mat')) = [];
         problemInfo(p).supportingFiles = {supFiles.name};
@@ -280,7 +292,6 @@ function assignmentCompiler(varargin)
         delete([pwd filesep 'release' filesep 'resubmission' filesep 'rubric.json']);
     end
     
-    problemPoints = pointAllocate(100, numel(problems));
     problemJson = struct('name', problems, ...
         'isRecursive', {problemInfo.isRecursive}, ...
         'banned', {problemInfo.banned}, ...
@@ -306,7 +317,7 @@ function assignmentCompiler(varargin)
     fclose(fid);
     
     %% Upload to Drive
-    uploadToDrive([pwd filesep 'release'], id, clientToken, clientKey);
+    uploadToDrive([pwd filesep 'release'], id, token, clientKey);
     
 end
 

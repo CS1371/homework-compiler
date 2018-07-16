@@ -52,6 +52,7 @@ function downloadFolder(folderId, token, key, path)
     'application/vnd.google-apps.video', ...
     'application/vnd.google-apps.drive-sdk'
     };
+    DOC_TYPE = 'application/vnd.google-apps.document';
     
     if nargin == 3
         origPath = cd(path);
@@ -70,9 +71,37 @@ function downloadFolder(folderId, token, key, path)
             % folder; call recursively
             mkdir([path filesep content.name]);
             downloadFolder(content.id, token, key, [path filesep content.name]);
+        elseif strcmp(content.mimeType, DOC_TYPE)
+            % Convert to PDF and download
+            downloadPDF(content, token, key, path);
         elseif ~any(contains(content.mimeType, INVALID_TYPES))
             % file; download
             downloadFile(content, token, key, path);
+        end
+    end
+end
+
+function downloadPDF(file, token, key, path, attemptNum)
+    MAX_ATTEMPT_NUM = 10;
+    WAIT_TIME = 2;
+    if nargin < 5
+        attemptNum = 1;
+    end
+    API = 'https://www.googleapis.com/drive/v3/files/';
+    opts = weboptions();
+    opts.HeaderFields = {'Authorization', ['Bearer ' token]};
+    url = [API file.id '/export?mimeType=application%2Fpdf&alt=media&key=' key];
+    try
+        websave([path filesep file.name '.pdf'], url, opts);
+    catch reason
+        if attemptNum <= MAX_ATTEMPT_NUM
+            pause(WAIT_TIME);
+            downloadPDF(file, token, key, path, attemptNum + 1);
+        else
+            e = MException('AUTOGRADER:networking:connectionError', ...
+                'Connection was terminated (Are you connected to the internet?');
+            e = e.addCause(reason);
+            throw(e);
         end
     end
 end
