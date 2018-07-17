@@ -18,7 +18,7 @@
 % that all packages within the chosen Google Drive folder be of the
 % testCaseCompiler format. For more information on this format, look at the
 % documentation for testCaseCompiler
-function assignmentCompiler(clientId, clientSecret, clientKey)
+function homeworkCompiler(clientId, clientSecret, clientKey)
     % Add correct path
     addpath([fileparts(fileparts(mfilename('fullpath'))) filesep 'GoogleDriveIntegration']);
     addpath([fileparts(fileparts(mfilename('fullpath'))) filesep 'TestCaseCompiler']);
