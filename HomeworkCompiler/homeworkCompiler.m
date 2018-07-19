@@ -1,25 +1,26 @@
-%% assignmentCompiler: Compile a given assignment and upload it
+%% homeworkCompiler: Compile a given assignment and upload it
 %
-% assignmentCompiler will download, parse, verify, package, and distribute
+% homeworkCompiler will download, parse, verify, package, and distribute
 % a given homework assignment.
 %
-% assignmentCompiler() will begin the process by asking for a folder from
+% homeworkCompiler() will begin the process by asking for a folder from
 % Google Drive, then asking for an order. assignmentCompiler will then do
 % the rest of the necessary operations
 %
-% assignmentCompiler(I, S, K) will use ID I, Secret S, and Key K to
+% homeworkCompiler(I, S, K) will use ID I, Secret S, and Key K to
 % authorize with Google Drive. If this is your first time using this, OR
 % you have moved this function to a different folder, you will need to
 % provide these inputs.
 %
 %%% Remarks
 %
-% assignmentCompiler uses the results of testCaseCompiler. It is required
+% homeworkCompiler uses the results of testCaseCompiler. It is required
 % that all packages within the chosen Google Drive folder be of the
 % testCaseCompiler format. For more information on this format, look at the
 % documentation for testCaseCompiler
 function homeworkCompiler(clientId, clientSecret, clientKey)
     % Add correct path
+    fprintf(1, 'Setting up Path...');
     addpath([fileparts(fileparts(mfilename('fullpath'))) filesep 'GoogleDriveIntegration']);
     addpath([fileparts(fileparts(mfilename('fullpath'))) filesep 'TestCaseCompiler']);
     addpath([fileparts(fileparts(mfilename('fullpath'))) filesep 'AssignmentCompiler']);
@@ -34,6 +35,7 @@ function homeworkCompiler(clientId, clientSecret, clientKey)
     % 7. Upload Assignment to Drive
     
     %% Get Google Authorization
+    fprintf(1, 'Done\nAuthorizing...');
     tokenPath = [fileparts(mfilename('fullpath')) filesep 'google.token'];
     fid = fopen(tokenPath, 'rt');
     if fid == -1
@@ -77,10 +79,12 @@ function homeworkCompiler(clientId, clientSecret, clientKey)
     num = str2double(name(name >= '0' & name <= '9'));
     close(browser.UIFigure);
     % downloadFolder
+    fprintf(1, 'Done\nDownloading...');
     downloadFromDrive(id, token, workDir, clientKey);
     [~] = rmdir('release', 's');
     % parse folder names; get the names of the problems...
     %% Parse Problems
+    fprintf(1, 'Done\nParsing...');
     flds = dir();
     flds(~[flds.isdir]) = [];
     flds(strncmp({flds.name}, '.', 1)) = [];
@@ -99,6 +103,7 @@ function homeworkCompiler(clientId, clientSecret, clientKey)
     close(chooser.UIFigure);
     % Now problems is in correct order; compile and engage
     %% Verification
+    fprintf(1, 'Done\nVerifying Packages...');
     % Verify each package separately
     verify = @(varargin)(true);
     for p = 1:numel(problems)
@@ -117,7 +122,7 @@ function homeworkCompiler(clientId, clientSecret, clientKey)
     
     % all clear. Create release folder and compile
     mkdir('release');
-    
+    fprintf(1, 'Done\nCompiling Student...');
     %% Create Students
     mkdir(['release' filesep 'student']);
     % for each problem, compile student
@@ -163,6 +168,7 @@ function homeworkCompiler(clientId, clientSecret, clientKey)
     
     %%% Verify Student
     % for each call, call it!
+    fprintf(1, 'Done\nVerifying Student...');
     cd(['release' filesep 'student']);
     for p = 1:numel(problemInfo)
         for c = 1:numel(problemInfo(p).calls)
@@ -179,6 +185,7 @@ function homeworkCompiler(clientId, clientSecret, clientKey)
     end
     cd(['..' filesep '..']);
     %% Create Submission
+    fprintf(1, 'Done\nCompiling Submission...');
     mkdir(['release' filesep 'submission']);
     problemInfo = struct('name', problems, ...
         'calls', '', ...
@@ -259,6 +266,7 @@ function homeworkCompiler(clientId, clientSecret, clientKey)
     
     %%% Verification
     % for each call, call it!
+    fprintf(1, 'Done\Verifying Submission...');
     cd(['release' filesep 'submission']);
     for p = 1:numel(problemInfo)
         for c = 1:numel(problemInfo(p).calls)
@@ -275,6 +283,7 @@ function homeworkCompiler(clientId, clientSecret, clientKey)
     end
     cd(['..' filesep '..']);
     %% Create Resubmission
+    fprintf(1, 'Done\Compiling Resubmission...');
     mkdir(['release' filesep 'resubmission']);
     problemInfo = struct('name', problems, ...
         'calls', '', ...
@@ -336,6 +345,7 @@ function homeworkCompiler(clientId, clientSecret, clientKey)
     
     %%% Verification
     % for each call, call it!
+    fprintf(1, 'Done\Verifying Resubmission...');
     cd(['release' filesep 'resubmission']);
     for p = 1:numel(problemInfo)
         for c = 1:numel(problemInfo(p).calls)
@@ -352,8 +362,9 @@ function homeworkCompiler(clientId, clientSecret, clientKey)
     end
     cd(['..' filesep '..']);
     %% Upload to Drive
+    fprintf(1, 'Done\nUploading...');
     uploadToDrive([pwd filesep 'release'], id, token, clientKey);
-    
+    fprintf(1, 'Done\n');
 end
 
 function cleaner(work, curr)
