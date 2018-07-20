@@ -21,9 +21,7 @@
 function homeworkCompiler(clientId, clientSecret, clientKey)
     % Add correct path
     fprintf(1, 'Setting up Path...');
-    addpath([fileparts(fileparts(mfilename('fullpath'))) filesep 'GoogleDriveIntegration']);
-    addpath([fileparts(fileparts(mfilename('fullpath'))) filesep 'TestCaseCompiler']);
-    addpath([fileparts(fileparts(mfilename('fullpath'))) filesep 'HomeworkCompiler']);
+    addpath(pwd);
     % Steps:
     % 
     % 1. Ask for Google Drive Folder
