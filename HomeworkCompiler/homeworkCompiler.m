@@ -163,6 +163,9 @@ function homeworkCompiler(clientId, clientSecret, clientKey)
     % Copy over any PDFs
     copyfile([pwd filesep '*.pdf'], ...
         [pwd filesep 'release' filesep 'student' filesep]);
+    % Copy over any orphan .m files (ABCs)
+    copyfile([pwd filesep '*.m'], ...
+        [pwd filesep 'release' filesep 'student' filesep]);
     
     %%% Verify Student
     % for each call, call it!
