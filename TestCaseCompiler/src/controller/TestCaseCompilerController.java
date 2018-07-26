@@ -11,6 +11,7 @@ import javafx.stage.FileChooser;
 import javafx.stage.DirectoryChooser;
 import javafx.event.ActionEvent;
 import javafx.scene.control.ListView;
+import javafx.scene.control.Alert;
 
 import java.io.File;
 
@@ -81,6 +82,18 @@ public class TestCaseCompilerController {
             remoteButton.setDisable(!driveCheckbox.isSelected());
             isDriveExport = driveCheckbox.isSelected();
         }
+
+        if (!driveCheckbox.isSelected() && !localCheckbox.isSelected()) {
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setTitle("You can't do that!");
+            alert.setHeaderText("You have to specify at least one output location.");
+            alert.setContentText("With love <3");
+            alert.showAndWait();
+            driveCheckbox.setSelected(true);
+            remoteButton.setDisable(false);
+            isDriveExport = driveCheckbox.isSelected();
+
+        }
     }
 
     @FXML
@@ -97,5 +110,16 @@ public class TestCaseCompilerController {
     @FXML
     void bannedFunctionsListViewEdited(ListView.EditEvent<String> e) {
         System.out.println(e);
+    }
+
+    @FXML
+    void showHelp(ActionEvent e) {
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.getDialogPane().setStyle("-fx-font-family: \"Consolas\", monospace");
+        alert.setTitle("CS1371 Test Case Generator");
+        alert.setHeaderText("#HOMEWORKTEAMTEAMWORKMAKESTHEHOMEWORKTEAMDREAMWORK");
+        alert.setContentText("Suggestions? Complaints? Insults? Funny jokes? Email dprofili3@gatech.edu and/or "
+                + "arao8@gatech.edu.");
+        alert.show();
     }
 }
