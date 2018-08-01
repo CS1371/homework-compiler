@@ -1,17 +1,12 @@
 package controller;
+import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
-import javafx.scene.control.Button;
-import javafx.scene.control.CheckBox;
-import javafx.scene.control.Menu;
-import javafx.scene.control.MenuItem;
-import javafx.scene.control.Tab;
+import javafx.scene.control.*;
 import javafx.scene.layout.AnchorPane;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.FileChooser;
 import javafx.stage.DirectoryChooser;
 import javafx.event.ActionEvent;
-import javafx.scene.control.ListView;
-import javafx.scene.control.Alert;
 
 import java.io.File;
 
@@ -57,6 +52,9 @@ public class TestCaseCompilerController {
 
     @FXML
     private ListView<String> bannedFunctionsListView;
+
+    @FXML
+    private TextField bannedFunctionAddField;
 
     /* UI specific instance fields */
 
@@ -115,11 +113,25 @@ public class TestCaseCompilerController {
     @FXML
     void showHelp(ActionEvent e) {
         Alert alert = new Alert(Alert.AlertType.INFORMATION);
-        alert.getDialogPane().setStyle("-fx-font-family: \"Consolas\", monospace");
+        alert.getDialogPane().setStyle("-fx-font-family: \"Consolas\", \"monospace\"");
         alert.setTitle("CS1371 Test Case Generator");
         alert.setHeaderText("#HOMEWORKTEAMTEAMWORKMAKESTHEHOMEWORKTEAMDREAMWORK");
         alert.setContentText("Suggestions? Complaints? Insults? Funny jokes? Email dprofili3@gatech.edu and/or "
                 + "arao8@gatech.edu.");
         alert.show();
     }
+
+
+    @FXML
+    void addBannedFunctionButtonPressed(ActionEvent event) {
+        String text = bannedFunctionAddField.getText();
+        if (text.length() > 0) {
+            ObservableList<String> bannedFcns = bannedFunctionsListView.getItems();
+            if (!bannedFcns.contains(text)) {
+                bannedFcns.add(text);
+            }
+            bannedFunctionAddField.setText("");
+        }
+    }
+
 }
