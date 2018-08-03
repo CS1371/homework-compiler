@@ -2,6 +2,8 @@ package controller;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.FileChooser;
@@ -64,6 +66,9 @@ public class TestCaseCompilerController {
 
     @FXML
     private Button functionBrowseButton;
+
+    @FXML
+    private SplitPane problemSettingsSplitPane;
 
     /* UI specific instance fields */
 
@@ -183,7 +188,20 @@ public class TestCaseCompilerController {
             if (isFunctionValid) {
                 functionSourceTextField.setText(selected.getName());
                 inputFileAnchorPane.setDisable(false);
+                problemSettingsSplitPane.setDisable(false);
             }
+        }
+    }
+
+    @FXML
+    /**
+     * Handler for when the user presses a key (i.e. enter) in the banned functions edit field.
+     * Used so that ENTER can be used in place of the add button, with the same functionality.
+     * @param e the key event that triggered this handler
+     */
+    void bannedFunctionsTextFieldKeyPressed(KeyEvent e) {
+        if (e.getCode().equals(KeyCode.ENTER)) {
+            addBannedFunctionButtonPressed();
         }
     }
 
