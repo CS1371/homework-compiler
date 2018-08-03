@@ -51,10 +51,19 @@ public class TestCaseCompilerController {
     private AnchorPane statusBarAnchorPane;
 
     @FXML
+    private AnchorPane inputFileAnchorPane;
+
+    @FXML
     private ListView<String> bannedFunctionsListView;
 
     @FXML
     private TextField bannedFunctionAddField;
+
+    @FXML
+    private TextField functionSourceTextField;
+
+    @FXML
+    private Button functionBrowseButton;
 
     /* UI specific instance fields */
 
@@ -67,9 +76,12 @@ public class TestCaseCompilerController {
     // Whether or not the user wants to export to Google Drive
     private boolean isDriveExport = true;
 
+    // User-selected solution function source
+    private File functionSourceFile;
+
     /**
      * Toggles the destination button when the corresponding checkbox is toggled.
-     * @param event
+     * @param event the ActionEvent used to determine which checkbox was clicked
      */
     @FXML
     void destinationCheckboxClicked(ActionEvent event) {
@@ -95,7 +107,7 @@ public class TestCaseCompilerController {
     }
 
     @FXML
-    void localButtonPressed(ActionEvent event) {
+    void localButtonPressed() {
         // Open a directory chooser dialog to pick the local save folder
         DirectoryChooser fc = new DirectoryChooser();
         fc.setTitle("Pick local output folder");
@@ -106,7 +118,7 @@ public class TestCaseCompilerController {
     }
 
     @FXML
-    void showHelp(ActionEvent e) {
+    void showHelp() {
         Alert alert = new Alert(Alert.AlertType.INFORMATION);
         alert.getDialogPane().setStyle("-fx-font-family: \"Consolas\", \"monospace\"");
         alert.setTitle("CS1371 Test Case Generator");
@@ -118,7 +130,7 @@ public class TestCaseCompilerController {
 
 
     @FXML
-    void addBannedFunctionButtonPressed(ActionEvent event) {
+    void addBannedFunctionButtonPressed() {
         String text = bannedFunctionAddField.getText();
         if (text.length() > 0) {
             ObservableList<String> bannedFcns = bannedFunctionsListView.getItems();
@@ -130,11 +142,48 @@ public class TestCaseCompilerController {
     }
 
     @FXML
-    void removeBannedFunctionsButtonPressed(ActionEvent event) {
+    /**
+     * Handler for when the banned functions remove button is clicked.
+     * If an item is selected, that item will be deleted from the banned functions list view.
+     * Otherwise, nothing is done.
+     */
+    void removeBannedFunctionsButtonPressed() {
         int ind = bannedFunctionsListView.getSelectionModel().getSelectedIndex();
         ObservableList<String> bannedFcns = bannedFunctionsListView.getItems();
         if (ind != -1) {
             bannedFcns.remove(ind);
+        }
+    }
+
+    @FXML
+    /**
+     * Handler for when the function source browse button is pressed.
+     * Loads the selected function file and, if valid, enables the disabled function-specific components.
+     */
+    void functionBrowseButtonPressed() {
+        FileChooser fc = new FileChooser();
+        fc.setTitle("Choose function solution file");
+        fc.getExtensionFilters().addAll(
+                new FileChooser.ExtensionFilter("MATLAB files", "*.m"));
+        File selected = fc.showOpenDialog(functionBrowseButton.getScene().getWindow());
+        if (selected != null) {
+            functionSourceFile = selected;
+
+            /*
+                TODO:
+                Here is where MATLAB would be invoked to nargin()/nargout() the solution file, make sure it's valid,
+                etc.
+
+                If the file isn't valid (i.e. it isn't a function [i.e. nargin/nargout error]), then the function source
+                text field should turn red and an error message should be displayed notifying the user. Nothing should
+                be enabled.
+             */
+            // DEBUG:
+            boolean isFunctionValid = true;
+            if (isFunctionValid) {
+                functionSourceTextField.setText(selected.getName());
+                inputFileAnchorPane.setDisable(false);
+            }
         }
     }
 
