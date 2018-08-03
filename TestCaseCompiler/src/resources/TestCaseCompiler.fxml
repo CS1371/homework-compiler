@@ -43,7 +43,7 @@
                                                       <CheckBox layoutX="158.0" layoutY="18.0" mnemonicParsing="false" prefHeight="26.0" prefWidth="85.0" text="Recursive?" />
                                                       <Label layoutX="10.0" layoutY="6.0" text="Banned Functions" AnchorPane.topAnchor="0.0" />
                                                       <Button layoutX="328.0" layoutY="53.0" mnemonicParsing="false" onAction="#addBannedFunctionButtonPressed" prefHeight="25.0" prefWidth="59.0" text="Add..." />
-                                                      <Button layoutX="159.0" layoutY="85.0" mnemonicParsing="false" text="Remove" />
+                                                      <Button layoutX="159.0" layoutY="85.0" mnemonicParsing="false" onAction="#removeBannedFunctionsButtonPressed" text="Remove" />
                                                       <TextField fx:id="bannedFunctionAddField" layoutX="159.0" layoutY="54.0" prefHeight="23.0" prefWidth="161.0" styleClass="code" stylesheets="@style.css">
                                                          <font>
                                                             <Font name="Monospaced Regular" size="12.0" />

@@ -30,7 +30,7 @@ public class TestCaseCompiler extends Application {
     public void start(Stage primaryStage) {
         this.primaryStage = primaryStage;
 //        Generate a random message
-        int n = ThreadLocalRandom.current().nextInt(0, messages.length + 1);
+        int n = ThreadLocalRandom.current().nextInt(0, messages.length);
         this.primaryStage.setTitle("CS1371 Test Case Compiler (" + messages[n] + ")");
         showRoot();
     }

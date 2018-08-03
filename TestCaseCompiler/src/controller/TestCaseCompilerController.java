@@ -106,11 +106,6 @@ public class TestCaseCompilerController {
     }
 
     @FXML
-    void bannedFunctionsListViewEdited(ListView.EditEvent<String> e) {
-        System.out.println(e);
-    }
-
-    @FXML
     void showHelp(ActionEvent e) {
         Alert alert = new Alert(Alert.AlertType.INFORMATION);
         alert.getDialogPane().setStyle("-fx-font-family: \"Consolas\", \"monospace\"");
@@ -133,5 +128,15 @@ public class TestCaseCompilerController {
             bannedFunctionAddField.setText("");
         }
     }
+
+    @FXML
+    void removeBannedFunctionsButtonPressed(ActionEvent event) {
+        int ind = bannedFunctionsListView.getSelectionModel().getSelectedIndex();
+        ObservableList<String> bannedFcns = bannedFunctionsListView.getItems();
+        if (ind != -1) {
+            bannedFcns.remove(ind);
+        }
+    }
+
 
 }
