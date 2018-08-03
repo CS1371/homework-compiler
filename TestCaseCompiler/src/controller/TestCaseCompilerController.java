@@ -1,6 +1,7 @@
 package controller;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
+import javafx.scene.Group;
 import javafx.scene.control.*;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
@@ -53,7 +54,7 @@ public class TestCaseCompilerController {
     private AnchorPane statusBarAnchorPane;
 
     @FXML
-    private AnchorPane inputFileAnchorPane;
+    private Group inputFileGroup;
 
     @FXML
     private ListView<String> bannedFunctionsListView;
@@ -84,6 +85,11 @@ public class TestCaseCompilerController {
     // User-selected solution function source
     private File functionSourceFile;
 
+
+    @FXML
+    public void initialize() {
+        System.out.println("Initializing...");
+    }
     /**
      * Toggles the destination button when the corresponding checkbox is toggled.
      * @param event the ActionEvent used to determine which checkbox was clicked
@@ -187,7 +193,7 @@ public class TestCaseCompilerController {
             boolean isFunctionValid = true;
             if (isFunctionValid) {
                 functionSourceTextField.setText(selected.getName());
-                inputFileAnchorPane.setDisable(false);
+                inputFileGroup.setDisable(false);
                 problemSettingsSplitPane.setDisable(false);
             }
         }
