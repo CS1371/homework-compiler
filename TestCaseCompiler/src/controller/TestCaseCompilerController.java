@@ -1,17 +1,28 @@
 package controller;
+import javafx.beans.value.ObservableValue;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
+import javafx.geometry.HPos;
+import javafx.geometry.Pos;
+import javafx.geometry.Side;
 import javafx.scene.Group;
+import javafx.scene.Node;
+import javafx.scene.Parent;
 import javafx.scene.control.*;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.AnchorPane;
+import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.GridPane;
+import javafx.scene.layout.Pane;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.FileChooser;
 import javafx.stage.DirectoryChooser;
 import javafx.event.ActionEvent;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Controller class for the main test case compiler gui.
@@ -20,6 +31,10 @@ import java.io.File;
  * @version 1.0
  */
 public class TestCaseCompilerController {
+
+    @FXML
+    private BorderPane rootBorderPane;
+
     @FXML
     private CheckBox driveCheckbox;
 
@@ -54,6 +69,12 @@ public class TestCaseCompilerController {
     private AnchorPane statusBarAnchorPane;
 
     @FXML
+    private GridPane inputBaseGridPane;
+
+    @FXML
+    private GridPane outputBaseGridPane;
+
+    @FXML
     private Group inputFileGroup;
 
     @FXML
@@ -69,9 +90,24 @@ public class TestCaseCompilerController {
     private Button functionBrowseButton;
 
     @FXML
-    private SplitPane problemSettingsSplitPane;
+    private AnchorPane problemSettingsAnchorPane;
+
+    @FXML
+    private ListView supportingFilesListView;
+
+    @FXML
+    private TabPane studentTestCasesTabPane;
+
+    @FXML
+    private TabPane submissionTestCasesTabPane;
+
+    @FXML
+    private TabPane resubmissionTestCasesTabPane;
 
     /* UI specific instance fields */
+
+    // Minimum (and default) number of test cases allowed
+    private final int MINIMUM_NUM_TEST_CASES = 3;
 
     // User-selected local output directory
     private File localOutputDirectory;
@@ -85,10 +121,55 @@ public class TestCaseCompilerController {
     // User-selected solution function source
     private File functionSourceFile;
 
+    // Default directory to open filechoosers to
+    private File defaultDirectory;
+
+    // User-selected supporting files
+    private ArrayList<File> supportingFiles;
+
+    /**
+     * Constructor. Creates a new TestCaseCompilerController.
+     * Initializes problem-specific instance variables, like the list of supporting files
+     */
+    public TestCaseCompilerController() {
+        // Initialize instance variables
+        supportingFiles = new ArrayList<>();
+    }
 
     @FXML
     public void initialize() {
+        // DEBUG:
         System.out.println("Initializing...");
+        problemSettingsAnchorPane.setDisable(true);
+
+        /*
+            TODO: Get the user's MATLAB path to use as the default directory
+         */
+        defaultDirectory = new File("C:\\Users\\Daniel\\Documents\\MATLAB");
+
+        initializeTestCaseTabPane(studentTestCasesTabPane);
+
+
+    }
+
+    /**
+     * Initializes a TabPane with three non-closeable tabs (representing the three required test cases).
+     * @param tp the TabPane to initialize
+     */
+    private void initializeTestCaseTabPane(TabPane tp) {
+//        TabPane pane = new TabPane();
+//        pane.setRotateGraphic(true);
+//        pane.setSide(Side.LEFT);
+//        pane.setTabClosingPolicy(TabPane.TabClosingPolicy.UNAVAILABLE);
+        tp.setRotateGraphic(true);
+        for (int i = 0; i < MINIMUM_NUM_TEST_CASES; i++) {
+            Tab t = new Tab();
+            t.setGraphic(new Label(Integer.toString(i + 1)));
+            // TODO: add default starting content
+            t.setClosable(false);
+            t.getStyleClass().add(".test-case-tab");
+            tp.getTabs().add(t);
+        }
     }
     /**
      * Toggles the destination button when the corresponding checkbox is toggled.
@@ -122,7 +203,7 @@ public class TestCaseCompilerController {
         // Open a directory chooser dialog to pick the local save folder
         DirectoryChooser fc = new DirectoryChooser();
         fc.setTitle("Pick local output folder");
-        File selected = fc.showDialog(localButton.getScene().getWindow());
+        File selected = fc.showDialog(rootBorderPane.getScene().getWindow());
         if (selected != null) {
             localOutputDirectory = selected;
         }
@@ -141,13 +222,28 @@ public class TestCaseCompilerController {
 
 
     @FXML
+    /**
+     * Handler for when the user presses the button to add a banned function.
+     * If there is text in the edit field, and that text refers to the name of a valid MATLAB function on the path,
+     * that function will be added to the banned functions ListView. If the edit field is empty, nothing is done.
+     */
     void addBannedFunctionButtonPressed() {
         String text = bannedFunctionAddField.getText();
         if (text.length() > 0) {
             ObservableList<String> bannedFcns = bannedFunctionsListView.getItems();
             if (!bannedFcns.contains(text)) {
+                /*
+                    TODO: Verify the banned function exists and/or is on the MATLAB path
+                 */
+                // Add the banned function to the list
                 bannedFcns.add(text);
+                // Scroll to the most recently added banned function in the list
+                bannedFunctionsListView.scrollTo(bannedFcns.get(bannedFcns.size() - 1));
+            } else {
+                // If the function is already there, scroll to it
+                bannedFunctionsListView.scrollTo(text);
             }
+            // Clear the text from the edit field, no matter what happens
             bannedFunctionAddField.setText("");
         }
     }
@@ -174,9 +270,10 @@ public class TestCaseCompilerController {
     void functionBrowseButtonPressed() {
         FileChooser fc = new FileChooser();
         fc.setTitle("Choose function solution file");
+        fc.setInitialDirectory(defaultDirectory);
         fc.getExtensionFilters().addAll(
                 new FileChooser.ExtensionFilter("MATLAB files", "*.m"));
-        File selected = fc.showOpenDialog(functionBrowseButton.getScene().getWindow());
+        File selected = fc.showOpenDialog(rootBorderPane.getScene().getWindow());
         if (selected != null) {
             functionSourceFile = selected;
 
@@ -194,7 +291,7 @@ public class TestCaseCompilerController {
             if (isFunctionValid) {
                 functionSourceTextField.setText(selected.getName());
                 inputFileGroup.setDisable(false);
-                problemSettingsSplitPane.setDisable(false);
+                problemSettingsAnchorPane.setDisable(false);
             }
         }
     }
@@ -211,5 +308,62 @@ public class TestCaseCompilerController {
         }
     }
 
+    @FXML
+    /**
+     * Handler for when the user clicks the add supporting files button.
+     * Opens a FileChooser dialog and adds the selected file if there is one. It will not allow duplicates. If the
+     * user's selection is empty, nothing will happen.
+     *
+     */
+    void supportingFilesAddButtonPressed() {
+        FileChooser fc = new FileChooser();
+        fc.setTitle("Select supporting files");
+        fc.setInitialDirectory(defaultDirectory);
+        List<File> selected = fc.showOpenMultipleDialog(rootBorderPane.getScene().getWindow());
+        if (selected != null) {
+            ObservableList<String> supFiles = supportingFilesListView.getItems();
+            for (File f : selected) {
+                if (f.equals(functionSourceFile)) {
+                    Alert alert = new Alert(Alert.AlertType.ERROR);
+                    alert.setTitle("You can't do that!");
+                    alert.setHeaderText("You can't add the solution function as a supporting file.");
+                    alert.setContentText("With love <3");
+                    alert.showAndWait();
+                } else if (!supFiles.contains(f.getName())) {
+                    supFiles.add(f.getName());
+                    supportingFiles.add(f);
+                    // Scroll to most recently added file
+                    supportingFilesListView.scrollTo(supFiles.size() - 1);
+                }
+            }
+        }
+
+    }
+
+    @FXML
+    void supportingFilesRemoveButtonPressed() {
+        // TODO
+        // DEBUG:
+        populateBaseWordsSelector(inputBaseGridPane, 6);
+    }
+
+    /**
+     * Populates the base word selector area with edit fields for each input/output.
+     * @param g the GridPane to populate
+     * @param num the number of inputs/outputs
+     */
+    void populateBaseWordsSelector(GridPane g, int num) {
+        TextField[] tempBaseWordFields = new TextField[num];
+        for (int i = 0; i < num; i++) {
+            tempBaseWordFields[i] = new TextField();
+//            if (i > 2) {
+//                g.addRow(i, null);
+//            }
+            g.add(tempBaseWordFields[i], 1, i);
+            System.out.println(g.getColumnConstraints().toString());
+            Label l = new Label("Base " + (i + 1));
+            g.add(l, 0, i);
+        }
+    }
 
 }

@@ -24,7 +24,8 @@ public class TestCaseCompiler extends Application {
                                         "Above average abs",
                                         "#summersCount",
                                         "#summersDontCount",
-                                        "This guy's living in R3018b unlike the rest of us"};
+                                        "This guy's living in R3018b unlike the rest of us",
+                                        "daddiAddi bring snacc"};
 
     @Override
     public void start(Stage primaryStage) {

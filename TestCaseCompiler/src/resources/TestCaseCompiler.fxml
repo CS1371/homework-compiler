@@ -10,6 +10,9 @@
 <?import javafx.scene.control.MenuBar?>
 <?import javafx.scene.control.MenuItem?>
 <?import javafx.scene.control.ProgressIndicator?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.Tab?>
+<?import javafx.scene.control.TabPane?>
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.control.TitledPane?>
 <?import javafx.scene.layout.AnchorPane?>
@@ -21,11 +24,11 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<BorderPane prefWidth="817.0" xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controller.TestCaseCompilerController">
+<BorderPane fx:id="rootBorderPane" prefWidth="817.0" xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controller.TestCaseCompilerController">
    <center>
       <BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="488.0" prefWidth="817.0">
          <center>
-            <AnchorPane prefHeight="200.0" prefWidth="200.0" BorderPane.alignment="CENTER">
+            <AnchorPane fx:id="problemSettingsAnchorPane" prefHeight="200.0" prefWidth="200.0" BorderPane.alignment="CENTER">
                <children>
                   <HBox layoutX="160.0" layoutY="128.0" prefHeight="370.0" prefWidth="817.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
                      <children>
@@ -37,10 +40,10 @@
                                        <content>
                                           <VBox prefHeight="200.0" prefWidth="100.0">
                                              <children>
-                                                <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="155.0" prefWidth="401.0">
+                                                <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="275.0" prefWidth="396.0">
                                                    <children>
-                                                      <ListView fx:id="bannedFunctionsListView" layoutX="10.0" layoutY="27.0" prefHeight="114.0" prefWidth="141.0" styleClass="code" stylesheets="@style.css" />
-                                                      <CheckBox layoutX="158.0" layoutY="18.0" mnemonicParsing="false" prefHeight="26.0" prefWidth="85.0" text="Recursive?" />
+                                                      <ListView fx:id="bannedFunctionsListView" layoutX="10.0" layoutY="27.0" prefHeight="88.0" prefWidth="141.0" styleClass="code" stylesheets="@style.css" />
+                                                      <CheckBox layoutX="159.0" layoutY="14.0" mnemonicParsing="false" prefHeight="26.0" prefWidth="85.0" text="Recursive?" />
                                                       <Label layoutX="14.0" layoutY="10.0" text="Banned Functions" AnchorPane.topAnchor="10.0" />
                                                       <Button layoutX="310.0" layoutY="53.0" mnemonicParsing="false" onAction="#addBannedFunctionButtonPressed" prefHeight="25.0" prefWidth="59.0" text="Add..." />
                                                       <Button layoutX="159.0" layoutY="85.0" mnemonicParsing="false" onAction="#removeBannedFunctionsButtonPressed" text="Remove" />
@@ -49,12 +52,51 @@
                                                             <Font name="Monospaced Regular" size="12.0" />
                                                          </font>
                                                       </TextField>
+                                                      <ListView fx:id="supportingFilesListView" layoutX="9.0" layoutY="143.0" prefHeight="58.0" prefWidth="288.0" styleClass="code" stylesheets="@style.css" />
+                                                      <Label layoutX="14.0" layoutY="126.0" text="Supporting Files" />
+                                                      <Button layoutX="310.0" layoutY="145.0" mnemonicParsing="false" onAction="#supportingFilesAddButtonPressed" prefHeight="25.0" prefWidth="59.0" text="Add..." />
+                                                      <Button layoutX="310.0" layoutY="174.0" mnemonicParsing="false" onAction="#supportingFilesRemoveButtonPressed" text="Remove" />
                                                    </children>
                                                 </AnchorPane>
                                                 <HBox prefHeight="202.0" prefWidth="401.0">
                                                    <children>
-                                                      <TitledPane collapsible="false" prefHeight="200.0" prefWidth="200.0" text="Input Base Words" />
-                                                      <TitledPane collapsible="false" prefHeight="200.0" prefWidth="200.0" text="Output Base Words" />
+                                                      <TitledPane collapsible="false" prefHeight="200.0" prefWidth="200.0" text="Input Base Words">
+                                                         <content>
+                                                            <ScrollPane fitToWidth="true" prefHeight="338.0" prefWidth="198.0">
+                                                               <content>
+                                                                  <GridPane fx:id="inputBaseGridPane" alignment="CENTER" hgap="6.0" prefHeight="108.0" prefWidth="198.0" vgap="6.0">
+                                                                    <columnConstraints>
+                                                                      <ColumnConstraints halignment="RIGHT" hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                                                                        <ColumnConstraints halignment="LEFT" hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                                                                    </columnConstraints>
+                                                                    <rowConstraints>
+                                                                        <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="NEVER" />
+                                                                        <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="NEVER" />
+                                                                        <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="NEVER" />
+                                                                    </rowConstraints>
+                                                                     <padding>
+                                                                        <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+                                                                     </padding>
+                                                                  </GridPane>
+                                                               </content>
+                                                            </ScrollPane>
+                                                         </content>
+                                                      </TitledPane>
+                                                      <TitledPane collapsible="false" prefHeight="200.0" prefWidth="200.0" text="Output Base Words">
+                                                         <content>
+                                                            <GridPane fx:id="outputBaseGridPane">
+                                                              <columnConstraints>
+                                                                <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                                                                <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                                                              </columnConstraints>
+                                                              <rowConstraints>
+                                                                <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                                                                <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                                                                <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                                                              </rowConstraints>
+                                                            </GridPane>
+                                                         </content>
+                                                      </TitledPane>
                                                    </children>
                                                 </HBox>
                                              </children>
@@ -68,7 +110,37 @@
                               </AnchorPane>
                            </children>
                         </AnchorPane>
-                        <TitledPane collapsible="false" prefHeight="388.0" prefWidth="418.0" text="Test Cases" />
+                        <TitledPane collapsible="false" prefHeight="451.0" prefWidth="419.0" text="Test Cases">
+                           <content>
+                              <TabPane prefHeight="200.0" prefWidth="200.0" tabClosingPolicy="UNAVAILABLE">
+                                <tabs>
+                                  <Tab fx:id="studentTestCasesTab" text="Student">
+                                       <content>
+                                          <TabPane fx:id="studentTestCasesTabPane" prefHeight="200.0" prefWidth="200.0" rotateGraphic="true" side="LEFT" tabClosingPolicy="UNAVAILABLE">
+                                             <tabs>
+                                                <Tab text="Test Case 1">
+                                                  <content>
+                                                    <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0" stylesheets="@style.css" />
+                                                  </content>
+                                                </Tab>
+                                             </tabs>
+                                          </TabPane>
+                                       </content>
+                                    </Tab>
+                                  <Tab fx:id="submissionTestCasesTab" text="Submission">
+                                       <content>
+                                          <TabPane fx:id="submissionTestCasesTabPane" prefHeight="200.0" prefWidth="200.0" rotateGraphic="true" side="LEFT" tabClosingPolicy="UNAVAILABLE" />
+                                       </content>
+                                    </Tab>
+                                    <Tab fx:id="resubmissionTestCasesTab" text="Resubmission">
+                                       <content>
+                                          <TabPane fx:id="resubmissionTestCasesTabPane" prefHeight="200.0" prefWidth="200.0" rotateGraphic="true" side="LEFT" tabClosingPolicy="UNAVAILABLE" />
+                                       </content>
+                                    </Tab>
+                                </tabs>
+                              </TabPane>
+                           </content>
+                        </TitledPane>
                      </children>
                   </HBox>
                </children>
