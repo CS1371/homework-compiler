@@ -11,10 +11,7 @@ import javafx.scene.Parent;
 import javafx.scene.control.*;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
-import javafx.scene.layout.AnchorPane;
-import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.GridPane;
-import javafx.scene.layout.Pane;
+import javafx.scene.layout.*;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.FileChooser;
 import javafx.stage.DirectoryChooser;
@@ -360,8 +357,11 @@ public class TestCaseCompilerController {
 //                g.addRow(i, null);
 //            }
             g.add(tempBaseWordFields[i], 1, i);
-            System.out.println(g.getColumnConstraints().toString());
+//            System.out.println(g.getColumnConstraints().toString());
             Label l = new Label("Base " + (i + 1));
+            RowConstraints rc = new RowConstraints();
+            rc.setMinHeight(30);
+            rc.setMaxHeight(30);
             g.add(l, 0, i);
         }
     }

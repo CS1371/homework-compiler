@@ -69,11 +69,6 @@
                                                                       <ColumnConstraints halignment="RIGHT" hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
                                                                         <ColumnConstraints halignment="LEFT" hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
                                                                     </columnConstraints>
-                                                                    <rowConstraints>
-                                                                        <RowConstraints minHeight="30.0" prefHeight="30.0" vgrow="NEVER" />
-                                                                        <RowConstraints minHeight="30.0" prefHeight="30.0" vgrow="NEVER" />
-                                                                        <RowConstraints minHeight="30.0" prefHeight="30.0" vgrow="NEVER" />
-                                                                    </rowConstraints>
                                                                      <padding>
                                                                         <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
                                                                      </padding>
@@ -116,15 +111,7 @@
                                 <tabs>
                                   <Tab fx:id="studentTestCasesTab" text="Student">
                                        <content>
-                                          <TabPane fx:id="studentTestCasesTabPane" prefHeight="200.0" prefWidth="200.0" rotateGraphic="true" side="LEFT" tabClosingPolicy="UNAVAILABLE">
-                                             <tabs>
-                                                <Tab text="Test Case 1">
-                                                  <content>
-                                                    <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0" stylesheets="@style.css" />
-                                                  </content>
-                                                </Tab>
-                                             </tabs>
-                                          </TabPane>
+                                          <TabPane fx:id="studentTestCasesTabPane" prefHeight="200.0" prefWidth="200.0" rotateGraphic="true" side="LEFT" tabClosingPolicy="UNAVAILABLE" />
                                        </content>
                                     </Tab>
                                   <Tab fx:id="submissionTestCasesTab" text="Submission">
