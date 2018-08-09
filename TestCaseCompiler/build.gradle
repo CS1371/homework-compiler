@@ -34,6 +34,6 @@ repositories {
 
 jar {
     manifest {
-        attributes("Main-Class": "main.java.controller.TestCaseCompiler")
+        attributes("Main-Class": "controller.TestCaseCompiler")
     }
 }

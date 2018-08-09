@@ -1,4 +1,4 @@
-package main.java.controller;
+package controller;
 
 import java.io.IOException;
 import javafx.application.Application;
@@ -43,12 +43,13 @@ public class TestCaseCompiler extends Application {
         try {
             // Load the FXML
             FXMLLoader loader = new FXMLLoader();
-            loader.setLocation(TestCaseCompiler.class.getResource("/TestCaseCompiler.fxml"));
+//            loader.setLocation(TestCaseCompiler.class.getResource("/main/resources/TestCaseCompiler.fxml"));
+            loader.setLocation(this.getClass().getClassLoader().getResource("TestCaseCompiler.fxml"));
             BorderPane root = loader.load();
             Scene s = new Scene(root);
 
             // Add the CSS sheet
-            s.getStylesheets().add("/style.css");
+            s.getStylesheets().add("style.css");
 
             // Show that shizzle
             primaryStage.setScene(s);

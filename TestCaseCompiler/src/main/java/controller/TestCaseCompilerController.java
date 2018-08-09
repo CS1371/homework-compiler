@@ -1,4 +1,4 @@
-package main.java.controller;
+package controller;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
@@ -142,7 +142,8 @@ public class TestCaseCompilerController {
         /*
             TODO: Get the user's MATLAB path to use as the default directory
          */
-        defaultDirectory = new File("C:\\Users\\Daniel\\Documents\\MATLAB");
+        defaultDirectory = new File(System.getProperty("user.home") + "/Documents/MATLAB");
+
 
         initializeTestCaseTabPane(studentTestCasesTabPane);
 
