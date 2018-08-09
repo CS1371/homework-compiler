@@ -1,6 +1,7 @@
-package main.java.controller;
+package controller;
 
 import java.io.File;
+import java.io.Serializable;
 import java.util.ArrayList;
 
 /**
@@ -8,7 +9,7 @@ import java.util.ArrayList;
  * @author Daniel Profili
  * @version 1.0
  */
-public class Problem {
+public class Problem implements Serializable {
     private int numTestCases;
     private File functionSource;
     private File inputFile;
