@@ -41,10 +41,17 @@ public class TestCaseCompiler extends Application {
      */
     private void showRoot() {
         try {
+            // Load the FXML
             FXMLLoader loader = new FXMLLoader();
             loader.setLocation(TestCaseCompiler.class.getResource("/main/java/resources/TestCaseCompiler.fxml"));
             BorderPane root = loader.load();
-            primaryStage.setScene(new Scene(root));
+            Scene s = new Scene(root);
+
+            // Add the CSS sheet
+            s.getStylesheets().add("/main/java/resources/style.css");
+
+            // Show that shizzle
+            primaryStage.setScene(s);
             primaryStage.show();
         } catch (IOException e) {
             e.printStackTrace();
