@@ -3,5 +3,5 @@
 }
 
 .test-case-tab {
-    -fx-rotate: 90;
+    -fx-pref-height: 100;
 }

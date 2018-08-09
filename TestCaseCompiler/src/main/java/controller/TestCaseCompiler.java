@@ -5,6 +5,7 @@ import javafx.application.Application;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
+import javafx.scene.control.TabPane;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.BorderPane;
 import javafx.stage.Stage;
@@ -50,7 +51,6 @@ public class TestCaseCompiler extends Application {
 
             // Add the CSS sheet
             s.getStylesheets().add("style.css");
-
             // Show that shizzle
             primaryStage.setScene(s);
             primaryStage.show();

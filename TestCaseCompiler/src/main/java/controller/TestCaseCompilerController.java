@@ -103,6 +103,9 @@ public class TestCaseCompilerController {
 
     /* UI specific instance fields */
 
+    private Problem fuck;
+
+
     // Minimum (and default) number of test cases allowed
     private final int MINIMUM_NUM_TEST_CASES = 3;
 
@@ -160,13 +163,20 @@ public class TestCaseCompilerController {
 //        pane.setSide(Side.LEFT);
 //        pane.setTabClosingPolicy(TabPane.TabClosingPolicy.UNAVAILABLE);
         tp.setRotateGraphic(true);
+
         for (int i = 0; i < MINIMUM_NUM_TEST_CASES; i++) {
             Tab t = new Tab();
-            t.setGraphic(new Label(Integer.toString(i + 1)));
+            Group tmp = new Group();
+            Label num = new Label("Test Case #" + (i + 1));
+            num.setRotate(90);
+            tmp.getChildren().add(num);
+            t.setGraphic(tmp);
             // TODO: add default starting content
             t.setClosable(false);
-            t.getStyleClass().add(".test-case-tab");
+            t.getStyleClass().add("test-case-tab");
+
             tp.getTabs().add(t);
+
         }
     }
     /**
