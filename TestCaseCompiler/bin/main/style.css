@@ -1,0 +1,7 @@
+.code {
+    -fx-font-family: "monospace";
+}
+
+.test-case-tab {
+    -fx-rotate: 90;
+}
