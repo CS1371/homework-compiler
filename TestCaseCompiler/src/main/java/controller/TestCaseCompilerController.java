@@ -103,8 +103,7 @@ public class TestCaseCompilerController {
 
     /* UI specific instance fields */
 
-    private Problem fuck;
-
+    private final Problem problem;
 
     // Minimum (and default) number of test cases allowed
     private final int MINIMUM_NUM_TEST_CASES = 3;
@@ -134,6 +133,7 @@ public class TestCaseCompilerController {
     public TestCaseCompilerController() {
         // Initialize instance variables
         supportingFiles = new ArrayList<>();
+        problem = new Problem(null);
     }
 
     @FXML
