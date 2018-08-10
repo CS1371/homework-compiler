@@ -3,6 +3,7 @@ package controller;
 import java.io.File;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Class representing a homework problem.
@@ -18,7 +19,11 @@ public class Problem implements Serializable {
     private boolean exportToDrive = true;
     private File localOutputDirectory;
     private boolean exportToDisk = false;
-    private SubmissionType type;
+    private ArrayList<TestCase> testCases;
+    private ArrayList<String> inputBaseWords;
+    private ArrayList<String> outputBaseWords;
+
+
 
     /**
      * The minimum number of test cases a problem may have. The compiler will start out displaying this many test cases.
@@ -151,20 +156,6 @@ public class Problem implements Serializable {
         this.exportToDisk = exportToDisk;
     }
 
-    /**
-     * Gets the submission type
-     */
-    public SubmissionType getType() {
-        return type;
-    }
-
-    public void setType(SubmissionType type) {
-        this.type = type;
-    }
-
-    enum SubmissionType {
-        STUDENT, SUBMISSION, RESUBMISSION;
-    }
 
     /**
      * Creates a new Problem object
@@ -185,6 +176,41 @@ public class Problem implements Serializable {
         }
 
         functionSource = newSrc;
+    }
+
+    /**
+     * Gets a list of the supporting files
+     * @return List of the problem's supporting files
+     */
+    public List<File> getSupportingFiles() {
+        /*
+            TODO: Supporting files global to all test cases or not???
+         */
+        return supportingFiles;
+    }
+
+    /**
+     * Gets the list of test cases
+     * @return List of TestCase objects
+     */
+    public List<TestCase> getTestCases() {
+        return testCases;
+    }
+
+    /**
+     * Gets the input base words
+     * @return list of input base words
+     */
+    public ArrayList<String> getInputBaseWords() {
+        return inputBaseWords;
+    }
+
+    /**
+     * Gets the output base words
+     * @return list of output base words
+     */
+    public ArrayList<String> getOutputBaseWords() {
+        return outputBaseWords;
     }
 
 }
