@@ -101,6 +101,9 @@ public class TestCaseCompilerController {
     @FXML
     private TabPane resubmissionTestCasesTabPane;
 
+    @FXML
+    private GridPane sourceFileGridPane;
+
     /* UI specific instance fields */
 
     private final Problem problem;
@@ -298,7 +301,17 @@ public class TestCaseCompilerController {
             boolean isFunctionValid = true;
             if (isFunctionValid) {
                 functionSourceTextField.setText(selected.getName());
-                inputFileGroup.setDisable(false);
+//                inputFileGroup.setDisable(false);
+                /*
+                    Note: some bullshittery coming up.
+                    I hate this, but because java doesn't have any way to index GridPanes, I'm stuck doing this shit
+                 */
+                for (Node n : sourceFileGridPane.getChildren()) {
+                    if (GridPane.getRowIndex(n) == 1) {
+                        n.setDisable(true);
+                    }
+                }
+
                 problemSettingsAnchorPane.setDisable(false);
             }
         }
