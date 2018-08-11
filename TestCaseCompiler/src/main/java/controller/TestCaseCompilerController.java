@@ -150,6 +150,9 @@ public class TestCaseCompilerController {
     private ArrayList<TextField> inputBaseTextFields;
     private ArrayList<TextField> outputBaseTextFields;
 
+    // Matlab Engine for communication with main MATLAB runner
+    MatlabEngine engine;
+
     /**
      * Constructor. Creates a new TestCaseCompilerController.
      * Initializes problem-specific instance variables, like the list of supporting files
@@ -158,6 +161,11 @@ public class TestCaseCompilerController {
         // Initialize instance variables
         supportingFiles = new ArrayList<>();
         problem = new Problem(null);
+        try {
+            engine = MatlabEngine.connectMatlab();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     @FXML
