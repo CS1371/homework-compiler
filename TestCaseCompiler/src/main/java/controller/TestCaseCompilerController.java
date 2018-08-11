@@ -19,7 +19,9 @@ import javafx.event.ActionEvent;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import com.mathworks.engine.MatlabEngine;
 
 /**
  * Controller class for the main test case compiler gui.
@@ -72,7 +74,7 @@ public class TestCaseCompilerController {
     private GridPane outputBaseGridPane;
 
     @FXML
-    private Group inputFileGroup;
+    private HashSet<Node> inputFileSet;
 
     @FXML
     private ListView<String> bannedFunctionsListView;
@@ -104,6 +106,21 @@ public class TestCaseCompilerController {
     @FXML
     private GridPane sourceFileGridPane;
 
+    @FXML
+    private Label inputFileLabel;
+
+    @FXML
+    private TextField inputFileTextField;
+
+    @FXML
+    private Button inputFileBrowseButton;
+
+    @FXML
+    private CheckBox automaticInputBaseCheckBox;
+
+    @FXML
+    private CheckBox automaticOutputBaseCheckBox;
+
     /* UI specific instance fields */
 
     private final Problem problem;
@@ -129,6 +146,10 @@ public class TestCaseCompilerController {
     // User-selected supporting files
     private ArrayList<File> supportingFiles;
 
+    // Array of input and output base word TextFields
+    private ArrayList<TextField> inputBaseTextFields;
+    private ArrayList<TextField> outputBaseTextFields;
+
     /**
      * Constructor. Creates a new TestCaseCompilerController.
      * Initializes problem-specific instance variables, like the list of supporting files
@@ -142,7 +163,6 @@ public class TestCaseCompilerController {
     @FXML
     public void initialize() {
         // DEBUG:
-        System.out.println("Initializing...");
         problemSettingsAnchorPane.setDisable(true);
 
         /*
@@ -150,8 +170,19 @@ public class TestCaseCompilerController {
          */
         defaultDirectory = new File(System.getProperty("user.home") + "/Documents/MATLAB");
 
+        // Adds the input file stuff to the set for use later
+        // TODO: use a better method
+        // Right now, it's convenient just to add all the input-related stuff to a set so it's iterable and saves two
+        // lines of code whenever I want to disable/enable that stuff (which honestly isn't that often, but if the user
+        // loads another function after the first and it's not valid I want to disable the input file components so....?
+        inputFileSet = new HashSet<Node>();
+        inputFileSet.add(inputFileLabel);
+        inputFileSet.add(inputFileBrowseButton);
+        inputFileSet.add(inputFileTextField);
+
 
         initializeTestCaseTabPane(studentTestCasesTabPane);
+        System.out.println("Initializing...");
 
 
     }
@@ -227,7 +258,7 @@ public class TestCaseCompilerController {
         alert.setTitle("CS1371 Test Case Generator");
         alert.setHeaderText("#HOMEWORKTEAMTEAMWORKMAKESTHEHOMEWORKTEAMDREAMWORK");
         alert.setContentText("Suggestions? Complaints? Insults? Funny jokes? Email dprofili3@gatech.edu and/or "
-                + "arao8@gatech.edu.");
+                + "arao81@gatech.edu.");
         alert.show();
     }
 
@@ -305,11 +336,10 @@ public class TestCaseCompilerController {
                 /*
                     Note: some bullshittery coming up.
                     I hate this, but because java doesn't have any way to index GridPanes, I'm stuck doing this shit
+                    Also there is (not to my knowledge) any way to group nodes non-physically.
                  */
-                for (Node n : sourceFileGridPane.getChildren()) {
-                    if (GridPane.getRowIndex(n) == 1) {
-                        n.setDisable(true);
-                    }
+                for (Node n : inputFileSet) {
+                    n.setDisable(false);
                 }
 
                 problemSettingsAnchorPane.setDisable(false);

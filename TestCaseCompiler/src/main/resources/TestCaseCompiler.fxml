@@ -63,15 +63,26 @@
                                                          <content>
                                                             <ScrollPane fitToWidth="true" prefHeight="338.0" prefWidth="198.0">
                                                                <content>
-                                                                  <GridPane fx:id="inputBaseGridPane" alignment="CENTER" hgap="6.0" prefHeight="108.0" prefWidth="198.0" vgap="6.0">
-                                                                    <columnConstraints>
-                                                                      <ColumnConstraints halignment="RIGHT" hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
-                                                                        <ColumnConstraints halignment="LEFT" hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
-                                                                    </columnConstraints>
+                                                                  <VBox alignment="CENTER">
+                                                                     <children>
+                                                                        <CheckBox fx:id="automaticInputBaseCheckBox" alignment="CENTER" mnemonicParsing="false" text="Automatic?" textAlignment="CENTER" />
+                                                                        <GridPane fx:id="inputBaseGridPane" alignment="CENTER" hgap="6.0" prefHeight="108.0" prefWidth="198.0" vgap="6.0">
+                                                                          <columnConstraints>
+                                                                            <ColumnConstraints halignment="RIGHT" hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                                                                              <ColumnConstraints halignment="LEFT" hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                                                                          </columnConstraints>
+                                                                           <padding>
+                                                                              <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+                                                                           </padding>
+                                                                           <rowConstraints>
+                                                                              <RowConstraints />
+                                                                           </rowConstraints>
+                                                                        </GridPane>
+                                                                     </children>
                                                                      <padding>
-                                                                        <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+                                                                        <Insets top="5.0" />
                                                                      </padding>
-                                                                  </GridPane>
+                                                                  </VBox>
                                                                </content>
                                                             </ScrollPane>
                                                          </content>
@@ -80,15 +91,26 @@
                                                          <content>
                                                             <ScrollPane fitToWidth="true" prefHeight="338.0" prefWidth="198.0">
                                                                <content>
-                                                                  <GridPane fx:id="outputBaseGridPane" alignment="CENTER" hgap="6.0" prefHeight="108.0" prefWidth="198.0" vgap="6.0">
-                                                                     <columnConstraints>
-                                                                        <ColumnConstraints halignment="RIGHT" hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
-                                                                        <ColumnConstraints halignment="LEFT" hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
-                                                                     </columnConstraints>
+                                                                  <VBox alignment="CENTER">
+                                                                     <children>
+                                                                        <CheckBox fx:id="automaticOutputBaseCheckBox" alignment="CENTER" mnemonicParsing="false" text="Automatic?" textAlignment="CENTER" />
+                                                                        <GridPane fx:id="outputBaseGridPane" alignment="CENTER" hgap="6.0" prefHeight="108.0" prefWidth="198.0" vgap="6.0">
+                                                                           <columnConstraints>
+                                                                              <ColumnConstraints halignment="RIGHT" hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                                                                              <ColumnConstraints halignment="LEFT" hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                                                                           </columnConstraints>
+                                                                           <padding>
+                                                                              <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+                                                                           </padding>
+                                                                           <rowConstraints>
+                                                                              <RowConstraints />
+                                                                           </rowConstraints>
+                                                                        </GridPane>
+                                                                     </children>
                                                                      <padding>
-                                                                        <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+                                                                        <Insets top="5.0" />
                                                                      </padding>
-                                                                  </GridPane>
+                                                                  </VBox>
                                                                </content>
                                                             </ScrollPane>
                                                          </content>
@@ -112,7 +134,16 @@
                                 <tabs>
                                   <Tab fx:id="studentTestCasesTab" text="Student">
                                        <content>
-                                          <TabPane fx:id="studentTestCasesTabPane" prefHeight="200.0" prefWidth="200.0" rotateGraphic="true" side="LEFT" tabClosingPolicy="UNAVAILABLE" />
+                                          <VBox>
+                                             <children>
+                                                <TabPane fx:id="studentTestCasesTabPane" prefHeight="200.0" prefWidth="200.0" rotateGraphic="true" side="LEFT" tabClosingPolicy="UNAVAILABLE" />
+                                                <TitledPane animated="false" text="Supporting Files">
+                                                  <content>
+                                                    <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0" />
+                                                  </content>
+                                                </TitledPane>
+                                             </children>
+                                          </VBox>
                                        </content>
                                     </Tab>
                                   <Tab fx:id="submissionTestCasesTab" text="Submission">
@@ -161,9 +192,9 @@
                                              </font>
                                           </TextField>
                                           <Button fx:id="functionBrowseButton" mnemonicParsing="false" onAction="#functionBrowseButtonPressed" text="Browse..." GridPane.columnIndex="2" />
-                                          <TextField fx:id="inputFileTextField" editable="false" prefHeight="25.0" prefWidth="185.0" GridPane.columnIndex="1" GridPane.rowIndex="1" />
-                                          <Button fx:id="inputFileBrowseButton" mnemonicParsing="false" text="Browse..." GridPane.columnIndex="2" GridPane.rowIndex="1" />
-                                          <Label text="Input file:" GridPane.rowIndex="1" />
+                                          <Label fx:id="inputFileLabel" disable="true" text="Input file:" GridPane.rowIndex="1" />
+                                          <TextField fx:id="inputFileTextField" disable="true" editable="false" prefHeight="25.0" prefWidth="185.0" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+                                          <Button fx:id="inputFileBrowseButton" disable="true" mnemonicParsing="false" text="Browse..." GridPane.columnIndex="2" GridPane.rowIndex="1" />
                                        </children>
                                     </GridPane>
                                     <AnchorPane>

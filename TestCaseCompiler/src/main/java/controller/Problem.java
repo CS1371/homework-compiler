@@ -3,6 +3,7 @@ package controller;
 import java.io.File;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 
 /**
@@ -15,21 +16,27 @@ public class Problem implements Serializable {
     private File functionSource;
     private File inputFile;
     private boolean isRecursive;
-    private ArrayList<File> supportingFiles;
+    private List<File> supportingFiles = new LinkedList<>();
     private boolean exportToDrive = true;
     private File localOutputDirectory;
     private boolean exportToDisk = false;
-    private ArrayList<TestCase> testCases;
-    private ArrayList<String> inputBaseWords;
-    private ArrayList<String> outputBaseWords;
-
-
+    private List<TestCase> testCases = new LinkedList<>();
+    private List<String> inputBaseWords = new LinkedList<>();
+    private List<String> outputBaseWords = new LinkedList<>();
 
     /**
      * The minimum number of test cases a problem may have. The compiler will start out displaying this many test cases.
      * The number of test cases cannot be less than this value.
      */
     public static final int MIN_NUM_TEST_CASES = 3;
+
+    /**
+     * Creates a new Problem object
+     * @param src the source file (i.e. the solution function .m file)
+     */
+    public Problem(File src) {
+        functionSource = src;
+    }
 
     /**
      * Gets the location of the user's chosen local output directory
@@ -92,15 +99,12 @@ public class Problem implements Serializable {
     /**
      * Sets the location of the problem's input .mat file
      * @param inputFile the new input .mat file
+     * @throws IllegalArgumentException if the new input file location is null
      */
     public void setInputFile(File inputFile) {
-        /*
-            TODO: Decide if this is allowed to be null.
-
-         */
-//        if (inputFile == null) {
-//            throw new IllegalArgumentException("The input file location cannot be null.");
-//        }
+        if (inputFile == null) {
+            throw new IllegalArgumentException("The input file location cannot be null.");
+        }
 
         this.inputFile = inputFile;
     }
@@ -157,13 +161,6 @@ public class Problem implements Serializable {
     }
 
 
-    /**
-     * Creates a new Problem object
-     * @param src the source file (i.e. the solution function .m file)
-     */
-    public Problem(File src) {
-        functionSource = src;
-    }
 
     /**
      * Set the location of the function solution source
@@ -183,9 +180,6 @@ public class Problem implements Serializable {
      * @return List of the problem's supporting files
      */
     public List<File> getSupportingFiles() {
-        /*
-            TODO: Supporting files global to all test cases or not???
-         */
         return supportingFiles;
     }
 
@@ -201,7 +195,7 @@ public class Problem implements Serializable {
      * Gets the input base words
      * @return list of input base words
      */
-    public ArrayList<String> getInputBaseWords() {
+    public List<String> getInputBaseWords() {
         return inputBaseWords;
     }
 
@@ -209,7 +203,7 @@ public class Problem implements Serializable {
      * Gets the output base words
      * @return list of output base words
      */
-    public ArrayList<String> getOutputBaseWords() {
+    public List<String> getOutputBaseWords() {
         return outputBaseWords;
     }
 
