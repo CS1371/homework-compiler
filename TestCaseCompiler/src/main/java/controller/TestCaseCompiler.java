@@ -32,13 +32,6 @@ public class TestCaseCompiler extends Application {
     @Override
     public void start(Stage primaryStage) {
         this.primaryStage = primaryStage;
-        try {
-            MatlabEngine engine = MatlabEngine.connectMatlab();
-            double out = engine.feval(1, "sqrt", 4.0);
-            System.out.println(out);
-        } catch (Exception e) {
-
-        }
 //        Generate a random message
         int n = ThreadLocalRandom.current().nextInt(0, messages.length);
         this.primaryStage.setTitle("CS1371 Test Case Compiler (" + messages[n] + ")");
