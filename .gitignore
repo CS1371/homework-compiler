@@ -33,4 +33,4 @@ TestCaseCompiler/.idea/
 *.swp
 *.swo
 *.sw*
-
+*.token
