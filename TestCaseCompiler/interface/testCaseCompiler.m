@@ -27,15 +27,16 @@ jarPath = [fileparts(fileparts(mfilename('fullpath'))) filesep 'TestCaseCompiler
 if ismac
     libPath = [matlabroot '/bin/maci64'];
     classPath = [matlabroot 'extern/engines/java/jar/engine.jar'];
+    call = sprintf('java -Djava.library.path="%s" -classpath .:"%s":"%s" controller.TestCaseController &', ...
+    libPath, classPath, jarPath);
 elseif ispc
     libPath = [matlabroot '\bin\win64'];
     classPath = [matlabroot 'extern\engines\java\jar\engine.jar'];
+    call = sprintf('start /B java -Djava.library.path="%s" -classpath .:"%s":"%s" controller.TestCaseController', ...
+    libPath, classPath, jarPath);
 elseif isunix
     % ??
 end
-
-call = sprintf('java -Djava.library.path="%s" -classpath .:"%s":"%s" controller.TestCaseController', ...
-    libPath, classPath, jarPath);
 
 [~, ~] = system(call);
 
