@@ -151,7 +151,9 @@ public class TestCaseCompilerController {
     private ArrayList<TextField> outputBaseTextFields;
 
     // Matlab Engine for communication with main MATLAB runner
-    MatlabEngine engine;
+    private MatlabEngine engine;
+
+    private String googleFolderId;
 
     /**
      * Constructor. Creates a new TestCaseCompilerController.
@@ -364,6 +366,18 @@ public class TestCaseCompilerController {
     void bannedFunctionsTextFieldKeyPressed(KeyEvent e) {
         if (e.getCode().equals(KeyCode.ENTER)) {
             addBannedFunctionButtonPressed();
+        }
+    }
+
+    @FXML
+    /**
+     * Handler for when the user wants to browse for a Google Drive Folder
+     */
+    void remoteBrowserButtonPressed() {
+        try {
+            googleFolderId = engine.feval(1, "getGoogleFolder");
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 
