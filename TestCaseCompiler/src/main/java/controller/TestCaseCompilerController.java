@@ -175,11 +175,13 @@ public class TestCaseCompilerController {
         // DEBUG:
         problemSettingsAnchorPane.setDisable(true);
 
-        /*
-            TODO: Get the user's MATLAB path to use as the default directory
-         */
-        defaultDirectory = new File(System.getProperty("user.home") + "/Documents/MATLAB");
-
+//        defaultDirectory = new File(System.getProperty("user.home") + "/Documents/MATLAB");
+        try {
+            defaultDirectory = new File((String)engine.feval("userpath"));
+        } catch (Exception e) {
+            // Couldn't find default MATLAB directory
+            defaultDirectory = new File(System.getProperty("user.home"));
+        }
         // Adds the input file stuff to the set for use later
         // TODO: use a better method
         // Right now, it's convenient just to add all the input-related stuff to a set so it's iterable and saves two
