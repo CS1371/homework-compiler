@@ -13,6 +13,8 @@ import java.util.List;
  */
 public class Problem implements Serializable {
     private int numTestCases;
+    private int numInputs;
+    private int numOutputs;
     private File functionSource;
     private File inputFile;
     private boolean isRecursive;
@@ -33,9 +35,13 @@ public class Problem implements Serializable {
     /**
      * Creates a new Problem object
      * @param src the source file (i.e. the solution function .m file)
+     * @param numInputs the number of inputs of the solution function
+     * @param numOutputs the number of outputs of the solution function
      */
-    public Problem(File src) {
+    public Problem(File src, int numInputs, int numOutputs) {
         functionSource = src;
+        this.numInputs = numInputs;
+        this.numOutputs = numOutputs;
     }
 
     /**
@@ -207,4 +213,20 @@ public class Problem implements Serializable {
         return outputBaseWords;
     }
 
+    /**
+     * Get the number of outputs for this problem's solution
+     * @return the number of outputs
+     */
+    public int getNumOutputs() {
+        return numOutputs;
+    }
+
+
+    /**
+     * Get the number of inputs for this problem's solution
+     * @return the number of inputs
+     */
+    public int getNumInputs() {
+        return numInputs;
+    }
 }

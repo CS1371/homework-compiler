@@ -172,7 +172,7 @@
                      <content>
                         <AnchorPane fx:id="statusBarAnchorPane" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="76.0" prefWidth="748.0">
                            <children>
-                              <HBox layoutX="38.0" layoutY="19.0" prefHeight="76.0" prefWidth="820.0" spacing="30.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                              <HBox prefHeight="76.0" prefWidth="820.0" spacing="30.0">
                                  <children>
                                     <GridPane fx:id="sourceFileGridPane">
                                        <columnConstraints>

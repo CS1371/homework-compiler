@@ -123,7 +123,11 @@ public class TestCaseCompilerController {
 
     /* UI specific instance fields */
 
-    private final Problem problem;
+    // This is the problem object that holds all the problem-specific information, such as the solution function source,
+    // the number of inputs/outputs, the number of test cases, etc.
+    //
+    // This will only be instantiated when a function is loaded (via the function browse button).
+    private Problem problem;
 
     // Minimum (and default) number of test cases allowed
     private final int MINIMUM_NUM_TEST_CASES = 3;
@@ -162,7 +166,6 @@ public class TestCaseCompilerController {
     public TestCaseCompilerController() {
         // Initialize instance variables
         supportingFiles = new ArrayList<>();
-        problem = new Problem(null);
         try {
             engine = MatlabEngine.connectMatlab();
         } catch (Exception e) {
@@ -200,6 +203,18 @@ public class TestCaseCompilerController {
     }
 
     /**
+     * Loads a problem with jsons already generated.
+     * Populates all fields with the relevant data, and makes the UI look exactly as if the user had just entered in
+     * everything for the loaded problem.
+     * @param path a file path
+     */
+    private void load(String path) {
+        /*
+            TODO
+         */
+    }
+
+    /**
      * Initializes a TabPane with three non-closeable tabs (representing the three required test cases).
      * @param tp the TabPane to initialize
      */
@@ -217,13 +232,22 @@ public class TestCaseCompilerController {
             num.setRotate(90);
             tmp.getChildren().add(num);
             t.setGraphic(tmp);
-            // TODO: add default starting content
             t.setClosable(false);
             t.getStyleClass().add("test-case-tab");
+            // TODO: add default starting content
+            populateTestCaseTab(t);
 
             tp.getTabs().add(t);
 
         }
+    }
+
+    /**
+     * Populates a test case tab with blank text fields and variable labels.
+     * @param t the Tab to populate
+     */
+    private void populateTestCaseTab(Tab t) {
+
     }
     /**
      * Toggles the destination button when the corresponding checkbox is toggled.
@@ -340,22 +364,31 @@ public class TestCaseCompilerController {
                 text field should turn red and an error message should be displayed notifying the user. Nothing should
                 be enabled.
              */
-            // DEBUG:
-            boolean isFunctionValid = true;
-            if (isFunctionValid) {
-                functionSourceTextField.setText(selected.getName());
-//                inputFileGroup.setDisable(false);
+            double numInputs, numOutputs;
+            try {
+                numInputs = engine.feval(1, "nargin", functionSourceFile.getAbsolutePath());
+                numOutputs = engine.feval(1, "nargout", functionSourceFile.getAbsolutePath());
+            } catch (Exception e) {
                 /*
-                    Note: some bullshittery coming up.
-                    I hate this, but because java doesn't have any way to index GridPanes, I'm stuck doing this shit
-                    Also there is (not to my knowledge) any way to group nodes non-physically.
+                    TODO: Have some error messages and shit here
                  */
-                for (Node n : inputFileSet) {
-                    n.setDisable(false);
-                }
-
-                problemSettingsAnchorPane.setDisable(false);
+                return;
             }
+
+            // Instantiate the problem, finally
+            problem = new Problem(functionSourceFile, (int) numInputs, (int) numOutputs);
+            functionSourceTextField.setText(selected.getName());
+//                inputFileGroup.setDisable(false);
+            /*
+                Note: some bullshittery coming up.
+                I hate this, but because java doesn't have any way to index GridPanes, I'm stuck doing this shit
+                Also there is (not to my knowledge) any way to group nodes non-physically.
+             */
+            for (Node n : inputFileSet) {
+                n.setDisable(false);
+            }
+
+            problemSettingsAnchorPane.setDisable(false);
         }
     }
 
