@@ -8,7 +8,6 @@
 <?import javafx.scene.control.Menu?>
 <?import javafx.scene.control.MenuBar?>
 <?import javafx.scene.control.MenuItem?>
-<?import javafx.scene.control.ProgressIndicator?>
 <?import javafx.scene.control.ScrollPane?>
 <?import javafx.scene.control.Tab?>
 <?import javafx.scene.control.TabPane?>
@@ -134,10 +133,10 @@
                                 <tabs>
                                   <Tab fx:id="studentTestCasesTab" text="Student">
                                        <content>
-                                          <VBox>
+                                          <VBox fx:id="studentTestCasesVbox">
                                              <children>
                                                 <TabPane fx:id="studentTestCasesTabPane" prefHeight="200.0" prefWidth="200.0" rotateGraphic="true" side="LEFT" tabClosingPolicy="UNAVAILABLE" />
-                                                <TitledPane animated="false" text="Supporting Files">
+                                                <TitledPane fx:id="studentSupportingFilesTitledPane" animated="false" text="Supporting Files">
                                                   <content>
                                                     <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0" />
                                                   </content>
@@ -199,7 +198,6 @@
                                     </GridPane>
                                     <AnchorPane>
                                        <children>
-                                          <ProgressIndicator opacity="0.0" prefHeight="41.0" prefWidth="54.0" progress="1.0" AnchorPane.bottomAnchor="8.0" AnchorPane.rightAnchor="5.0" AnchorPane.topAnchor="7.0" />
                                           <GridPane fx:id="outputLocationGridPane" alignment="BASELINE_CENTER" layoutX="14.0" layoutY="-2.0" prefHeight="57.0" prefWidth="384.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
                                              <columnConstraints>
                                                 <ColumnConstraints hgrow="SOMETIMES" maxWidth="202.0" minWidth="10.0" prefWidth="200.0" />
