@@ -65,9 +65,6 @@ public class TestCaseCompilerController {
     private MenuItem AboutMenuItem;
 
     @FXML
-    private AnchorPane statusBarAnchorPane;
-
-    @FXML
     private GridPane inputBaseGridPane;
 
     @FXML
@@ -129,26 +126,17 @@ public class TestCaseCompilerController {
     // This will only be instantiated when a function is loaded (via the function browse button).
     private Problem problem;
 
-    // Minimum (and default) number of test cases allowed
-    private final int MINIMUM_NUM_TEST_CASES = 3;
-
     // User-selected local output directory
     private File localOutputDirectory;
 
     // Whether or not the user wants to export to local disk
-    private boolean isLocalExport;
+    private boolean isLocalExport = false;
 
     // Whether or not the user wants to export to Google Drive
     private boolean isDriveExport = true;
 
-    // User-selected solution function source
-    private File functionSourceFile;
-
     // Default directory to open filechoosers to
     private File defaultDirectory;
-
-    // User-selected supporting files
-    private ArrayList<File> supportingFiles;
 
     // Array of input and output base word TextFields
     private ArrayList<TextField> inputBaseTextFields;
@@ -159,18 +147,20 @@ public class TestCaseCompilerController {
 
     private String googleFolderId;
 
+    private Log console = new Log();
+
     /**
      * Constructor. Creates a new TestCaseCompilerController.
-     * Initializes problem-specific instance variables, like the list of supporting files
+     * Initializes problem-specific instance variables and starts MATLAB
      */
     public TestCaseCompilerController() {
         // Initialize instance variables
-        supportingFiles = new ArrayList<>();
         try {
             engine = MatlabEngine.connectMatlab();
         } catch (Exception e) {
             e.printStackTrace();
         }
+        console.log("Window object constructed");
     }
 
     @FXML
@@ -198,6 +188,7 @@ public class TestCaseCompilerController {
 
         initializeTestCaseTabPane(studentTestCasesTabPane);
         System.out.println("Initializing...");
+        console.log("Initialized");
 
 
     }
@@ -225,7 +216,7 @@ public class TestCaseCompilerController {
 //        pane.setTabClosingPolicy(TabPane.TabClosingPolicy.UNAVAILABLE);
         tp.setRotateGraphic(true);
 
-        for (int i = 0; i < MINIMUM_NUM_TEST_CASES; i++) {
+        for (int i = 0; i < Problem.MIN_NUM_TEST_CASES; i++) {
             Tab t = new Tab();
             Group tmp = new Group();
             Label num = new Label("Test Case #" + (i + 1));
@@ -235,7 +226,7 @@ public class TestCaseCompilerController {
             t.setClosable(false);
             t.getStyleClass().add("test-case-tab");
             // TODO: add default starting content
-            populateTestCaseTab(t);
+            populateTestCaseTab(t, i + 1);
 
             tp.getTabs().add(t);
 
@@ -245,8 +236,25 @@ public class TestCaseCompilerController {
     /**
      * Populates a test case tab with blank text fields and variable labels.
      * @param t the Tab to populate
+     * @param testCaseNum the number of the test case being populated
      */
-    private void populateTestCaseTab(Tab t) {
+    private void populateTestCaseTab(Tab t, int testCaseNum) {
+        if (problem == null) {
+            throw new IllegalArgumentException("A problem must be loaded before the test case tabs can be populated.");
+        }
+
+        if (t == null) {
+            throw new IllegalArgumentException("The tab must be non-null.");
+        }
+        GridPane g = new GridPane();
+        t.setContent(g);
+        /*
+            TODO: set a minimum size for the gridpane rows and cols
+         */
+//        g.setMinSize(?, ?);
+        for (int i = 0; i < problem.getNumInputs(); i++) {
+            Label inputLabel = new Label(problem.getInputNames().get(testCaseNum * (problem.getNumInputs() - 1) + i));
+        }
 
     }
     /**
@@ -353,8 +361,6 @@ public class TestCaseCompilerController {
                 new FileChooser.ExtensionFilter("MATLAB files", "*.m"));
         File selected = fc.showOpenDialog(rootBorderPane.getScene().getWindow());
         if (selected != null) {
-            functionSourceFile = selected;
-
             /*
                 TODO:
                 Here is where MATLAB would be invoked to nargin()/nargout() the solution file, make sure it's valid,
@@ -366,8 +372,8 @@ public class TestCaseCompilerController {
              */
             double numInputs, numOutputs;
             try {
-                numInputs = engine.feval(1, "nargin", functionSourceFile.getAbsolutePath());
-                numOutputs = engine.feval(1, "nargout", functionSourceFile.getAbsolutePath());
+                numInputs = engine.feval(1, "nargin", selected.getAbsolutePath());
+                numOutputs = engine.feval(1, "nargout", selected.getAbsolutePath());
             } catch (Exception e) {
                 /*
                     TODO: Have some error messages and shit here
@@ -376,7 +382,7 @@ public class TestCaseCompilerController {
             }
 
             // Instantiate the problem, finally
-            problem = new Problem(functionSourceFile, (int) numInputs, (int) numOutputs);
+            problem = new Problem(selected, (int) numInputs, (int) numOutputs);
             functionSourceTextField.setText(selected.getName());
 //                inputFileGroup.setDisable(false);
             /*
@@ -424,6 +430,9 @@ public class TestCaseCompilerController {
      *
      */
     void supportingFilesAddButtonPressed() {
+        if (problem == null) {
+            throw new IllegalArgumentException("Supporting files cannot be added if the problem is null.");
+        }
         FileChooser fc = new FileChooser();
         fc.setTitle("Select supporting files");
         fc.setInitialDirectory(defaultDirectory);
@@ -431,7 +440,7 @@ public class TestCaseCompilerController {
         if (selected != null) {
             ObservableList<String> supFiles = supportingFilesListView.getItems();
             for (File f : selected) {
-                if (f.equals(functionSourceFile)) {
+                if (f.equals(problem.getFunctionSource())) {
                     Alert alert = new Alert(Alert.AlertType.ERROR);
                     alert.setTitle("You can't do that!");
                     alert.setHeaderText("You can't add the solution function as a supporting file.");
@@ -439,7 +448,7 @@ public class TestCaseCompilerController {
                     alert.showAndWait();
                 } else if (!supFiles.contains(f.getName())) {
                     supFiles.add(f.getName());
-                    supportingFiles.add(f);
+                    problem.getSupportingFiles().add(f);
                     // Scroll to most recently added file
                     supportingFilesListView.scrollTo(supFiles.size() - 1);
                 }

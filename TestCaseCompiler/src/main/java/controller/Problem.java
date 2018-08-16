@@ -19,9 +19,7 @@ public class Problem implements Serializable {
     private File inputFile;
     private boolean isRecursive;
     private List<File> supportingFiles = new LinkedList<>();
-    private boolean exportToDrive = true;
     private File localOutputDirectory;
-    private boolean exportToDisk = false;
     private List<TestCase> testCases = new LinkedList<>();
     private List<String> inputBaseWords = new LinkedList<>();
     private List<String> outputBaseWords = new LinkedList<>();
@@ -132,43 +130,6 @@ public class Problem implements Serializable {
     }
 
     /**
-     * Gets whether the user has selected the export to drive option
-     * @return whether or not the user has selected the export to drive option
-     */
-    public boolean isExportToDrive() {
-        return exportToDrive;
-    }
-
-    /**
-     * Sets whether the user has selected the export to drive option
-     * @param exportToDrive the new value of the export to drive option
-     */
-    public void setExportToDrive(boolean exportToDrive) {
-        /*
-            TODO: Decide if this should check and make sure exportToDrive || exportToDisk is true
-         */
-        this.exportToDrive = exportToDrive;
-    }
-
-    /**
-     * Gets whether the user has selected the export to disk option
-     * @return the export to disk option
-     */
-    public boolean isExportToDisk() {
-        return exportToDisk;
-    }
-
-    /**
-     * Sets the export to disk option
-     * @param exportToDisk the new value of the export to disk option
-     */
-    public void setExportToDisk(boolean exportToDisk) {
-        this.exportToDisk = exportToDisk;
-    }
-
-
-
-    /**
      * Set the location of the function solution source
      * @param newSrc the new location of the function solution
      * @throws IllegalArgumentException if the new location is null
@@ -203,6 +164,38 @@ public class Problem implements Serializable {
      */
     public List<String> getInputBaseWords() {
         return inputBaseWords;
+    }
+
+    /**
+     * Returns the actual names of the inputs (NOT the base words!) for this problem.
+     * If the input names are automatic (i.e. only one base word), then the inputs will be "in" + n for 1 <= n <= numInputs.
+     *
+     * If the input names are NOT automatic, and there are base words baseOne, baseTwo, ..., baseN, then the input names
+     * will be baseOne1, baseTwo1, baseThree1, ..., baseN1 for the first test case, baseOne2, baseTwo2, ..., etc. for the
+     * second, and so on.
+     *
+     * @return list of size getNumInputs()*getNumTestCases() containing EVERY input name for this problem, or null
+     * if the list of input base words is empty.
+     *
+     */
+    public List<String> getInputNames() {
+        if (inputBaseWords.size() == 0) {
+            return null;
+        }
+
+        LinkedList<String> names = new LinkedList<>();
+        for (int i = 0; i < numTestCases; i++) {
+            // If not automatic, use the base words
+            for (int j = 0; j < numInputs; j++) {
+                if (inputBaseWords.size() > 1) {
+                    names.addLast(inputBaseWords.get(j) + (i + 1));
+                } else {
+                    names.addLast(inputBaseWords.get(0) + i * numInputs + (j + 1));
+                }
+            }
+        }
+
+        return names;
     }
 
     /**
