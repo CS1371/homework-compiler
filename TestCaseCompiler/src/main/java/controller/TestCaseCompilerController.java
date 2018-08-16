@@ -142,6 +142,9 @@ public class TestCaseCompilerController {
     private ArrayList<TextField> inputBaseTextFields;
     private ArrayList<TextField> outputBaseTextFields;
 
+    // Array of input value textfields
+    private ArrayList<TextField> inputValueTextFields;
+
     // Matlab Engine for communication with main MATLAB runner
     private MatlabEngine engine;
 
@@ -155,12 +158,17 @@ public class TestCaseCompilerController {
      */
     public TestCaseCompilerController() {
         // Initialize instance variables
+        /*
+            TODO: Implement multithreading when starting MATLAB cause it's slow as fuck
+         */
         try {
+            console.log("Starting MATLAB...");
             engine = MatlabEngine.connectMatlab();
         } catch (Exception e) {
             e.printStackTrace();
         }
-        console.log("Window object constructed");
+        console.log("MATLAB instance connected");
+        console.log("Main GUI object constructed");
     }
 
     @FXML
@@ -186,7 +194,7 @@ public class TestCaseCompilerController {
         inputFileSet.add(inputFileTextField);
 
 
-        initializeTestCaseTabPane(studentTestCasesTabPane);
+//        initializeTestCaseTabPane(studentTestCasesTabPane);
         System.out.println("Initializing...");
         console.log("Initialized");
 
@@ -254,6 +262,11 @@ public class TestCaseCompilerController {
 //        g.setMinSize(?, ?);
         for (int i = 0; i < problem.getNumInputs(); i++) {
             Label inputLabel = new Label(problem.getInputNames().get(testCaseNum * (problem.getNumInputs() - 1) + i));
+            TextField inputField = new TextField();
+            // Add to the arraylist so it can be accessed later
+            inputValueTextFields.add(inputField);
+            g.add(inputLabel, 0, i);
+            g.add(inputField, 1, i);
         }
 
     }
@@ -372,8 +385,12 @@ public class TestCaseCompilerController {
              */
             double numInputs, numOutputs;
             try {
-                numInputs = engine.feval(1, "nargin", selected.getAbsolutePath());
-                numOutputs = engine.feval(1, "nargout", selected.getAbsolutePath());
+                // Fuck MathWorks
+                String initialDir = engine.feval("cd", selected.getParentFile().getAbsolutePath());
+                numInputs = engine.feval(1, "nargin", selected.getName());
+                numOutputs = engine.feval(1, "nargout", selected.getName());
+                // FUCK MATLAB
+                engine.feval("cd", initialDir);
             } catch (Exception e) {
                 /*
                     TODO: Have some error messages and shit here
@@ -395,6 +412,7 @@ public class TestCaseCompilerController {
             }
 
             problemSettingsAnchorPane.setDisable(false);
+            initializeTestCaseTabPane(studentTestCasesTabPane);
         }
     }
 
