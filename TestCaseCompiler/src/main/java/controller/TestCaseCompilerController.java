@@ -143,7 +143,7 @@ public class TestCaseCompilerController {
     private ArrayList<TextField> outputBaseTextFields;
 
     // Array of input value textfields
-    private ArrayList<TextField> inputValueTextFields;
+    private ArrayList<TextField> inputValueTextFields = new ArrayList<>();
 
     // Matlab Engine for communication with main MATLAB runner
     private MatlabEngine engine;
@@ -311,7 +311,8 @@ public class TestCaseCompilerController {
     @FXML
     void showHelp() {
         Alert alert = new Alert(Alert.AlertType.INFORMATION);
-        alert.getDialogPane().setStyle("-fx-font-family: \"Consolas\", \"monospace\"");
+        alert.getDialogPane().getStyleClass().add("-code");
+//        alert.getDialogPane().setStyle("-fx-font-family: \"Consolas\", \"monospace\"");
         alert.setTitle("CS1371 Test Case Generator");
         alert.setHeaderText("#HOMEWORKTEAMTEAMWORKMAKESTHEHOMEWORKTEAMDREAMWORK");
         alert.setContentText("Suggestions? Complaints? Insults? Funny jokes? Email dprofili3@gatech.edu and/or "

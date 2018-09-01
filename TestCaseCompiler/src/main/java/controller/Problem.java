@@ -12,7 +12,7 @@ import java.util.List;
  * @version 1.0
  */
 public class Problem implements Serializable {
-    private int numTestCases;
+    private int numTestCases = MIN_NUM_TEST_CASES;
     private int numInputs;
     private int numOutputs;
     private File functionSource;
@@ -40,6 +40,9 @@ public class Problem implements Serializable {
         functionSource = src;
         this.numInputs = numInputs;
         this.numOutputs = numOutputs;
+        // By default, base words are automatic and 
+        inputBaseWords.add("in");
+        outputBaseWords.add("out");
     }
 
     /**
