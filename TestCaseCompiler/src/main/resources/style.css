@@ -5,3 +5,7 @@
 .test-case-tab {
     -fx-pref-height: 100;
 }
+
+.error {
+    -fx-background-color: "red";
+}

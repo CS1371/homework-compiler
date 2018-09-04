@@ -118,6 +118,9 @@ public class TestCaseCompilerController {
     @FXML
     private CheckBox automaticOutputBaseCheckBox;
 
+    @FXML
+    private GridPane outputLocationGridPane;
+
     /* UI specific instance fields */
 
     // This is the problem object that holds all the problem-specific information, such as the solution function source,
@@ -188,16 +191,16 @@ public class TestCaseCompilerController {
         // Right now, it's convenient just to add all the input-related stuff to a set so it's iterable and saves two
         // lines of code whenever I want to disable/enable that stuff (which honestly isn't that often, but if the user
         // loads another function after the first and it's not valid I want to disable the input file components so....?
-        inputFileSet = new HashSet<Node>();
+        inputFileSet = new HashSet<>();
         inputFileSet.add(inputFileLabel);
         inputFileSet.add(inputFileBrowseButton);
         inputFileSet.add(inputFileTextField);
+        inputFileSet.add(outputLocationGridPane);
 
 
 //        initializeTestCaseTabPane(studentTestCasesTabPane);
         System.out.println("Initializing...");
         console.log("Initialized");
-
 
     }
 
@@ -374,47 +377,74 @@ public class TestCaseCompilerController {
         fc.getExtensionFilters().addAll(
                 new FileChooser.ExtensionFilter("MATLAB files", "*.m"));
         File selected = fc.showOpenDialog(rootBorderPane.getScene().getWindow());
-        if (selected != null) {
-            /*
-                TODO:
-                Here is where MATLAB would be invoked to nargin()/nargout() the solution file, make sure it's valid,
-                etc.
+        loadSolutionFunction(selected);
+    }
 
-                If the file isn't valid (i.e. it isn't a function [i.e. nargin/nargout error]), then the function source
-                text field should turn red and an error message should be displayed notifying the user. Nothing should
-                be enabled.
-             */
-            double numInputs, numOutputs;
-            try {
-                // Fuck MathWorks
-                String initialDir = engine.feval("cd", selected.getParentFile().getAbsolutePath());
-                numInputs = engine.feval(1, "nargin", selected.getName());
-                numOutputs = engine.feval(1, "nargout", selected.getName());
-                // FUCK MATLAB
-                engine.feval("cd", initialDir);
-            } catch (Exception e) {
-                /*
-                    TODO: Have some error messages and shit here
-                 */
-                return;
-            }
+    /**
+     * Loads a solution function from a file in the local disk, enables all problem-related disabled components, and
+     * generally sets everything up so that the user can start entering test cases, supporting files, etc.
+     * @param selected File representing the solution function file
+     * @throws IllegalArgumentException if the file object is null, if it refers to a nonexistent file, or does not
+     * refer to a file.
+     */
+    private void loadSolutionFunction(File selected) {
+        if (selected == null) {
+            throw new IllegalArgumentException("A null solution file object cannot be loaded.");
+        }
 
-            // Instantiate the problem, finally
-            problem = new Problem(selected, (int) numInputs, (int) numOutputs);
-            functionSourceTextField.setText(selected.getName());
+        if (!selected.exists() || !selected.isFile()) {
+            throw new IllegalArgumentException("File object must refer to an existent file.");
+        }
+        /*
+            TODO:
+            Here is where MATLAB would be invoked to nargin()/nargout() the solution file, make sure it's valid,
+            etc.
+
+            If the file isn't valid (i.e. it isn't a function [i.e. nargin/nargout error]), then the function source
+            text field should turn red and an error message should be displayed notifying the user. Nothing should
+            be enabled.
+         */
+        double numInputs, numOutputs;
+        try {
+            // MATLAB is garbage, so have to cd() to the solution function directory and nargin there
+            String initialDir = engine.feval("cd", selected.getParentFile().getAbsolutePath());
+            numInputs = engine.feval(1, "nargin", selected.getName());
+            numOutputs = engine.feval(1, "nargout", selected.getName());
+            engine.feval("cd", initialDir);
+        } catch (Exception e) {
+
+            // Show an alert message
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setTitle("Error loading solution function");
+            alert.setHeaderText("Error loading " + selected.getPath() + ".");
+            alert.setContentText(e.getCause().toString());
+            alert.show();
+
+            // Make the source text field red
+            functionSourceTextField.getStyleClass().add("error");
+            return;
+        }
+
+        // Un-errorify, if necessary
+        if (functionSourceTextField.getStyleClass().contains("error")) {
+            functionSourceTextField.getStyleClass().remove("error");
+        }
+
+        // Instantiate the problem
+        problem = new Problem(selected, (int) numInputs, (int) numOutputs);
+        functionSourceTextField.setText(selected.getName());
 //                inputFileGroup.setDisable(false);
             /*
                 Note: some bullshittery coming up.
                 I hate this, but because java doesn't have any way to index GridPanes, I'm stuck doing this shit
                 Also there is (not to my knowledge) any way to group nodes non-physically.
              */
-            for (Node n : inputFileSet) {
-                n.setDisable(false);
-            }
-
-            problemSettingsAnchorPane.setDisable(false);
-            initializeTestCaseTabPane(studentTestCasesTabPane);
+        for (Node n : inputFileSet) {
+            n.setDisable(false);
         }
+
+        problemSettingsAnchorPane.setDisable(false);
+        initializeTestCaseTabPane(studentTestCasesTabPane);
     }
 
     @FXML
