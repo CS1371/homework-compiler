@@ -54,7 +54,7 @@ public class TestCase {
      */
     public TestCase(SubmissionType type) {
         this.type = type;
-        this.type.getTestCases().add(this);
+//        this.type.getTestCases().add(this);
     }
 
     /**

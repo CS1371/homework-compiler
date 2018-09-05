@@ -237,7 +237,7 @@ public class TestCaseCompilerController {
             t.setClosable(false);
             t.getStyleClass().add("test-case-tab");
             // TODO: add default starting content
-            populateTestCaseTab(t, i + 1);
+            populateTestCaseTab(t, i);
 
             tp.getTabs().add(t);
 
@@ -264,7 +264,7 @@ public class TestCaseCompilerController {
          */
 //        g.setMinSize(?, ?);
         for (int i = 0; i < problem.getNumInputs(); i++) {
-            Label inputLabel = new Label(problem.getInputNames().get(testCaseNum * (problem.getNumInputs() - 1) + i));
+            Label inputLabel = new Label(problem.getInputNames().get((testCaseNum * problem.getNumInputs())  + i));
             TextField inputField = new TextField();
             // Add to the arraylist so it can be accessed later
             inputValueTextFields.add(inputField);
@@ -422,6 +422,11 @@ public class TestCaseCompilerController {
 
             // Make the source text field red
             functionSourceTextField.getStyleClass().add("error");
+
+            // Disable problem-related components
+            for (Node n : inputFileSet) {
+                n.setDisable(true);
+            }
             return;
         }
 
@@ -433,12 +438,6 @@ public class TestCaseCompilerController {
         // Instantiate the problem
         problem = new Problem(selected, (int) numInputs, (int) numOutputs);
         functionSourceTextField.setText(selected.getName());
-//                inputFileGroup.setDisable(false);
-            /*
-                Note: some bullshittery coming up.
-                I hate this, but because java doesn't have any way to index GridPanes, I'm stuck doing this shit
-                Also there is (not to my knowledge) any way to group nodes non-physically.
-             */
         for (Node n : inputFileSet) {
             n.setDisable(false);
         }

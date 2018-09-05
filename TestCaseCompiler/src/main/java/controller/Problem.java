@@ -43,6 +43,13 @@ public class Problem implements Serializable {
         // By default, base words are automatic and 
         inputBaseWords.add("in");
         outputBaseWords.add("out");
+
+        // Instantiate the test cases
+        for (int i = 0; i < MIN_NUM_TEST_CASES; i++) {
+            TestCase.SubmissionType.STUDENT.getTestCases().add(new TestCase(TestCase.SubmissionType.STUDENT));
+            TestCase.SubmissionType.SUBMISSION.getTestCases().add(new TestCase(TestCase.SubmissionType.SUBMISSION));
+            TestCase.SubmissionType.RESUBMISSION.getTestCases().add(new TestCase(TestCase.SubmissionType.RESUBMISSION));
+        }
     }
 
     /**
@@ -193,7 +200,7 @@ public class Problem implements Serializable {
                 if (inputBaseWords.size() > 1) {
                     names.addLast(inputBaseWords.get(j) + (i + 1));
                 } else {
-                    names.addLast(inputBaseWords.get(0) + i * numInputs + (j + 1));
+                    names.addLast(inputBaseWords.get(0) + (i * numInputs + (j + 1)));
                 }
             }
         }
