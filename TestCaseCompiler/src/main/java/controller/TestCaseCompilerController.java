@@ -239,7 +239,7 @@ public class TestCaseCompilerController {
             t.setClosable(false);
             t.getStyleClass().add("test-case-tab");
             // TODO: add default starting content
-            populateTestCaseTab(t, i);
+            populateTestCaseTab(t, i + 1);
 
             tp.getTabs().add(t);
 
@@ -259,21 +259,31 @@ public class TestCaseCompilerController {
         if (t == null) {
             throw new IllegalArgumentException("The tab must be non-null.");
         }
+        ScrollPane scrollPane = new ScrollPane();
         GridPane g = new GridPane();
+        scrollPane.setContent(g);
 //        StackPane stackPane = new StackPane();
 //        stackPane.getChildren().add(g);
 //        StackPane.setAlignment(g, Pos.CENTER);
 //        t.setContent(stackPane);
-        t.setContent(g);
+        t.setContent(scrollPane);
         g.setAlignment(Pos.CENTER);
         /*
             TODO: set a minimum size for the gridpane rows and cols
          */
 //        g.setMinSize(?, ?);
 
+        // Gets the length of the longest base word (for setting the grid pane size)
+        String longestBase = "";
+        for (String s : problem.getInputBaseWords()) {
+            if (s.length() > longestBase.length()) {
+                longestBase = s;
+            }
+        }
+
         // Create the label-textfield pairs for the inputting of test case values
         for (int i = 0; i < problem.getNumInputs(); i++) {
-            Label inputLabel = new Label(problem.getInputNames().get((testCaseNum * problem.getNumInputs())  + i));
+            Label inputLabel = new Label(problem.getInputNames().get(((testCaseNum - 1) * problem.getNumInputs())  + i));
             inputLabel.getStyleClass().add("code");
             TextField inputField = new TextField();
 
@@ -287,7 +297,10 @@ public class TestCaseCompilerController {
             // Restrict the width of the columns of the grid pane
             FontLoader fl = Toolkit.getToolkit().getFontLoader();
             ColumnConstraints cc = new ColumnConstraints();
-            cc.setMinWidth(2 * (fl.computeStringWidth(inputLabel.getText(), inputLabel.getFont())));
+
+            // Set the minimum width of the columns to be the width of the longest base word plus five
+            // Arbitrary, but it's not worth the effort to come up with a non hacky solution
+            cc.setMinWidth(2 * (fl.computeStringWidth(longestBase + "12345", inputLabel.getFont())));
             GridPane.setHalignment(inputLabel, HPos.CENTER);
             GridPane.setHalignment(inputField, HPos.CENTER);
             g.getColumnConstraints().add(cc);
@@ -398,7 +411,9 @@ public class TestCaseCompilerController {
         fc.getExtensionFilters().addAll(
                 new FileChooser.ExtensionFilter("MATLAB files", "*.m"));
         File selected = fc.showOpenDialog(rootBorderPane.getScene().getWindow());
-        loadSolutionFunction(selected);
+        if (selected != null) {
+            loadSolutionFunction(selected);
+        }
     }
 
     /**
@@ -483,11 +498,14 @@ public class TestCaseCompilerController {
     /**
      * Handler for when the user wants to browse for a Google Drive Folder
      */
-    void remoteBrowserButtonPressed() {
+    void remoteBrowserButtonPressed(ActionEvent e) {
         try {
             googleFolderId = engine.feval(1, "getGoogleFolder");
-        } catch (Exception e) {
-            e.printStackTrace();
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            /*
+                TODO: Show an error message here, with ex.getCause().toString()
+             */
         }
     }
 

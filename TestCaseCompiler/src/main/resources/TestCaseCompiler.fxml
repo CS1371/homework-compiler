@@ -167,7 +167,7 @@
          <top>
             <AnchorPane prefHeight="118.0" prefWidth="822.0" BorderPane.alignment="CENTER">
                <children>
-                  <TitledPane collapsible="false" prefHeight="118.0" prefWidth="826.0" text="General Settings" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                  <TitledPane collapsible="false" prefHeight="118.0" prefWidth="826.0" text="General Settings">
                      <content>
                         <AnchorPane fx:id="statusBarAnchorPane" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="76.0" prefWidth="748.0">
                            <children>
@@ -210,7 +210,7 @@
                                              <children>
                                                 <CheckBox fx:id="driveCheckbox" contentDisplay="RIGHT" mnemonicParsing="false" onAction="#destinationCheckboxClicked" prefHeight="30.0" prefWidth="178.0" selected="true" text="Export to Google Drive" />
                                                 <CheckBox fx:id="localCheckbox" mnemonicParsing="false" onAction="#destinationCheckboxClicked" prefHeight="17.0" prefWidth="300.0" text="Export to local disk" GridPane.rowIndex="1" />
-                                                <Button fx:id="remoteButton" mnemonicParsing="false" text="Choose Drive folder..." GridPane.columnIndex="1" />
+                                                <Button fx:id="remoteButton" mnemonicParsing="false" onAction="#remoteBrowserButtonPressed" text="Choose Drive folder..." GridPane.columnIndex="1" />
                                                 <Button fx:id="localButton" disable="true" mnemonicParsing="false" onAction="#localButtonPressed" text="Choose local folder..." GridPane.columnIndex="1" GridPane.rowIndex="1" />
                                              </children>
                                           </GridPane>
