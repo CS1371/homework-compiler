@@ -260,6 +260,8 @@ public class TestCaseCompilerController {
             throw new IllegalArgumentException("The tab must be non-null.");
         }
         ScrollPane scrollPane = new ScrollPane();
+        scrollPane.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
+//        scrollPane.setFitToWidth(true);
         GridPane g = new GridPane();
         scrollPane.setContent(g);
 //        StackPane stackPane = new StackPane();
@@ -281,6 +283,18 @@ public class TestCaseCompilerController {
             }
         }
 
+        // Restrict the width of the columns of the grid pane
+
+        // Dummy label to get the font used for the code (generic monospace...?)
+        Label l = new Label();
+        l.getStyleClass().add("code");
+        FontLoader fl = Toolkit.getToolkit().getFontLoader();
+
+        // Set the minimum width of the columns to be the width of the longest base word, plus some padding
+        // Arbitrary, but it's not worth the effort to come up with a non hacky solution
+        ColumnConstraints cc = new ColumnConstraints();
+        cc.setMinWidth(fl.computeStringWidth(longestBase + "123456", l.getFont()));
+        g.getColumnConstraints().add(cc);
         // Create the label-textfield pairs for the inputting of test case values
         for (int i = 0; i < problem.getNumInputs(); i++) {
             Label inputLabel = new Label(problem.getInputNames().get(((testCaseNum - 1) * problem.getNumInputs())  + i));
@@ -294,16 +308,8 @@ public class TestCaseCompilerController {
             g.add(inputLabel, 0, i);
             g.add(inputField, 1, i);
 
-            // Restrict the width of the columns of the grid pane
-            FontLoader fl = Toolkit.getToolkit().getFontLoader();
-            ColumnConstraints cc = new ColumnConstraints();
-
-            // Set the minimum width of the columns to be the width of the longest base word, plus some padding
-            // Arbitrary, but it's not worth the effort to come up with a non hacky solution
-            cc.setMinWidth(fl.computeStringWidth(longestBase + "123456", inputLabel.getFont()));
             GridPane.setHalignment(inputLabel, HPos.CENTER);
             GridPane.setHalignment(inputField, HPos.CENTER);
-            g.getColumnConstraints().add(cc);
         }
 
     }
