@@ -298,9 +298,9 @@ public class TestCaseCompilerController {
             FontLoader fl = Toolkit.getToolkit().getFontLoader();
             ColumnConstraints cc = new ColumnConstraints();
 
-            // Set the minimum width of the columns to be the width of the longest base word plus five
+            // Set the minimum width of the columns to be the width of the longest base word, plus some padding
             // Arbitrary, but it's not worth the effort to come up with a non hacky solution
-            cc.setMinWidth(2 * (fl.computeStringWidth(longestBase + "12345", inputLabel.getFont())));
+            cc.setMinWidth(fl.computeStringWidth(longestBase + "123456", inputLabel.getFont()));
             GridPane.setHalignment(inputLabel, HPos.CENTER);
             GridPane.setHalignment(inputField, HPos.CENTER);
             g.getColumnConstraints().add(cc);
