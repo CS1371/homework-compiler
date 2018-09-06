@@ -1,4 +1,6 @@
 package controller;
+import com.sun.javafx.tk.FontLoader;
+import com.sun.javafx.tk.Toolkit;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
@@ -258,18 +260,37 @@ public class TestCaseCompilerController {
             throw new IllegalArgumentException("The tab must be non-null.");
         }
         GridPane g = new GridPane();
+//        StackPane stackPane = new StackPane();
+//        stackPane.getChildren().add(g);
+//        StackPane.setAlignment(g, Pos.CENTER);
+//        t.setContent(stackPane);
         t.setContent(g);
+        g.setAlignment(Pos.CENTER);
         /*
             TODO: set a minimum size for the gridpane rows and cols
          */
 //        g.setMinSize(?, ?);
+
+        // Create the label-textfield pairs for the inputting of test case values
         for (int i = 0; i < problem.getNumInputs(); i++) {
             Label inputLabel = new Label(problem.getInputNames().get((testCaseNum * problem.getNumInputs())  + i));
+            inputLabel.getStyleClass().add("code");
             TextField inputField = new TextField();
+
             // Add to the arraylist so it can be accessed later
             inputValueTextFields.add(inputField);
+
+            // Add the label and field to the gridpane
             g.add(inputLabel, 0, i);
             g.add(inputField, 1, i);
+
+            // Restrict the width of the columns of the grid pane
+            FontLoader fl = Toolkit.getToolkit().getFontLoader();
+            ColumnConstraints cc = new ColumnConstraints();
+            cc.setMinWidth(2 * (fl.computeStringWidth(inputLabel.getText(), inputLabel.getFont())));
+            GridPane.setHalignment(inputLabel, HPos.CENTER);
+            GridPane.setHalignment(inputField, HPos.CENTER);
+            g.getColumnConstraints().add(cc);
         }
 
     }
