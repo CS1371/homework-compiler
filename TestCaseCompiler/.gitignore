@@ -1,9 +1,6 @@
-.vscode/*
-.gradle/*
-build/*
-bin/*
-.settings/*
-out/*
-.classpath
-.project
-
+##### MATLAB
+*.asv
+*.m~
+*.mat
+**/temp
+**/tmp
