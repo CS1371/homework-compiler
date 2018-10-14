@@ -1,67 +1,60 @@
 classdef SubmissionType
-    %% SUBMISSIONTYPE Represents a submission type
-    % 
-    % This class is used to group together properties that are common to a
-    % 'submission type' (i.e. student test, submission, or resubmission).
+    %% SubmissionType Represent a category of submission
+    %
+    % This class represents a category of submission, such as 'student',
+    % 'submission', or 'resubmission'. A SubmissionType object stores data
+    % particular to each submission category, including the test cases
+    % themselves, supporting files, and base words.
+    %
+    % @authors Justin Htay, Daniel Profili, Hannah White
     
     properties
-        Name char
-    end
-    
-    properties (Constant, Access = private)
-        NUM_TYPES = 3
-        TYPES = {'student', 'submission', 'resubmission'}
-    end
-    
-    methods (Access = private)
+        % The name of the submission type/category
+        name char
         
+        % The number of test cases this submission type has (3 by default)
+        numTestCases = 3
+        
+        % Array of tabs containing the test case input fields
+        testCaseTabs matlab.ui.container.Tab
+        
+        % Array of input dropdown menus
+        inputDropDowns matlab.ui.control.DropDown
+        
+        % Cell array of output base words
+        outputBaseWords cell
+        
+        % Array of test cases
+        testCases TestCase
+        
+        % Cell array of full paths to supporting files
+        supportingFiles cell
+        
+        % Array of buttons placed on user-added test case tabs
+        testCaseRemoveButtons matlab.ui.control.Button
+        
+        % The "new test case" button object
+        testCaseNewTab matlab.ui.container.Tab
+    end
+    
+    properties (Constant, Access = public)
+        MIN_NUM_TEST_CASES = 3
     end
     
     methods
+        %% Constructor
+        %
+        % obj = SubmissionType(NAME) Constructs a new SubmissionType object with
+        % name NAME and everything else uninitialized, if NAME is among the
+        % allowed submission type names. If it is not, a
+        % TESTCASE:SubmissionType:ctor:invalidSubmissionType exception is
+        % thrown.
         function this = SubmissionType(name)
-            %% SUBMISSIONTYPE Construct an instance of this class
-            %   
-            % Constructs a new submission type. The number of instances
-            % that are allowed at any one time is the number of submission
-            % types. This is done to prevent accidental creation of too
-            % many instances.
+            this.name = name;
             
-            % The number of instances that have been created
-            persistent numInstances;
-            
-            % Vector of submission type objects that have been created
-            % already
-            persistent instances;
-            
-            if isempty(instances)
-                % if no instances yet, add it normally
-                this.Name = name;
-                instances = this;
-                numInstances = 1;
-            elseif numInstances < this.NUM_TYPES
-                if any(strcmp(TYPES, name))
-                    % if instance already created, return that one
-                    loc = strcmp({instances.Name}, name);
-                    this = instances(loc);
-                else
-                    % if it doesn't exist, add it
-                    this.name = name;
-                    instances = [instances, this];
-                    numInstances = numInstances + 1;
-                end
-            else
-                % numInstances >= NUM_TYPES, so find the right one and
-                % return
-                loc = strcmp({instances.Name}, name);
-                this = instances(loc);
+            for i = 1:this.MIN_NUM_TEST_CASES
+                this.testCases = [this.testCases, TestCase()];
             end
-            
-        end
-        
-        function outputArg = method1(obj,inputArg)
-            %METHOD1 Summary of this method goes here
-            %   Detailed explanation goes here
-            outputArg = obj.Property1 + inputArg;
         end
     end
 end
