@@ -9,9 +9,6 @@ classdef SubmissionType
     % @authors Justin Htay, Daniel Profili, Hannah White
     
     properties
-        % The name of the submission type/category
-        name char
-        
         % The number of test cases this submission type has (3 by default)
         numTestCases = 3
         
@@ -35,6 +32,11 @@ classdef SubmissionType
         
         % The "new test case" button object
         testCaseNewTab matlab.ui.container.Tab
+    end
+    
+    properties (SetAccess = immutable)
+        % The name of the submission type/category
+        name char
     end
     
     properties (Constant, Access = public)

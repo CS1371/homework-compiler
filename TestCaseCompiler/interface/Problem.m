@@ -7,14 +7,17 @@ classdef Problem
     % Only one of these should exist at a time in an instance of the
     % generator UI.
     
-    properties
+    properties (SetAccess = private)
         functionPath char % path to the solution .m file
         functionName char % name of the function WITHOUT .m extension
         numInputs double % result of nargin(functionName)
         numOutputs double % result of nargout(functionName)
+        submissionTypes SubmissionType % vector of submission type objects
+    end
+    
+    properties
         bannedFunctions cell % cell array of banned function names
         isRecursive = false % whether the function is recursive or not
-        submissionTypes SubmissionType % vector of submission type objects
     end
     
     properties (Access = private, Constant)
@@ -24,26 +27,24 @@ classdef Problem
     methods
         %% Problem Create a new Problem object
         %
-        % THIS = Problem(NAME, F, I, O) creates a new Problem object with
+        % THIS = Problem(NAME, F) creates a new Problem object with
         % function name NAME (without the .m extension), absolute path to
-        % solution file F, number of inputs I, and number of outputs O.
+        % solution file F.
         function this = Problem(name, funcPath)
             this.functionName = name;
             this.functionPath = funcPath;
             
-            this.numInputs = nin;
-            this.numOutputs = nout;
+            % get nargin/nargout
+            origDir = cd(fileparts(funcPath));
+            
+            this.numInputs = nargin(path);
+            this.numOutputs = nargout(path);
+            cd(origDir);
             
             % Create the SubmissionType objects to store the test cases
             for ty = this.SUBMISSION_TYPES
                 this.submissionTypes = [this.submissionTypes, SubmissionType(ty)];
             end
-        end
-        
-        function outputArg = method1(obj,inputArg)
-            %METHOD1 Summary of this method goes here
-            %   Detailed explanation goes here
-            outputArg = obj.Property1 + inputArg;
         end
     end
 end
