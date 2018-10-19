@@ -1,4 +1,4 @@
-classdef Problem
+classdef Problem < handle
     %% PROBLEM Represent a homework problem
     %
     % A Problem contains information common to all test cases - that is,

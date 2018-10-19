@@ -1,4 +1,4 @@
-classdef TestCase
+classdef TestCase < handle
     %% TestCase Represent a complete test case for a problem
     %
     % A TestCase instance contains just the information the user has
@@ -8,7 +8,10 @@ classdef TestCase
     %% Non-UI properties
     properties
         % names of input variables, as selected by user in the UI
-        inputNames cell
+        InputNames cell
+        
+        % index of this test case
+        Index double
     end
     
     %% UI properties
@@ -40,12 +43,26 @@ classdef TestCase
         %
         % THIS = TestCase(P) creates a new test case object with parent
         % tabgroup P.
-        function this = TestCase(parent)
+        function this = TestCase(parent, num)
             this.Parent = parent;
+            this.Tab = uitab(parent);
+            this.Index = num;
         end
         
-        function verify(this)
-            cmdWinVars = evalin('base', 'whos');
+        %% deleteTestCase Deletes this test case
+        %
+        % 'Deletes' this test case object by removing the associated tab
+        % object.
+        %
+        % Called by SubmissionType's deleteTestCase, which is called by the
+        % UI when a test case is removed.
+        function deleteTestCase(this)
+            delete(this.Tab);
+        end
+        
+        function set.Index(this, value)
+            this.Index = value;
+            this.Tab.Title = ['Test Case ', num2str(value)];
         end
     end
 end

@@ -1,4 +1,4 @@
-classdef SubmissionType
+classdef SubmissionType < handle
     %% SubmissionType Represent a category of submission
     %
     % This class represents a category of submission, such as 'student',
@@ -56,6 +56,21 @@ classdef SubmissionType
             
             for i = 1:this.MIN_NUM_TEST_CASES
                 this.testCases = [this.testCases, TestCase()];
+            end
+        end
+        
+        %% deleteTestCase Deletes a test case
+        %
+        % Removes the corresponding tab from the UI and reorganizes the
+        % other tabs accordingly.
+        function deleteTestCase(this, num)
+            this.testCases(num).deleteTestCase();
+            this.numTestCases = this.numTestCases - 1;
+            this.testCases(num) = [];
+
+            % relabel other test case tabs
+            for i = 1:this.numTestCases
+                this.testCases(num).Index = i;
             end
         end
     end
