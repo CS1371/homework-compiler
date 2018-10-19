@@ -46,6 +46,29 @@ classdef Problem < handle
                 this.submissionTypes = [this.submissionTypes, SubmissionType(ty)];
             end
         end
+        
+        %% getSubType Gets a submission type object by name
+        %
+        % Returns the SubmissionType object corresponding to a particular
+        % (case-insensitive) name.
+        %
+        % Used to nicely emulate the old janky way of doing stuff with
+        % MATLAB's dynamic determination of struct field names, but works
+        % slightly better because of slightly more error checking.
+        function typeObj = getSubType(this, name)
+            typeObj = [];
+            for i = 1:length(this.submissionTypes)
+                if strcmpi(this.submissionTypes(i).Name, name)
+                    typeObj = this.submissionTypes(i);
+                end
+            end
+            
+            % complain if not valid
+            if isempty(typeObj)
+                throw(MException('TESTCASE:Problem:getSubType:invalidSubmissionType', ...
+                    '%s is not a valid submission type', name));
+            end
+        end
     end
 end
 
