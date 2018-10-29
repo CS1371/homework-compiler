@@ -8,16 +8,16 @@ classdef Problem < handle
     % generator UI.
     
     properties (SetAccess = private)
-        functionPath char % path to the solution .m file
-        functionName char % name of the function WITHOUT .m extension
-        numInputs double % result of nargin(functionName)
-        numOutputs double % result of nargout(functionName)
-        submissionTypes SubmissionType % vector of submission type objects
+        FunctionPath char % path to the solution .m file
+        FunctionName char % name of the function WITHOUT .m extension
+        NumInputs double % result of nargin(functionName)
+        NumOutputs double % result of nargout(functionName)
+        SubmissionTypes SubmissionType % vector of submission type objects
     end
     
     properties
-        bannedFunctions cell % cell array of banned function names
-        isRecursive = false % whether the function is recursive or not
+        BannedFunctions cell % cell array of banned function names
+        IsRecursive = false % whether the function is recursive or not
     end
     
     properties (Access = private, Constant)
@@ -30,24 +30,33 @@ classdef Problem < handle
         % THIS = Problem(NAME, F) creates a new Problem object with
         % function name NAME (without the .m extension), absolute path to
         % solution file F.
-        function this = Problem(name, funcPath)
-            this.functionName = name;
-            this.functionPath = funcPath;
+        function this = Problem(funcPath)
             
             % get nargin/nargout
             origDir = cd(fileparts(funcPath));
             
-            this.numInputs = nargin(path);
-            this.numOutputs = nargout(path);
+            this.NumInputs = nargin(funcPath);
+            this.NumOutputs = nargout(funcPath);
             cd(origDir);
             
-            % Create the SubmissionType objects to store the test cases
-            for ty = this.SUBMISSION_TYPES
-                this.submissionTypes = [this.submissionTypes, SubmissionType(ty)];
-            end
+            [~, this.FunctionName] = fileparts(funcPath);
+            this.FunctionPath = funcPath;
+
+            
+%             % Create the SubmissionType objects to store the test cases
+%             for ty = this.SUBMISSION_TYPES
+%                 this.SubmissionTypes = [this.SubmissionTypes, SubmissionType(ty, this)];
+%             end
         end
         
-        %% getSubType Gets a submission type object by name
+        %% addSubmissionType Add a submission type to this problem
+        %
+        function addSubmissionType(this, name, parentTabGroup)
+            this.SubmissionTypes = [this.SubmissionTypes, SubmissionType(name, this, parentTabGroup)];
+        end
+        
+        
+        %% GetSubType Gets a submission type object by name
         %
         % Returns the SubmissionType object corresponding to a particular
         % (case-insensitive) name.
@@ -57,9 +66,9 @@ classdef Problem < handle
         % slightly better because of slightly more error checking.
         function typeObj = getSubType(this, name)
             typeObj = [];
-            for i = 1:length(this.submissionTypes)
-                if strcmpi(this.submissionTypes(i).Name, name)
-                    typeObj = this.submissionTypes(i);
+            for i = 1:length(this.SubmissionTypes)
+                if strcmpi(this.SubmissionTypes(i).Name, name)
+                    typeObj = this.SubmissionTypes(i);
                 end
             end
             
