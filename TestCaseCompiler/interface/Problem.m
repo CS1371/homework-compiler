@@ -21,7 +21,7 @@ classdef Problem < handle
     end
     
     properties (Access = private, Constant)
-        SUBMISSION_TYPES = {'student', 'submission', 'resubmission'}
+        SUBMISSION_TYPES = {'Student', 'Submission', 'Resubmission'}
     end
     
     methods

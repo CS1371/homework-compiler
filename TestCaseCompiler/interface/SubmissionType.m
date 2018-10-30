@@ -84,7 +84,8 @@ classdef SubmissionType < handle
             
             % create the default number of test case tabs
             for i = 1:this.MIN_NUM_TEST_CASES
-                this.addTestCase();
+%                 this.addTestCase();
+                this.TestCases(end + 1) = TestCase(this.tabGroup, this);
             end
             
         end
@@ -142,6 +143,7 @@ classdef SubmissionType < handle
             this.RemoveTestCaseButton.Enable = 'off';
             this.RemoveTestCaseButton.Position = [51 13 31 22];
             this.RemoveTestCaseButton.Text = '-';
+            this.RemoveTestCaseButton.Enable = false;
 
             % Create AddTestCaseButton
             this.AddTestCaseButton = uibutton(this.Tab, 'push');
@@ -164,6 +166,11 @@ classdef SubmissionType < handle
             for i = 1:this.NumTestCases
                 this.TestCases(num).Index = i;
             end
+            
+            % disable remove button if <= minimum # test cases
+            if this.NumTestCases <= this.Problem.MIN_NUM_TEST_CASES
+                this.RemoveTestCaseButton.Enable = false;
+            end
         end
         
         %% addTestCase Adds a test case
@@ -171,6 +178,9 @@ classdef SubmissionType < handle
         % Adds the corresponding tab to the end of the list.
         function addTestCase(this)
             this.TestCases(end + 1) = TestCase(this.tabGroup, this);
+            if length(this.TestCases) > this.MIN_NUM_TEST_CASES
+                this.RemoveTestCaseButton.Enable = true;
+            end
             
         end
         

@@ -247,7 +247,14 @@ classdef TestCase < handle
                     end
                     tmp = uidropdown(this.Tab, 'FontName', 'Courier New', ...
                         'FontSize', 12);
+                    baseVars = evalin('base', 'who');
+                    tmp.Items = baseVars(~strcmp(baseVars, 'ans'));
+                    if isempty(tmp.Items)
+                    else
+                        tmp.Value = tmp.Items{mod(e, length(tmp.Items))};
+                    end
 %                     tmp.ValueChangedFcn = createCallbackFcn(app, @(a, ev)(inputBaseWordEditFieldChanged(a, ev, subType, e)), true);
+%                     tmp.ValueChangedFcn = @(dropDown, ev)(updateInputsList(dropDown.Value, e));
                     % depending on where we are, different. Width = 8 chars
                     tmp.Position([2 4]) = posn([2 4]);
                     tmp.Position(3) = this.CHAR_WIDTH * CUSTOM_WIDTH;
@@ -273,6 +280,13 @@ classdef TestCase < handle
                 this.RightInputParen.Position = [sum(this.FunctionName.Position([1 3])), ...
                     this.FunctionName.Position(2), this.CHAR_WIDTH, this.FunctionName.Position(4)];
             end
+        end
+        
+        %% updateInputsList
+        %
+        % Called whenever one of the input dropdowns is changed.
+        function updateInputsList(this, selectedName, ind)
+            this.InputNames{ind} = selectedName;
         end
     end
 end
