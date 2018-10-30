@@ -51,11 +51,16 @@ classdef SubmissionType < handle
        % output base words elements
        OutputBaseWordsPanel matlab.ui.container.Panel
        OutputBaseWordsEditField matlab.ui.control.EditField
+       
+       % tab group containing the test cases
+       TabGroup matlab.ui.container.TabGroup
+
     end
     
     properties (Access = private)
-        % tab group containing the test cases
-        tabGroup matlab.ui.container.TabGroup
+        
+        % currently focused test case
+        focusedTestCaseNum double
     end
     
     properties (Constant, Access = public)
@@ -85,7 +90,7 @@ classdef SubmissionType < handle
             % create the default number of test case tabs
             for i = 1:this.MIN_NUM_TEST_CASES
 %                 this.addTestCase();
-                this.TestCases(end + 1) = TestCase(this.tabGroup, this);
+                this.TestCases(end + 1) = TestCase(this.TabGroup, this);
                 
             end
             this.NumTestCases = this.MIN_NUM_TEST_CASES;
@@ -135,8 +140,9 @@ classdef SubmissionType < handle
             this.OutputBaseWordsEditField.Position = [21 28 238 22];
 
             % Create SubmissionValuesTabGroup
-            this.tabGroup = uitabgroup(this.Tab);
-            this.tabGroup.Position = [11 46 660 77];
+            this.TabGroup = uitabgroup(this.Tab);
+            this.TabGroup.Position = [11 46 660 77];
+            this.TabGroup.SelectionChangedFcn = @(a, ev)(this.setFocusedTestCase(ev.Source));
             
             % Create RemoveTestCaseButton
             this.RemoveTestCaseButton = uibutton(this.Tab, 'push');
@@ -146,6 +152,7 @@ classdef SubmissionType < handle
             this.RemoveTestCaseButton.Position = [51 13 31 22];
             this.RemoveTestCaseButton.Text = '-';
             this.RemoveTestCaseButton.Enable = false;
+            this.RemoveTestCaseButton.ButtonPushedFcn = @(a, ev)(this.deleteTestCase());
 
             % Create AddTestCaseButton
             this.AddTestCaseButton = uibutton(this.Tab, 'push');
@@ -160,18 +167,19 @@ classdef SubmissionType < handle
         %
         % Removes the corresponding tab from the UI and reorganizes the
         % other tabs accordingly.
-        function deleteTestCase(this, num)
+        function deleteTestCase(this)
+            num = this.focusedTestCaseNum;
             this.TestCases(num).deleteTestCase();
-            this.NumTestCases = this.numTestCases - 1;
+            this.NumTestCases = this.NumTestCases - 1;
             this.TestCases(num) = [];
 
             % relabel other test case tabs
             for i = 1:this.NumTestCases
-                this.TestCases(num).Index = i;
+                this.TestCases(i).Index = i;
             end
             
             % disable remove button if <= minimum # test cases
-            if this.NumTestCases <= this.Problem.MIN_NUM_TEST_CASES
+            if this.NumTestCases <= this.MIN_NUM_TEST_CASES
                 this.RemoveTestCaseButton.Enable = false;
             end
         end
@@ -181,7 +189,7 @@ classdef SubmissionType < handle
         % Adds the corresponding tab to the end of the list.
         function addTestCase(this)
             this.NumTestCases = this.NumTestCases + 1;
-            this.TestCases(end + 1) = TestCase(this.tabGroup, this);
+            this.TestCases(end + 1) = TestCase(this.TabGroup, this);
             if length(this.TestCases) > this.MIN_NUM_TEST_CASES
                 this.RemoveTestCaseButton.Enable = true;
             end 
@@ -196,6 +204,16 @@ classdef SubmissionType < handle
 %             len = this.NumTestCases;
             value = generateVarNames(this.OutputBaseWords, this.Problem.NumOutputs, ...
                 len);
+        end
+        
+        %% setFocusedTestCase
+        %
+        % Sets the currently focused test case. Used to remove the current
+        % test case.
+        function setFocusedTestCase(this, tabGroup)
+           	name = tabGroup.SelectedTab.Title;
+            num = str2num(name(name >= '0' & name <= '9'));
+            this.focusedTestCaseNum = num;
         end
         
 %         function value = get.NumTestCases(this)
