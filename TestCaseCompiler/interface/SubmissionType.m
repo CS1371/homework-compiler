@@ -86,7 +86,9 @@ classdef SubmissionType < handle
             for i = 1:this.MIN_NUM_TEST_CASES
 %                 this.addTestCase();
                 this.TestCases(end + 1) = TestCase(this.tabGroup, this);
+                
             end
+            this.NumTestCases = this.MIN_NUM_TEST_CASES;
             
         end
         
@@ -151,6 +153,7 @@ classdef SubmissionType < handle
             this.AddTestCaseButton.FontName = 'Courier New';
             this.AddTestCaseButton.Position = [11 13 31 22];
             this.AddTestCaseButton.Text = '+';
+            this.AddTestCaseButton.ButtonPushedFcn = @(a, ev)(this.addTestCase());
         end
         
         %% deleteTestCase Deletes a test case
@@ -177,26 +180,27 @@ classdef SubmissionType < handle
         %
         % Adds the corresponding tab to the end of the list.
         function addTestCase(this)
+            this.NumTestCases = this.NumTestCases + 1;
             this.TestCases(end + 1) = TestCase(this.tabGroup, this);
             if length(this.TestCases) > this.MIN_NUM_TEST_CASES
                 this.RemoveTestCaseButton.Enable = true;
-            end
-            
+            end 
         end
         
         function value = get.OutputNames(this)
             if length(this.TestCases) < this.MIN_NUM_TEST_CASES
                 len = this.MIN_NUM_TEST_CASES;
             else
-                len = length(this.TestCases);
+                len = this.NumTestCases;
             end
+%             len = this.NumTestCases;
             value = generateVarNames(this.OutputBaseWords, this.Problem.NumOutputs, ...
                 len);
         end
         
-        function value = get.NumTestCases(this)
-            value = length(this.TestCases);
-        end
+%         function value = get.NumTestCases(this)
+%             value = length(this.TestCases);
+%         end
     end
 end
 

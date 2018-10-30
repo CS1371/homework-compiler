@@ -161,7 +161,7 @@ classdef TestCase < handle
                 %                 [base{1:value}] = deal('out');
                 %                 vars = ['[' strjoin(join([base; nums]', ''), ', ') ']'];
 %                 vars = app.outputNames.(subType)(1:app.numOutputs);
-                vars = this.ParentType.OutputNames;
+                vars = this.ParentType.OutputNames((value*(this.Index - 1) + 1):(this.Index*value));
                 vars = ['[', strjoin(vars, ','), ']'];
                 this.RightOutBracket.Visible = false;
                 posn = this.LeftOutBracket.Position;
