@@ -252,7 +252,7 @@ classdef TestCase < handle
                     tmp.Items = baseVars(~strcmp(baseVars, 'ans'));
                     if isempty(tmp.Items)
                     else
-                        tmp.Value = tmp.Items{mod(e, length(tmp.Items) - 1) + 1};
+                        tmp.Value = tmp.Items{mod(e - 1, length(tmp.Items)) + 1};
                     end
 %                     tmp.ValueChangedFcn = createCallbackFcn(app, @(a, ev)(inputBaseWordEditFieldChanged(a, ev, subType, e)), true);
                     tmp.ValueChangedFcn = @(dropDown, ev)(updateInputsList(dropDown.Value, e));
