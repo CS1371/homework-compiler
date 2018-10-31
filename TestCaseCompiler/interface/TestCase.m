@@ -140,7 +140,7 @@ classdef TestCase < handle
 
     end
     
-    methods (Access = private)
+    methods (Access = public)
         function addOutputNameEditFields(this)
             value = this.ParentType.Problem.NumOutputs;
             CUSTOM_WIDTH = 8;

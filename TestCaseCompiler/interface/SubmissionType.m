@@ -176,6 +176,8 @@ classdef SubmissionType < handle
             % relabel other test case tabs
             for i = 1:this.NumTestCases
                 this.TestCases(i).Index = i;
+                this.TestCases(i).addOutputNameEditFields();
+
             end
             
             % disable remove button if <= minimum # test cases
