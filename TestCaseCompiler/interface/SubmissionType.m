@@ -65,6 +65,8 @@ classdef SubmissionType < handle
     
     properties (Constant, Access = public)
         MIN_NUM_TEST_CASES = 3
+        EDITFIELD_ERROR_COLOR = [1.0, 0, 0]
+
     end
     
     methods
@@ -138,6 +140,7 @@ classdef SubmissionType < handle
             this.OutputBaseWordsEditField = uieditfield(this.OutputBaseWordsPanel, 'text');
             this.OutputBaseWordsEditField.FontName = 'Consolas';
             this.OutputBaseWordsEditField.Position = [21 28 238 22];
+            this.OutputBaseWordsEditField.ValueChangedFcn = @(a, ev)(this.changeBaseWords(ev.Source));
 
             % Create SubmissionValuesTabGroup
             this.TabGroup = uitabgroup(this.Tab);
@@ -218,9 +221,55 @@ classdef SubmissionType < handle
             this.focusedTestCaseNum = num;
         end
         
+        %% changeBaseWords
+        %
+        % Callback for when the base words edit field is changed.
+        function changeBaseWords(this, editField)
+            value = editField.Value;
+            % split input by commas
+            baseWords = strsplit(value, ', ');
+            if length(baseWords) ~= this.Problem.NumOutputs
+                editField.BackgroundColor = this.EDITFIELD_ERROR_COLOR;
+                uiconfirm(SubmissionType.getParentFigure(editField), sprintf('You entered %d outputs, but %s has only %d outputs.', ...
+                    length(baseWords), this.Problem.FunctionName, this.Problem.NumOutputs), ...
+                    'Error', 'Icon', 'error');
+            else
+                editField.BackgroundColor = [1, 1, 1];
+                this.OutputBaseWords = cellfun(@strtrim, baseWords, 'UniformOutput', false);
+                for i = 1:this.NumTestCases
+                    this.TestCases(i).addOutputNameEditFields();
+                end
+            end
+        end
+        
+        
+
+        
 %         function value = get.NumTestCases(this)
 %             value = length(this.TestCases);
 %         end
+    end
+    
+    %% Utility methods
+    methods (Static)
+        %% getParentFigure
+        %
+        % Gets the parent UIfigure object of a child element.
+        function p = getParentFigure(elem)
+            try
+                if isa(elem, 'matlab.ui.Figure')
+                    p = elem;
+                else
+                    p = SubmissionType.getParentFigure(elem.Parent);
+                end
+            catch ME
+                % TODO: do this better
+                p = [];
+            end
+            
+        end
+        
+        
     end
 end
 
