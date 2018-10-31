@@ -78,6 +78,15 @@ classdef Problem < handle
                     '%s is not a valid submission type', name));
             end
         end
+        
+        %% refreshInputsFromWorkspace
+        %
+        % Called when new inputs are added
+        function refreshInputsFromWorkspace(this)
+            for sub = this.SubmissionTypes
+                sub.refreshInputsList();
+            end
+        end
     end
 end
 

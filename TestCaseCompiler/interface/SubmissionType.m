@@ -120,12 +120,15 @@ classdef SubmissionType < handle
             this.SupportingFilesAddButton.BackgroundColor = [0.902 0.902 0.902];
             this.SupportingFilesAddButton.Position = [261 42 100 22];
             this.SupportingFilesAddButton.Text = 'Add...';
+            this.SupportingFilesAddButton.ButtonPushedFcn = @(a, ev)(this.addSupportingFiles());
 
             % Create SupportingFilesRemoveButton
             this.SupportingFilesRemoveButton = uibutton(this.SupportingFilesPanel, 'push');
             this.SupportingFilesRemoveButton.BackgroundColor = [0.902 0.902 0.902];
             this.SupportingFilesRemoveButton.Position = [261 12 100 22];
             this.SupportingFilesRemoveButton.Text = 'Remove';
+            this.SupportingFilesRemoveButton.ButtonPushedFcn = @(a, ev)(this.removeSupportingFiles());
+
 
             % Create SupportingFilesListBox
             this.SupportingFilesListBox = uilistbox(this.SupportingFilesPanel);
@@ -139,12 +142,16 @@ classdef SubmissionType < handle
             this.OutputBaseWordsPanel.Title = 'Output Base Words';
             this.OutputBaseWordsPanel.Position = [391 132 280 94];
 
+
             % Create OutputBaseWordsEditField
             this.OutputBaseWordsEditField = uieditfield(this.OutputBaseWordsPanel, 'text');
             this.OutputBaseWordsEditField.FontName = 'Consolas';
             this.OutputBaseWordsEditField.Position = [21 28 238 22];
             this.OutputBaseWordsEditField.ValueChangedFcn = @(a, ev)(this.changeBaseWords(ev.Source));
-
+            if this.Problem.NumOutputs == 0
+                this.OutputBaseWordsEditField.Enable = false;
+            end
+            
             % Create SubmissionValuesTabGroup
             this.TabGroup = uitabgroup(this.Tab);
             this.TabGroup.Position = [11 46 660 77];
@@ -244,6 +251,82 @@ classdef SubmissionType < handle
                 end
             end
         end
+        
+        %% addSupportingFiles Adds supporting files
+        %
+        % Called when the user clicks the "add" button in the supporting files window.
+        %
+        %   subType - 'Student', 'Submission', or 'Resubmission'
+        function addSupportingFiles(this)
+            listBox = this.SupportingFilesListBox;
+            [filename, path] = uigetfile('*', 'Select supporting files', 'MultiSelect', 'on');
+            SubmissionType.makeVisible(SubmissionType.getParentFigure(listBox));
+            fullpath = fullfile(path, filename);
+            if ~iscell(fullpath)
+                fullpath = {fullpath};
+            end
+            if ~iscell(filename)
+                filename = {filename};
+            end
+            if (ischar(filename) && ischar(path)) || (iscell(filename) && ischar(path))
+                if any(strcmp(fullpath, this.Problem.FunctionPath))
+                    uiconfirm(SubmissionType.getParentFigure(listBox), 'You can''t add the solution function as a supporting file!', ...
+                        'Error', 'Icon', 'error');
+                    % delete the function file from the list of selected files
+                    mask = strcmp(fullpath, this.Problem.FunctionPath);
+                    fullpath(mask) = [];
+                    filename(mask) = [];
+                end
+                
+                % remove duplicates, if any
+                for i = length(fullpath):-1:1
+                    if any(strcmp(fullpath{i}, this.SupportingFiles))
+                        % sassily focus on that one in the listbox
+                        listBox.Value = listBox.Items(strcmp(fullpath{i}, this.SupportingFiles));
+                        % delete it from the list of files to add
+                        fullpath(i) = [];
+                        filename(i) = [];
+                    end
+                end
+                % if user actually picked something and didn't cancel, add to the list
+                items = listBox.Items;
+                items = [items, filename];
+                listBox.Items = items;
+                this.SupportingFiles = [this.SupportingFiles, fullpath];
+                
+            else
+                
+            end
+            
+            
+        end
+        
+        %% removeSupportingFiles
+        %
+        % Callback for when the 'remove' button is pressed for the
+        % supporting files.
+        function removeSupportingFiles(this)
+            listBox = this.SupportingFilesListBox;
+            selected = listBox.Value;
+            if ~isempty(selected)
+                items = listBox.Items;
+                loc = strcmp(items, selected);
+                items = items(~loc);
+                listBox.Items = items;
+                this.SupportingFiles = this.SupportingFiles(~loc);
+            end
+            
+        end
+        
+        %% refreshInputsList
+        %
+        % Refreshes the inputs list by re-importing variable names from the
+        % workspace.
+        function refreshInputsList(this)
+            for tc = this.TestCases
+                tc.updateAllDropdowns();
+            end
+        end
     end
     
     %% Utility methods
@@ -253,7 +336,7 @@ classdef SubmissionType < handle
         % Gets the parent UIfigure object of a child element.
         function p = getParentFigure(elem)
             try
-                if isa(elem, 'matlab.ui.Figure')
+                if isa(elem, 'matlab.ui.Figure') || ~isprop(elem, 'Parent')
                     p = elem;
                 else
                     p = SubmissionType.getParentFigure(elem.Parent);
@@ -263,6 +346,16 @@ classdef SubmissionType < handle
                 p = [];
             end
             
+        end
+        
+        %% makeVisible Forces the app window to become visible
+        %
+        % A workaround for the annoying habit of uigetfile() to minimize the uifigure it is
+        % called from.
+        %
+        function makeVisible(fig)
+            fig.Visible = 'off';
+            fig.Visible = 'on';
         end
         
         

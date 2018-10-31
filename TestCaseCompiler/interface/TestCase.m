@@ -35,6 +35,7 @@ classdef TestCase < handle
         OutCommas matlab.ui.control.Label
         
         % Comma labels for inputs
+        % note: has to be a cell array for some reason
         InCommas cell %matlab.ui.control.Label
         
         % Drop-down boxes for the input values selector
@@ -125,19 +126,19 @@ classdef TestCase < handle
         %
         % Redraws the function preview in the test case input value editor.
         %
-        function redrawFunctionPreview(this)            
-%             if isempty(app.outBase) || isempty(app.outBase{1})
-%                 % set base words to auto if none specified
-%                 app.outBase = {'out'};
-%             end
+        function redrawFunctionPreview(this)
+            %             if isempty(app.outBase) || isempty(app.outBase{1})
+            %                 % set base words to auto if none specified
+            %                 app.outBase = {'out'};
+            %             end
             
-%             app.outputNames.(subType) = generateVarNames(app.outBase, app.numOutputs, app.numTestCases.(subType));
-
+            %             app.outputNames.(subType) = generateVarNames(app.outBase, app.numOutputs, app.numTestCases.(subType));
+            
             addFunctionNamePreview(this);
             addOutputNameEditFields(this);
             addInputNameEditFields(this);
         end
-
+        
     end
     
     methods (Access = public)
@@ -160,7 +161,7 @@ classdef TestCase < handle
                 %                 nums = arrayfun(@num2str, 1:value, 'uni', false);
                 %                 [base{1:value}] = deal('out');
                 %                 vars = ['[' strjoin(join([base; nums]', ''), ', ') ']'];
-%                 vars = app.outputNames.(subType)(1:app.numOutputs);
+                %                 vars = app.outputNames.(subType)(1:app.numOutputs);
                 vars = this.ParentType.OutputNames((value*(this.Index - 1) + 1):(this.Index*value));
                 vars = ['[', strjoin(vars, ','), ']'];
                 this.RightOutBracket.Visible = false;
@@ -170,9 +171,9 @@ classdef TestCase < handle
                     posn(2), this.CHAR_WIDTH * length(vars), posn(4)];
                 this.LeftOutBracket.Text = vars;
             else
-                this.RightOutBracket.Position = [this.FunctionName.Position(1:2), app.CHAR_WIDTH, ...
+                this.RightOutBracket.Position = [this.FunctionName.Position(1:2), this.CHAR_WIDTH, ...
                     this.FunctionName.Position(4)];
-                this.LeftOutBracket.Position = this.RightOutBracket.Position - [app.CHAR_WIDTH 0 0 0];
+                this.LeftOutBracket.Position = this.RightOutBracket.Position - [this.CHAR_WIDTH 0 0 0];
             end
             
         end
@@ -214,7 +215,7 @@ classdef TestCase < handle
             end
             
             if ~isempty(this.InCommas)
-%                 delete(this.InCommas);
+                %                 delete(this.InCommas);
                 cellfun(@delete, this.InCommas);
             end
             this.RightInputParen.Text = ')';
@@ -234,8 +235,8 @@ classdef TestCase < handle
             %                 app.([subType, 'RightInputParen']).Text = vars;
             if value ~= 0
                 % create array of edit fields
-%                 app.inEdits.(subType) = cell(1, value);
-%                 app.inCommas.(subType) = cell(1, value - 1);
+                %                 app.inEdits.(subType) = cell(1, value);
+                %                 app.inCommas.(subType) = cell(1, value - 1);
                 posn = this.RightInputParen.Position;
                 for e = 1:value
                     if e ~= 1
@@ -246,16 +247,23 @@ classdef TestCase < handle
                             sum(this.InputDropdowns(e - 1).Position([1 3])), posn(2), this.CHAR_WIDTH, posn(4)];
                         this.InCommas{e} = tmp;
                     end
+                    
                     tmp = uidropdown(this.Tab, 'FontName', 'Courier New', ...
                         'FontSize', 12);
-                    baseVars = evalin('base', 'who');
-                    tmp.Items = baseVars(~strcmp(baseVars, 'ans'));
+                    
+                    %                     baseVars = evalin('base', 'who');
+                    %                     tmp.Items = baseVars(~strcmp(baseVars, 'ans'));
+                    baseVars = TestCase.getInputsFromWorkspace();
+                    tmp.Items = baseVars;
+                    
                     if isempty(tmp.Items)
+                        % todo: warning or something here (no variables in
+                        % workspace)
                     else
                         tmp.Value = tmp.Items{mod(e - 1, length(tmp.Items)) + 1};
                     end
-%                     tmp.ValueChangedFcn = createCallbackFcn(app, @(a, ev)(inputBaseWordEditFieldChanged(a, ev, subType, e)), true);
-                    tmp.ValueChangedFcn = @(dropDown, ev)(updateInputsList(dropDown.Value, e));
+                    %                     tmp.ValueChangedFcn = createCallbackFcn(app, @(a, ev)(inputBaseWordEditFieldChanged(a, ev, subType, e)), true);
+                    tmp.ValueChangedFcn = @(dropDown, ev)(this.updateInputsList(dropDown.Value, e));
                     % depending on where we are, different. Width = 8 chars
                     tmp.Position([2 4]) = posn([2 4]);
                     tmp.Position(3) = this.CHAR_WIDTH * CUSTOM_WIDTH;
@@ -288,6 +296,30 @@ classdef TestCase < handle
         % Called whenever one of the input dropdowns is changed.
         function updateInputsList(this, selectedName, ind)
             this.InputNames{ind} = selectedName;
+        end
+        
+
+        
+        %% updateAllDropdowns
+        %
+        % Updates all dropdowns with the new variable list.
+        function updateAllDropdowns(this)
+            newInputs = TestCase.getInputsFromWorkspace();
+            for dd = this.InputDropdowns
+                dd.Items = newInputs;
+            end
+        end
+    end
+    
+    %% Utility methods
+    methods (Static)
+        %% getInputsFromWorkspace
+        %
+        % Gets all variables from the command window workspace (except ans).
+        function baseVars = getInputsFromWorkspace()
+            baseVars = evalin('base', 'who');
+            baseVars = baseVars(~strcmp(baseVars, 'ans'));
+%             dropDown.Items = baseVars(~strcmp(baseVars, 'ans'));
         end
     end
 end
