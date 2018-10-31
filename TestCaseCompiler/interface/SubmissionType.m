@@ -65,6 +65,9 @@ classdef SubmissionType < handle
     
     properties (Constant, Access = public)
         MIN_NUM_TEST_CASES = 3
+        
+        % color for editfields (i.e. the output base edit field)
+        % for when there is an error
         EDITFIELD_ERROR_COLOR = [1.0, 0, 0]
 
     end
@@ -241,13 +244,6 @@ classdef SubmissionType < handle
                 end
             end
         end
-        
-        
-
-        
-%         function value = get.NumTestCases(this)
-%             value = length(this.TestCases);
-%         end
     end
     
     %% Utility methods

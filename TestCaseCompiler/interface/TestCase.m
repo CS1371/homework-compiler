@@ -35,7 +35,7 @@ classdef TestCase < handle
         OutCommas matlab.ui.control.Label
         
         % Comma labels for inputs
-        InCommas matlab.ui.control.Label
+        InCommas cell %matlab.ui.control.Label
         
         % Drop-down boxes for the input values selector
         InputDropdowns matlab.ui.control.DropDown
@@ -214,7 +214,8 @@ classdef TestCase < handle
             end
             
             if ~isempty(this.InCommas)
-                delete(this.InCommas);
+%                 delete(this.InCommas);
+                cellfun(@delete, this.InCommas);
             end
             this.RightInputParen.Text = ')';
             
@@ -236,14 +237,14 @@ classdef TestCase < handle
 %                 app.inEdits.(subType) = cell(1, value);
 %                 app.inCommas.(subType) = cell(1, value - 1);
                 posn = this.RightInputParen.Position;
-                for e = 1:numel(value)
+                for e = 1:value
                     if e ~= 1
                         % add comma
                         tmp = uilabel(this.Tab, 'FontName', 'Courier New', ...
                             'FontSize', 12, 'Text', ',');
                         tmp.Position = [...
                             sum(this.InputDropdowns(e - 1).Position([1 3])), posn(2), this.CHAR_WIDTH, posn(4)];
-                        this.InCommas(e) = tmp;
+                        this.InCommas{e} = tmp;
                     end
                     tmp = uidropdown(this.Tab, 'FontName', 'Courier New', ...
                         'FontSize', 12);
@@ -251,10 +252,10 @@ classdef TestCase < handle
                     tmp.Items = baseVars(~strcmp(baseVars, 'ans'));
                     if isempty(tmp.Items)
                     else
-                        tmp.Value = tmp.Items{mod(e, length(tmp.Items))};
+                        tmp.Value = tmp.Items{mod(e, length(tmp.Items) - 1) + 1};
                     end
 %                     tmp.ValueChangedFcn = createCallbackFcn(app, @(a, ev)(inputBaseWordEditFieldChanged(a, ev, subType, e)), true);
-%                     tmp.ValueChangedFcn = @(dropDown, ev)(updateInputsList(dropDown.Value, e));
+                    tmp.ValueChangedFcn = @(dropDown, ev)(updateInputsList(dropDown.Value, e));
                     % depending on where we are, different. Width = 8 chars
                     tmp.Position([2 4]) = posn([2 4]);
                     tmp.Position(3) = this.CHAR_WIDTH * CUSTOM_WIDTH;
