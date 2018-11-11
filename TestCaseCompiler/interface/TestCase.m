@@ -261,6 +261,7 @@ classdef TestCase < handle
                         % workspace)
                     else
                         tmp.Value = tmp.Items{mod(e - 1, length(tmp.Items)) + 1};
+                        this.InputNames{e} = tmp.Value;
                     end
                     %                     tmp.ValueChangedFcn = createCallbackFcn(app, @(a, ev)(inputBaseWordEditFieldChanged(a, ev, subType, e)), true);
                     tmp.ValueChangedFcn = @(dropDown, ev)(this.updateInputsList(dropDown.Value, e));

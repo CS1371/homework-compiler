@@ -9,15 +9,15 @@ classdef SubmissionType < handle
     % @authors Justin Htay, Daniel Profili, Hannah White
     
     %% Non-UI properties %%
-    properties    
+    properties
         % Cell array of output base words
         OutputBaseWords cell
-
+        
         % Array of test cases
         TestCases TestCase
         
         % Cell array of full paths to supporting files
-        SupportingFiles cell  
+        SupportingFiles cell
         
         % Parent problem
         Problem Problem
@@ -34,27 +34,33 @@ classdef SubmissionType < handle
         
         % Cell array of the actual output names
         OutputNames cell
+        
+        % all input values for this submission type
+        InputValues cell
+        
+        % all input names for this submission type
+        InputNames cell
     end
     
     %% UI properties %%
     properties
-       AddTestCaseButton matlab.ui.control.Button 
-       RemoveTestCaseButton matlab.ui.control.Button
-       Tab matlab.ui.container.Tab
-       
-       % supporting files elements
-       SupportingFilesAddButton matlab.ui.control.Button
-       SupportingFilesRemoveButton matlab.ui.control.Button
-       SupportingFilesPanel matlab.ui.container.Panel
-       SupportingFilesListBox matlab.ui.control.ListBox
-       
-       % output base words elements
-       OutputBaseWordsPanel matlab.ui.container.Panel
-       OutputBaseWordsEditField matlab.ui.control.EditField
-       
-       % tab group containing the test cases
-       TabGroup matlab.ui.container.TabGroup
-
+        AddTestCaseButton matlab.ui.control.Button
+        RemoveTestCaseButton matlab.ui.control.Button
+        Tab matlab.ui.container.Tab
+        
+        % supporting files elements
+        SupportingFilesAddButton matlab.ui.control.Button
+        SupportingFilesRemoveButton matlab.ui.control.Button
+        SupportingFilesPanel matlab.ui.container.Panel
+        SupportingFilesListBox matlab.ui.control.ListBox
+        
+        % output base words elements
+        OutputBaseWordsPanel matlab.ui.container.Panel
+        OutputBaseWordsEditField matlab.ui.control.EditField
+        
+        % tab group containing the test cases
+        TabGroup matlab.ui.container.TabGroup
+        
     end
     
     properties (Access = private)
@@ -69,7 +75,7 @@ classdef SubmissionType < handle
         % color for editfields (i.e. the output base edit field)
         % for when there is an error
         EDITFIELD_ERROR_COLOR = [1.0, 0, 0]
-
+        
     end
     
     methods
@@ -83,18 +89,18 @@ classdef SubmissionType < handle
         function this = SubmissionType(name, parent, parentTabGroup)
             this.Name = name;
             this.Problem = parent;
-%             this.tabGroup = testCaseTabGroup;
-%             delete(parentTabGroup.Children);
+            %             this.tabGroup = testCaseTabGroup;
+            %             delete(parentTabGroup.Children);
             
             % default base word is 'out'
             this.OutputBaseWords = {'out'};
-
+            
             
             createSubmissionTab(this, parentTabGroup);
             
             % create the default number of test case tabs
             for i = 1:this.MIN_NUM_TEST_CASES
-%                 this.addTestCase();
+                %                 this.addTestCase();
                 this.TestCases(end + 1) = TestCase(this.TabGroup, this);
                 
             end
@@ -114,22 +120,22 @@ classdef SubmissionType < handle
             this.SupportingFilesPanel = uipanel(this.Tab);
             this.SupportingFilesPanel.Title = 'Supporting Files';
             this.SupportingFilesPanel.Position = [11 132 370 94];
-
+            
             % Create SupportingFilesAddButton
             this.SupportingFilesAddButton = uibutton(this.SupportingFilesPanel, 'push');
             this.SupportingFilesAddButton.BackgroundColor = [0.902 0.902 0.902];
             this.SupportingFilesAddButton.Position = [261 42 100 22];
             this.SupportingFilesAddButton.Text = 'Add...';
             this.SupportingFilesAddButton.ButtonPushedFcn = @(a, ev)(this.addSupportingFiles());
-
+            
             % Create SupportingFilesRemoveButton
             this.SupportingFilesRemoveButton = uibutton(this.SupportingFilesPanel, 'push');
             this.SupportingFilesRemoveButton.BackgroundColor = [0.902 0.902 0.902];
             this.SupportingFilesRemoveButton.Position = [261 12 100 22];
             this.SupportingFilesRemoveButton.Text = 'Remove';
             this.SupportingFilesRemoveButton.ButtonPushedFcn = @(a, ev)(this.removeSupportingFiles());
-
-
+            
+            
             % Create SupportingFilesListBox
             this.SupportingFilesListBox = uilistbox(this.SupportingFilesPanel);
             this.SupportingFilesListBox.Items = {};
@@ -141,8 +147,8 @@ classdef SubmissionType < handle
             this.OutputBaseWordsPanel = uipanel(this.Tab);
             this.OutputBaseWordsPanel.Title = 'Output Base Words';
             this.OutputBaseWordsPanel.Position = [391 132 280 94];
-
-
+            
+            
             % Create OutputBaseWordsEditField
             this.OutputBaseWordsEditField = uieditfield(this.OutputBaseWordsPanel, 'text');
             this.OutputBaseWordsEditField.FontName = 'Consolas';
@@ -159,17 +165,17 @@ classdef SubmissionType < handle
             
             % Create RemoveTestCaseButton
             this.RemoveTestCaseButton = uibutton(this.Tab, 'push');
-%             this.RemoveTestCaseButton.ButtonPushedFcn = createCallbackFcn(this, @StudentRemoveTestCaseButtonPushed, true);
+            %             this.RemoveTestCaseButton.ButtonPushedFcn = createCallbackFcn(this, @StudentRemoveTestCaseButtonPushed, true);
             this.RemoveTestCaseButton.FontName = 'Courier New';
             this.RemoveTestCaseButton.Enable = 'off';
             this.RemoveTestCaseButton.Position = [51 13 31 22];
             this.RemoveTestCaseButton.Text = '-';
             this.RemoveTestCaseButton.Enable = false;
             this.RemoveTestCaseButton.ButtonPushedFcn = @(a, ev)(this.deleteTestCase());
-
+            
             % Create AddTestCaseButton
             this.AddTestCaseButton = uibutton(this.Tab, 'push');
-%             this.AddTestCaseButton.ButtonPushedFcn = createCallbackFcn(this, @StudentAddTestCaseButtonPushed, true);
+            %             this.AddTestCaseButton.ButtonPushedFcn = createCallbackFcn(this, @StudentAddTestCaseButtonPushed, true);
             this.AddTestCaseButton.FontName = 'Courier New';
             this.AddTestCaseButton.Position = [11 13 31 22];
             this.AddTestCaseButton.Text = '+';
@@ -185,12 +191,12 @@ classdef SubmissionType < handle
             this.TestCases(num).deleteTestCase();
             this.NumTestCases = this.NumTestCases - 1;
             this.TestCases(num) = [];
-
+            
             % relabel other test case tabs
             for i = 1:this.NumTestCases
                 this.TestCases(i).Index = i;
                 this.TestCases(i).addOutputNameEditFields();
-
+                
             end
             
             % disable remove button if <= minimum # test cases
@@ -207,7 +213,7 @@ classdef SubmissionType < handle
             this.TestCases(end + 1) = TestCase(this.TabGroup, this);
             if length(this.TestCases) > this.MIN_NUM_TEST_CASES
                 this.RemoveTestCaseButton.Enable = true;
-            end 
+            end
         end
         
         function value = get.OutputNames(this)
@@ -216,7 +222,7 @@ classdef SubmissionType < handle
             else
                 len = this.NumTestCases;
             end
-%             len = this.NumTestCases;
+            %             len = this.NumTestCases;
             value = generateVarNames(this.OutputBaseWords, this.Problem.NumOutputs, ...
                 len);
         end
@@ -226,7 +232,7 @@ classdef SubmissionType < handle
         % Sets the currently focused test case. Used to remove the current
         % test case.
         function setFocusedTestCase(this, tabGroup)
-           	name = tabGroup.SelectedTab.Title;
+            name = tabGroup.SelectedTab.Title;
             num = str2num(name(name >= '0' & name <= '9'));
             this.focusedTestCaseNum = num;
         end
@@ -317,6 +323,39 @@ classdef SubmissionType < handle
             end
             
         end
+        
+        %% InputNames
+        %
+        % Agglomerates all input names from all test cases into one cell
+        % array. But not really though. Actually, it puts inputs into cell
+        % arrays, which are then put into a 1x(numTestCases) cell array.
+        function value = get.InputNames(this)
+            value = {};
+            for tc = this.TestCases
+                value = [value, {tc.InputNames}];
+            end
+            
+        end
+        
+        function value = get.InputValues(this)
+            names = this.InputNames;
+            value = cell(1, length(names));
+            for i = 1:length(names)
+                try
+                    for j = 1:length(names{i})
+                        temp{j} = evalin('base', names{i}{j});
+                    end
+%                     value = [value, {temp}];
+                    value{i} = temp;
+                catch ME
+                    % something didn't work
+                    % variable missing?
+                    error('kill me plz');
+                end
+            end
+            
+        end
+            
         
         %% refreshInputsList
         %

@@ -66,6 +66,7 @@ classdef Problem < handle
         % slightly better because of slightly more error checking.
         function typeObj = getSubType(this, name)
             typeObj = [];
+            name = lower(name);
             for i = 1:length(this.SubmissionTypes)
                 if strcmpi(this.SubmissionTypes(i).Name, name)
                     typeObj = this.SubmissionTypes(i);

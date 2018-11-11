@@ -46,7 +46,7 @@
 % is not recursive.
 
 
-function package(path, out, in, name, vals, paths, num, recurs, ban)
+function package(path, out, ins, name, vals, paths, num, recurs, ban)
     
 
     [~, type, ~] = fileparts(path);
@@ -63,7 +63,7 @@ function package(path, out, in, name, vals, paths, num, recurs, ban)
     cl = onCleanup(@()(cleaner(tmp, tDir)));
     cd(tDir);
     
-    ins = generateVarNames(in, numIns, num);
+%     ins = generateVarNames(in, numIns, num);
     outs = generateVarNames(out, numOuts, num);
     
     % num vals = nargin * numTests
