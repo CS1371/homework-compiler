@@ -45,6 +45,7 @@ function testCaseGenerator(app)
     
     % copy soln function; remove _soln if found
     progress.Message = 'Parsing solution file...';
+    oldSolnPath = student.functionPath;
     [solnPath, solnFunction, ~] = fileparts(student.functionPath);
     solnFunction = strrep(solnFunction, '_soln', '');
     student.functionPath = [solnPath filesep solnFunction '.m'];
@@ -53,10 +54,20 @@ function testCaseGenerator(app)
         resub.functionPath = [solnPath filesep solnFunction '.m'];
     end
     
+    % rename
+    if ~strcmp(oldSolnPath, student.functionPath)
+        copyfile(oldSolnPath, student.functionPath);
+    end
+    
+    % rename file
+%     movefile(oldSolnPath, student.functionPath, 'f');
+    
     mkdir(solnFunction);
     cd(solnFunction);
     
-    copyfile(student.functionPath, [pwd filesep solnFunction '.m']);
+%     copyfile(student.functionPath, [pwd filesep solnFunction '.m']);
+    copyfile(oldSolnPath, [pwd filesep solnFunction '.m']);
+
     % create the student package
     progress.Message = 'Creating student package...';
     try
@@ -167,15 +178,23 @@ function testCaseGenerator(app)
                     strjoin(arrayfun(@num2str, cases, 'uni', false), ', '), ...
                     msg);
             end
-            uialert(app.UIFigure, msg, 'Resubmission Verification Failure');
+            uialert(app.UIFigure, msg, 'Resubmission verification failure!');
         end
     end
     
     % upload to google drive
-    token = refresh2access(app.token);
-    progress.Message = 'Uploading package to Google Drive...';
-    uploadToDrive(pwd, app.folderId, token, app.key, progress);
-    progress.close();
+    if app.exportDriveSelected
+        token = refresh2access(app.token);
+        progress.Message = 'Uploading package to Google Drive...';
+        uploadToDrive(pwd, app.folderId, token, app.key, progress);
+        progress.close();
+    end
+    
+    % local output
+    if app.exportLocalSelected
+        progress.Message = sprintf('Saving to %s...', app.LocalOutputDir);
+        copyfile([workDir, filesep, solnFunction, filesep, '*'], app.LocalOutputDir, 'f');
+    end
 end
 
 function cleaner(path, rmPath)

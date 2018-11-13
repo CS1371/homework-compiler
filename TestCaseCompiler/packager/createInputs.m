@@ -8,7 +8,9 @@
 %
 function createInputs(names, values) %#ok<INUSD>
     for i = 1:numel(names)
-        eval([names{i} ' = values{i};']);
+%         for j = 1:numel(names{i})
+            eval([names{i} ' = values{i};']);
+%         end
     end
     
     save('inputs.mat', names{:});

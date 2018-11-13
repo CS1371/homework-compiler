@@ -332,7 +332,7 @@ classdef SubmissionType < handle
         function value = get.InputNames(this)
             value = {};
             for tc = this.TestCases
-                value = [value, {tc.InputNames}];
+                value = [value, tc.InputNames{:}];
             end
             
         end
@@ -342,11 +342,11 @@ classdef SubmissionType < handle
             value = cell(1, length(names));
             for i = 1:length(names)
                 try
-                    for j = 1:length(names{i})
-                        temp{j} = evalin('base', names{i}{j});
-                    end
-%                     value = [value, {temp}];
-                    value{i} = temp;
+%                     for j = 1:length(names{i})
+%                         temp{j} = evalin('base', names{i}{j});
+%                     end
+%                     value{i} = temp;
+                    value{i} = evalin('base', names{i});
                 catch ME
                     % something didn't work
                     % variable missing?
