@@ -104,12 +104,21 @@ function package(path, out, ins, name, vals, paths, num, recurs, ban)
     %   loadFile
     %   testCases:
     %       calls
+    % --FOR INTERNAL LOADING USE ONLY--
+    %   ins
+    %   outs
+    %   outBase
     json.name = fName;
     json.isRecursive = recurs;
     json.banned = ban;
     json.loadFile = 'inputs.mat';
     json.supportingFiles = paths;
 %     json.initializer = '';
+    % these fields are for internal loading use only
+    json.ins = ins;
+    json.outs = outs;
+    json.outBase = out;
+    
     % create test cases
     ins = ins(end:-1:1);
     outs = outs(end:-1:1);

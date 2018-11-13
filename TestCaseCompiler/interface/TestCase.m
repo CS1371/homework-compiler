@@ -295,6 +295,15 @@ classdef TestCase < handle
             end
         end
         
+        %% autofillDropdowns Fills dropdowns with a cell array of items
+        function autofillDropdowns(this, items)
+            for ind = 1:length(this.InputDropdowns)
+                dd = this.InputDropdowns(ind);
+                item = items{ind};
+                dd.Value = item;
+            end
+        end
+        
         %% updateInputsList
         %
         % Called whenever one of the input dropdowns is changed.
@@ -324,6 +333,17 @@ classdef TestCase < handle
             baseVars = evalin('base', 'who');
             baseVars = baseVars(~strcmp(baseVars, 'ans'));
 %             dropDown.Items = baseVars(~strcmp(baseVars, 'ans'));
+        end
+        
+        %% createFromPackage Creates a test case from a loaded package
+        function tc = createFromPackage(tabGroup, parentType, infoSt)
+            % load variables into workspace
+            % TODO: check for conflicts here
+            evalin('base', sprintf('load(''%s'')', infoSt.loadFile));
+            tc = TestCase(tabGroup, parentType);
+            value = parentType.Problem.NumInputs;
+            tcInputs = infoSt.ins((value*(tc.Index - 1) + 1):(tc.Index*value));
+            tc.autofillDropdowns(tcInputs);
         end
     end
 end

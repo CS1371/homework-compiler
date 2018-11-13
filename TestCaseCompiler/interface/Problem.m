@@ -30,26 +30,106 @@ classdef Problem < handle
     methods
         %% Problem Create a new Problem object
         %
-        % THIS = Problem(NAME, F) creates a new Problem object with
-        % function name NAME (without the .m extension), absolute path to
-        % solution file F.
-        function this = Problem(funcPath)
-            
-            % get nargin/nargout
-            origDir = cd(fileparts(funcPath));
-            
-            this.NumInputs = nargin(funcPath);
-            this.NumOutputs = nargout(funcPath);
-            cd(origDir);
-            
-            [~, this.FunctionName] = fileparts(funcPath);
-            this.FunctionPath = funcPath;
+        % THIS = Problem(PATH, TABGROUP) creates a new Problem object with
+        % path to solution function NAME and uitabgroup object TABGROUP.
+        %
+        % THIS = Problem(PKGPATH, TABGROUP, 'load') loads a Problem object
+        % from package path PKGPATH.
+        function this = Problem(funcPath, rubricTabGroup, varargin)
+            if isempty(varargin)
 
+                % get nargin/nargout
+                origDir = cd(fileparts(funcPath));
+
+                this.NumInputs = nargin(funcPath);
+                this.NumOutputs = nargout(funcPath);
+                cd(origDir);
+
+                [~, this.FunctionName] = fileparts(funcPath);
+                this.FunctionPath = funcPath;
+
+                % add the submission type objects
+                this.addSubmissionType('Student', rubricTabGroup);
+                this.addSubmissionType('Submission', rubricTabGroup);
+                this.addSubmissionType('Resubmission', rubricTabGroup);
+    %             % Create the SubmissionType objects to store the test cases
+    %             for ty = this.SUBMISSION_TYPES
+    %                 this.SubmissionTypes = [this.SubmissionTypes, SubmissionType(ty, this)];
+    %             end
+            elseif length(varargin) == 1 && strcmpi(varargin{1}, 'load')
+                % load from a package
+                this.loadFromPackage(funcPath, tabGroup);
+            else
+               throw(MException('TESTCASE:Problem:ctor:illegalArgumentException', ...
+                   'The only extra input allowed is ''load'' to load from a package.'));
+            end
+        end
+        
+        %% loadFromPackage Loads a Problem object from an exported package
+        %
+        % Loads and verifies the structure of the package given by pkgPath.
+        %
+        function loadFromPackage(this, pkgPath, tabGroup, app)
+            % look for the solution file
+            origDir = cd(pkgPath);
+            mFiles = dir('*.m');
+            if length(mFiles) ~= 1
+                throw(MException('TESTCASE:Problem:loadFromPackage:invalidPackage', ...
+                    'More than one .m file found in the package directory. Cannot identify solution.'));
+            end
             
-%             % Create the SubmissionType objects to store the test cases
-%             for ty = this.SUBMISSION_TYPES
-%                 this.SubmissionTypes = [this.SubmissionTypes, SubmissionType(ty, this)];
-%             end
+            
+            this.FunctionPath = fullfile(mFiles.folder, mFiles.name);
+            this.NumInputs = nargin(this.FunctionPath);
+            this.NumOutputs = nargout(this.FunctionPath);  
+                        
+            % create the submission type tabs
+%             this.addSubmissionType('Student', tabGroup);
+%             this.addSubmissionType('Submission', tabGroup);
+%             this.addSubmissionType('Resubmission', tabGroup);
+            
+            % autofill with the stuff
+            included = dir();
+            included = included([included.isdir]);
+            included(strcmp({included.name}, '.') | strcmp({included.name}, '..')) = [];
+            for ind = 1:length(included)
+                d = included(ind);
+                switch d.name
+                    case 'student'
+                        subType = 'Student';
+                    case 'submission'
+                        subType = 'Submission';
+                    case 'resub'
+                        subType = 'Resubmission';
+                end
+                
+                subTypeObj = this.getSubType(subType);
+                subPath = fullfile(d.folder, d.name);
+                homeDir = cd(subPath);
+                % delete old tabs
+                delete(subTypeObj.Tab);
+                
+                try
+                    infoSt = jsondecode(fileread([d.name, '.json']));
+                    this.IsRecursive = infoSt.isRecursive;
+                    app.RecursiveCheckBox.Value = infoSt.isRecursive;
+                    this.BannedFunctions = infoSt.banned;
+                    app.BannedFunctionsListBox.Items = infoSt.banned;
+                    subTypeObj.loadFromPackage(infoSt, tabGroup);
+                catch ME
+                    throw(MException('TESTCASE:Problem:loadFromPackage:invalidJson', ...
+                        sprintf('Submission type ''%s'' has an invalid json structure.', ...
+                        d.name)));
+                end
+                
+                
+                
+                cd(homeDir);
+            end
+            
+            
+            
+            cd(origDir);
         end
         
         %% addSubmissionType Add a submission type to this problem
