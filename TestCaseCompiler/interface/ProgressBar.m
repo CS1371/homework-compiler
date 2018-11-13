@@ -1,9 +1,11 @@
 classdef ProgressBar < handle
     % PROGRESSBAR Represents a progress bar dialog
+    %   Defines an interface for progress bar UI elements. It is designed
+    %   to maintain compatibility between versions of MATLAB with
+    %   uiwatdlg() (i.e. >= R2018a) and versions without.
     %
-    %
-    %
-    %
+    % (c) 2018 CS1371 (J. Htay, D. Profili, A. Rao, H. White)
+
     
     properties
         Indeterminate

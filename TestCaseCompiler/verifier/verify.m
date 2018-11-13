@@ -46,6 +46,8 @@
 %
 %   Exception raised: invalidPackage
 %
+% (c) 2018 CS1371 (J. Htay, D. Profili, A. Rao, H. White)
+
 function [result, failedCases, msg] = verify(pathToSolnFile, packagePath)
 
 % check the inputs for basic validity (mostly just that they exist)

@@ -6,6 +6,8 @@
 % createInputs(N, V) will use names N and values V to create input mat
 % file.
 %
+% (c) 2018 CS1371 (J. Htay, D. Profili, A. Rao, H. White)
+
 function createInputs(names, values) %#ok<INUSD>
     for i = 1:numel(names)
 %         for j = 1:numel(names{i})

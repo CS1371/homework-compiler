@@ -6,7 +6,7 @@ classdef SubmissionType < handle
     % particular to each submission category, including the test cases
     % themselves, supporting files, and base words.
     %
-    % @authors Justin Htay, Daniel Profili, Hannah White
+    % % (c) 2018 CS1371 (J. Htay, D. Profili, A. Rao, H. White)
     
     %% Non-UI properties %%
     properties

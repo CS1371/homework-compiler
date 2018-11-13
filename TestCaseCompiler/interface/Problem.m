@@ -6,6 +6,9 @@ classdef Problem < handle
     %
     % Only one of these should exist at a time in an instance of the
     % generator UI.
+    %
+    % (c) 2018 CS1371 (J. Htay, D. Profili, A. Rao, H. White)
+
     
     properties (SetAccess = private)
         FunctionPath char % path to the solution .m file

@@ -4,6 +4,9 @@ classdef TestCase < handle
     % A TestCase instance contains just the information the user has
     % entered to define a test case. This is primarily the list of variable
     % names entered in the test case values panel.
+    %
+    % (c) 2018 CS1371 (J. Htay, D. Profili, A. Rao, H. White)
+
     
     %% Non-UI properties
     properties

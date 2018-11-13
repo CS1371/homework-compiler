@@ -44,6 +44,9 @@
 %
 % If R is true, then the student will receive no points if their solution
 % is not recursive.
+%
+% (c) 2018 CS1371 (J. Htay, D. Profili, A. Rao, H. White)
+
 
 
 function package(path, out, ins, name, vals, paths, num, recurs, ban)

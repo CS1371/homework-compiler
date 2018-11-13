@@ -20,6 +20,8 @@
 %   supportingFiles
 %   bannedFunctions
 %   isRecursive
+%
+% (c) 2018 CS1371 (J. Htay, D. Profili, A. Rao, H. White)
 function testCaseGenerator(app)
     % get the three packages
     progress = ProgressBar(app.UIFigure, ...
