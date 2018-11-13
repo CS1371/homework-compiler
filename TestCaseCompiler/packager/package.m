@@ -106,7 +106,7 @@ function package(path, out, ins, name, vals, paths, num, recurs, ban)
     json.banned = ban;
     json.loadFile = 'inputs.mat';
     json.supportingFiles = paths;
-    json.initializer = '';
+%     json.initializer = '';
     % create test cases
     ins = ins(end:-1:1);
     outs = outs(end:-1:1);
