@@ -87,6 +87,7 @@ classdef Problem < handle
         %
         % Called when new inputs are added
         function refreshInputsFromWorkspace(this)
+%             disp('DEBUG: Refreshing inputs');
             for sub = this.SubmissionTypes
                 sub.refreshInputsList();
             end
