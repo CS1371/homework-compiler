@@ -167,7 +167,7 @@ classdef TestCase < handle
                 %                 vars = app.outputNames.(subType)(1:app.numOutputs);
                 vars = this.ParentType.OutputNames((value*(this.Index - 1) + 1):(this.Index*value));
                 vars = ['[', strjoin(vars, ','), ']'];
-                this.RightOutBracket.Visible = false;
+                this.RightOutBracket.Visible = 'off';
                 posn = this.LeftOutBracket.Position;
                 this.LeftOutBracket.Position = [...
                     this.FunctionName.Position(1) - (this.CHAR_WIDTH * length(vars)), ...
