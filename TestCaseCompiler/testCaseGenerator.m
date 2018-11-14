@@ -101,8 +101,8 @@ function testCaseGenerator(app)
         if isempty(cases)
             msg = sprintf('Verification failed: %s', msg);
         else
-            messages = {msg.message};
-            messagesStr = strjoin(messages, ', ');
+            messages = cellfun(@(x) x/message, msg, 'uni', false);
+            messagesStr = strjoin(messages, '\n');
             msg = sprintf('Verification failed on test case(s) %s: %s', ...
                 strjoin(arrayfun(@num2str, cases, 'uni', false), ', '), ...
                 messagesStr);
