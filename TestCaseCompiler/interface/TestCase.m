@@ -72,6 +72,8 @@ classdef TestCase < handle
         function this = TestCase(parent, subType)
             this.Parent = parent;
             this.Tab = uitab(parent);
+            % associate the object with the tab
+            this.Tab.UserData = this;
             this.ParentType = subType;
             this.Index = length(this.ParentType.TestCases) + 1;
             this.Tab.Title = sprintf('Test Case %d', this.Index);
@@ -320,6 +322,40 @@ classdef TestCase < handle
             newInputs = TestCase.getInputsFromWorkspace();
             for dd = this.InputDropdowns
                 dd.Items = newInputs;
+            end
+        end
+        
+        %% verifySelf
+        %
+        % Verifies this single test case. Essentially a stripped-down
+        % version of the full verify() function, used to test a single
+        % function call only.
+        function verifySelf(this)
+            tempdir = tempname();
+            mkdir(tempdir);
+            orig = cd(tempdir);
+            cleanup = onCleanup(@()(cleaner(orig, tempdir)));
+            
+            % copy supporting files to temp directory
+            for fi = this.ParentType.SupportingFiles
+                copyfile(f);
+            end
+            
+            % copy soln
+            copyfile(this.ParentType.Problem.FunctionPath);
+            fnName = this.ParentType.Problem.FunctionName;
+            
+            % build the function call
+            call = sprintf('%s(%s);', fnName, strjoin(this.InputNames, ','));
+            
+            % eval
+            evalin('base', call);
+            
+            % if it worked, then great
+            
+            function cleaner(orig, temp)
+                cd(orig);
+                rmdir(temp, 's');
             end
         end
     end

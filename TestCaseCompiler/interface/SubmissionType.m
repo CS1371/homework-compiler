@@ -66,7 +66,7 @@ classdef SubmissionType < handle
     properties (Access = private)
         
         % currently focused test case
-        focusedTestCaseNum double
+        focusedTestCaseNum = 1
     end
     
     properties (Constant, Access = public)
@@ -290,9 +290,26 @@ classdef SubmissionType < handle
         %
         % Sets the currently focused test case. Used to remove the current
         % test case.
+        %
+        % Also verifies the function call on the current test case.
         function setFocusedTestCase(this, tabGroup)
             name = tabGroup.SelectedTab.Title;
             num = str2num(name(name >= '0' & name <= '9'));
+            
+            % verify the single test case
+            tc = this.TestCases(this.focusedTestCaseNum).Tab.UserData;
+            try
+                tc.verifySelf();
+                currentTitle = this.TestCases(this.focusedTestCaseNum).Tab.Title;
+                this.TestCases(this.focusedTestCaseNum).Tab.Title = strrep(currentTitle, '!!', '');
+            catch ME
+                % TODO: set dropdowns red maybe?
+                currentTitle = this.TestCases(this.focusedTestCaseNum).Tab.Title;
+                if ~contains(currentTitle, '!!')
+                    this.TestCases(this.focusedTestCaseNum).Tab.Title = ['!! ', currentTitle];
+                end
+            end
+            
             this.focusedTestCaseNum = num;
         end
         
