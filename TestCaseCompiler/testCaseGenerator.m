@@ -101,9 +101,11 @@ function testCaseGenerator(app)
         if isempty(cases)
             msg = sprintf('Verification failed: %s', msg);
         else
+            messages = {msg.message};
+            messagesStr = strjoin(messages, ', ');
             msg = sprintf('Verification failed on test case(s) %s: %s', ...
                 strjoin(arrayfun(@num2str, cases, 'uni', false), ', '), ...
-                msg);
+                messagesStr);
         end
         uialert(app.UIFigure, msg, 'Student Verification Failure');
     end
