@@ -105,6 +105,11 @@ classdef TestCase < handle
             
             redrawFunctionPreview(this);
             
+            % TODO: look at slowdowns from this
+            % big functions could take a long time if they are run 9 times
+            % on app startup
+            this.verifySelf();
+            
         end
         
         %% deleteTestCase Deletes this test case
@@ -330,7 +335,8 @@ classdef TestCase < handle
         % Verifies this single test case. Essentially a stripped-down
         % version of the full verify() function, used to test a single
         % function call only.
-        function verifySelf(this)
+        function result = verifySelf(this)
+            result = true;
             tempdir = tempname();
             mkdir(tempdir);
             orig = cd(tempdir);
@@ -349,14 +355,28 @@ classdef TestCase < handle
             call = sprintf('%s(%s);', fnName, strjoin(this.InputNames, ','));
             
             % eval
-            evalin('base', call);
+%             evalin('base', call);
             
-            % if it worked, then great
+            try
+                evalin('base', call);
+                
+                % if it worked, then great
+                this.Tab.Title = strrep(this.Tab.Title, '!! ', '');
+            catch ME
+                % failed, so fuck you
+                % TODO: set dropdowns red maybe?
+                currentTitle = this.Tab.Title;
+                if ~contains(currentTitle, '!! ')
+                    this.Tab.Title = ['!! ', currentTitle];
+                end
+                result = false;
+            end
             
             function cleaner(orig, temp)
                 cd(orig);
                 rmdir(temp, 's');
             end
+            
         end
     end
     

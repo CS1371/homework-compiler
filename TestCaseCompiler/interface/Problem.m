@@ -23,6 +23,10 @@ classdef Problem < handle
         IsRecursive = false % whether the function is recursive or not
     end
     
+    properties (Hidden)
+       SelectedSubmission char 
+    end
+    
     properties (Access = private, Constant)
         SUBMISSION_TYPES = {'Student', 'Submission', 'Resubmission'}
     end
@@ -52,6 +56,14 @@ classdef Problem < handle
                 this.addSubmissionType('Student', rubricTabGroup);
                 this.addSubmissionType('Submission', rubricTabGroup);
                 this.addSubmissionType('Resubmission', rubricTabGroup);
+                
+                this.SelectedSubmission = 'Student';
+                
+                % add verification callback for changing submissions
+                rubricTabGroup.SelectionChangedFcn = @(a, ev) tabGroupChangedFcn(ev.Source.SelectedTab.Title);
+                
+
+                
     %             % Create the SubmissionType objects to store the test cases
     %             for ty = this.SUBMISSION_TYPES
     %                 this.SubmissionTypes = [this.SubmissionTypes, SubmissionType(ty, this)];
@@ -62,6 +74,30 @@ classdef Problem < handle
             else
                throw(MException('TESTCASE:Problem:ctor:illegalArgumentException', ...
                    'The only extra input allowed is ''load'' to load from a package.'));
+            end
+            
+            function tabGroupChangedFcn(newTabTitle)
+                currentSubObj = [];
+                for st = this.SubmissionTypes
+                    cleanTitle = strrep(st.Name, '!! ', '');
+                    if isequal(cleanTitle, this.SelectedSubmission)
+                        currentSubObj = st;
+                    end
+                end
+                
+                title = currentSubObj.Tab.Title;
+                if currentSubObj.verifyAllTestCases()
+                    % success
+                    currentSubObj.Tab.Title = strrep(title, '!! ', '');
+                else
+                    % fail
+                    if ~contains(title, '!!')
+                        currentSubObj.Tab.Title = ['!! ', title];
+                    end
+                end
+                
+                this.SelectedSubmission = strrep(newTabTitle, '!! ', '');
+                
             end
         end
         
@@ -121,9 +157,7 @@ classdef Problem < handle
                         sprintf('Submission type ''%s'' has an invalid json structure.', ...
                         d.name)));
                 end
-                
-                
-                
+
                 cd(homeDir);
             end
             

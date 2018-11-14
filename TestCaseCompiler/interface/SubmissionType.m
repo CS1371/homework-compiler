@@ -96,7 +96,7 @@ classdef SubmissionType < handle
             this.OutputBaseWords = {'out'};
 
 
-            createSubmissionTab(this, parentTabGroup);
+            this.createSubmissionTab(parentTabGroup);
 
             % create the default number of test case tabs
             for i = 1:this.MIN_NUM_TEST_CASES
@@ -140,6 +140,7 @@ classdef SubmissionType < handle
         %
         % Everything is created blank.
         function createSubmissionTab(this, parentTabGroup)
+            % Create the tab
             this.createTab(parentTabGroup);
             
             % Create SupportingFilesPanel
@@ -158,6 +159,7 @@ classdef SubmissionType < handle
         %% createTab Creates the tab object
         function createTab(this, parentTabGroup)
             this.Tab = uitab(parentTabGroup, 'title', this.Name);
+            this.Tab.UserData = this;
         end
         
         %% createSupportingFilesPanel Creates the supporting files panel object
@@ -298,19 +300,22 @@ classdef SubmissionType < handle
             
             % verify the single test case
             tc = this.TestCases(this.focusedTestCaseNum).Tab.UserData;
-            try
-                tc.verifySelf();
-                currentTitle = this.TestCases(this.focusedTestCaseNum).Tab.Title;
-                this.TestCases(this.focusedTestCaseNum).Tab.Title = strrep(currentTitle, '!!', '');
-            catch ME
-                % TODO: set dropdowns red maybe?
-                currentTitle = this.TestCases(this.focusedTestCaseNum).Tab.Title;
-                if ~contains(currentTitle, '!!')
-                    this.TestCases(this.focusedTestCaseNum).Tab.Title = ['!! ', currentTitle];
-                end
-            end
+            tc.verifySelf();
             
+            % set the number of the new focused test case
             this.focusedTestCaseNum = num;
+        end
+        
+        %% verifyAllTestCases
+        %
+        % Verifies all test cases for this submission type. Returns true if
+        % all test cases pass and false if any of them fail.
+        function result = verifyAllTestCases(this)
+            result = true;
+            for tc = this.TestCases
+                out = tc.verifySelf();
+                result = result && out;
+            end
         end
         
         %% changeBaseWords
