@@ -209,7 +209,7 @@ classdef SubmissionType < handle
             this.OutputBaseWordsEditField.ValueChangedFcn = @(a, ev)(this.changeBaseWords(ev.Source));
             this.OutputBaseWordsEditField.Value = txt;
             if this.Problem.NumOutputs == 0
-                this.OutputBaseWordsEditField.Enable = false;
+                this.OutputBaseWordsEditField.Enable = 'off';
             end
         end
         
@@ -229,7 +229,7 @@ classdef SubmissionType < handle
             this.RemoveTestCaseButton.Enable = 'off';
             this.RemoveTestCaseButton.Position = [51 13 31 22];
             this.RemoveTestCaseButton.Text = '-';
-            this.RemoveTestCaseButton.Enable = false;
+            this.RemoveTestCaseButton.Enable = 'off';
             this.RemoveTestCaseButton.ButtonPushedFcn = @(a, ev)(this.deleteTestCase());
             
             % Create AddTestCaseButton
@@ -260,7 +260,7 @@ classdef SubmissionType < handle
             
             % disable remove button if <= minimum # test cases
             if this.NumTestCases <= this.MIN_NUM_TEST_CASES
-                this.RemoveTestCaseButton.Enable = false;
+                this.RemoveTestCaseButton.Enable = 'off';
             end
         end
         
@@ -271,7 +271,7 @@ classdef SubmissionType < handle
             this.NumTestCases = this.NumTestCases + 1;
             this.TestCases(end + 1) = TestCase(this.TabGroup, this);
             if length(this.TestCases) > this.MIN_NUM_TEST_CASES
-                this.RemoveTestCaseButton.Enable = true;
+                this.RemoveTestCaseButton.Enable = 'on';
             end
         end
         
