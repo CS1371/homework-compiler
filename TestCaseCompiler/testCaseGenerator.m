@@ -69,109 +69,33 @@ function testCaseGenerator(app)
     
 %     copyfile(student.functionPath, [pwd filesep solnFunction '.m']);
     copyfile(oldSolnPath, [pwd filesep solnFunction '.m']);
-
-    % create the student package
-    progress.Message = 'Creating student package...';
-    try
-        package([pwd filesep 'student'], ...
-            student.outBase, ...
-            student.inputNames, ...
-            student.functionPath, ...
-            student.inputValues, ...
-            student.supportingFiles, ...
-            student.numTestCases, ...
-            student.isRecursive, ...
-            student.bannedFunctions);
-    catch e
-        uialert(app.UIFigure, e.message, ...
-            'Error encountered while creating student package!');
-        return;
-    end
-    progress.Message = 'Verifying student package...';
-    % verify the student
-    try
-        [isCorrect, cases, msg] = verify([pwd filesep solnFunction '.m'], ...
-            [pwd filesep 'student']);
-    catch e
-        isCorrect = false;
-        cases = [];
-        msg = sprintf('Verification error (%s): "%s"', e.identifier, e.message);
-    end
-    if ~isCorrect
-        if isempty(cases)
-            msg = sprintf('Verification failed: %s', msg);
-        else
-            messages = cellfun(@(x) x.message, msg, 'uni', false);
-            messagesStr = strjoin(messages, '\n');
-            msg = sprintf('Verification failed on test case(s) %s: %s', ...
-                strjoin(arrayfun(@num2str, cases, 'uni', false), ', '), ...
-                messagesStr);
-        end
-        uialert(app.UIFigure, msg, 'Student Verification Failure');
-    end
-    % create the submission package
-    progress.Message = 'Creating submission package...';
-    try
-        package([pwd filesep 'submission'], ...
-            submission.outBase, ...
-            submission.inputNames, ...
-            submission.functionPath, ...
-            submission.inputValues, ...
-            submission.supportingFiles, ...
-            submission.numTestCases, ...
-            submission.isRecursive, ...
-            submission.bannedFunctions);
-    catch e
-        uialert(app.UIFigure, e.message, ...
-            'Error encountered while creating submission package!');
-        return;
-    end
-    % verify the submission
-    progress.Message = 'Verifying submission package...';
-    try
-        [isCorrect, cases, msg] = verify([pwd filesep solnFunction '.m'], ...
-            [pwd filesep 'submission']);
-    catch e
-        isCorrect = false;
-        cases = [];
-        msg = sprintf('Verification error (%s): "%s"', e.identifier, e.message);
-    end
-    if ~isCorrect
-        if isempty(cases)
-            msg = sprintf('Verification failed: %s', msg);
-        else
-            messages = cellfun(@(x) x.message, msg, 'uni', false);
-            messagesStr = strjoin(messages, '\n');
-
-            msg = sprintf('Verification failed on test case(s) %s: %s', ...
-                strjoin(arrayfun(@num2str, cases, 'uni', false), ', '), ...
-                messageStr);
-        end
-        uialert(app.UIFigure, msg, 'Submission verification failure!');
-    end
-    if ~isempty(resub)
-        % create the resubmission package
-        progress.Message = 'Creating resubmission package...';
+    function createPackage(name, st)
+        % create the student package
+        progress.Message = ['Creating ' name ' package...'];
         try
-            package([pwd filesep 'resub'], ...
-                resub.outBase, ...
-                resub.inputNames, ...
-                resub.functionPath, ...
-                resub.inputValues, ...
-                resub.supportingFiles, ...
-                resub.numTestCases, ...
-                resub.isRecursive, ...
-                resub.bannedFunctions);
+            package([pwd filesep name], ...
+                st.outBase, ...
+                st.inputNames, ...
+                st.functionPath, ...
+                st.inputValues, ...
+                st.supportingFiles, ...
+                st.numTestCases, ...
+                st.isRecursive, ...
+                st.bannedFunctions);
         catch e
             uialert(app.UIFigure, e.message, ...
-                'Error encountered while creating submission package!');
-            return;
+                ['Error encountered while creating ' name ' package!']);
+            throw(MException('TESTCASE:testCaseGenerator:genericError', ...
+                sprintf('Error creating %s package', name)));
         end
-        % verify the resubmission
-        progress.Message = 'Verifying resubmission package...';
+    end
+
+    function verifyPackage(name)
+        progress.Message = ['Verifying ' name ' package...'];
+        % verify the student
         try
             [isCorrect, cases, msg] = verify([pwd filesep solnFunction '.m'], ...
-                [pwd filesep 'resub']);
+                [pwd filesep name]);
         catch e
             isCorrect = false;
             cases = [];
@@ -181,15 +105,29 @@ function testCaseGenerator(app)
             if isempty(cases)
                 msg = sprintf('Verification failed: %s', msg);
             else
-                messages = cellfun(@(x) x.message, msg, 'uni', false);
-                messagesStr = strjoin(messages, '\n');
-
-                msg = sprintf('Verification failed on test case(s) %s: %s', ...
-                    strjoin(arrayfun(@num2str, cases, 'uni', false), ', '), ...
-                    messageStr);
+                msg = failureMsg(msg, cases);
             end
-            uialert(app.UIFigure, msg, 'Resubmission verification failure!');
+            name(1) = upper(name(1));
+            uialert(app.UIFigure, msg, [name ' verification failed!']);
+            throw(MException('TESTCASE:testCaseGenerator:genericError', ...
+                sprintf('Error creating %s package', name)));
+
         end
+    end
+
+    try
+        createPackage('student', student);
+        verifyPackage('student');
+
+        createPackage('submission', submission);
+        verifyPackage('submission');
+
+        if ~isempty(resub)
+            createPackage('resub', resub);
+            verifyPackage('resub');
+        end
+    catch ME
+        return;
     end
     
     % upload to google drive
@@ -205,6 +143,16 @@ function testCaseGenerator(app)
         progress.Message = sprintf('Saving to %s...', app.LocalOutputDir);
         copyfile([workDir, filesep, solnFunction, filesep, '*'], app.LocalOutputDir, 'f');
     end
+    
+end
+
+function msg = failureMsg(exceptions, nums)
+messages = cellfun(@(x) x.message, exceptions, 'uni', false);
+messagesStr = strjoin(messages, '\n');
+
+msg = sprintf('Verification failed on test case(s) %s: %s', ...
+    strjoin(arrayfun(@num2str, nums, 'uni', false), ', '), ...
+    messagesStr);
 end
 
 function cleaner(path, rmPath)
