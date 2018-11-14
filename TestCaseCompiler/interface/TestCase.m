@@ -361,13 +361,13 @@ classdef TestCase < handle
                 evalin('base', call);
                 
                 % if it worked, then great
-                this.Tab.Title = strrep(this.Tab.Title, '!! ', '');
+                this.Tab.Title = strrep(this.Tab.Title, Problem.ERROR_SYMBOL, '');
             catch ME
                 % failed, so fuck you
                 % TODO: set dropdowns red maybe?
                 currentTitle = this.Tab.Title;
-                if ~contains(currentTitle, '!! ')
-                    this.Tab.Title = ['!! ', currentTitle];
+                if ~contains(currentTitle, Problem.ERROR_SYMBOL)
+                    this.Tab.Title = [Problem.ERROR_SYMBOL, currentTitle];
                 end
                 result = false;
             end
