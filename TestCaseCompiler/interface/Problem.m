@@ -31,10 +31,6 @@ classdef Problem < handle
         SUBMISSION_TYPES = {'Student', 'Submission', 'Resubmission'}
     end
     
-    properties (Constant)
-        ERROR_SYMBOL = '!! '
-    end
-    
     methods
         %% Problem Create a new Problem object
         %
@@ -83,7 +79,7 @@ classdef Problem < handle
             function tabGroupChangedFcn(newTabTitle)
                 currentSubObj = [];
                 for st = this.SubmissionTypes
-                    cleanTitle = strrep(st.Name, Problem.ERROR_SYMBOL, '');
+                    cleanTitle = strrep(st.Name, TestCaseCompiler.ERROR_SYMBOL, '');
                     if isequal(cleanTitle, this.SelectedSubmission)
                         currentSubObj = st;
                     end
@@ -92,15 +88,15 @@ classdef Problem < handle
                 title = currentSubObj.Tab.Title;
                 if currentSubObj.verifyAllTestCases()
                     % success
-                    currentSubObj.Tab.Title = strrep(title, Problem.ERROR_SYMBOL, '');
+                    currentSubObj.Tab.Title = strrep(title, TestCaseCompiler.ERROR_SYMBOL, '');
                 else
                     % fail
-                    if ~contains(title, Problem.ERROR_SYMBOL)
-                        currentSubObj.Tab.Title = [Problem.ERROR_SYMBOL, title];
+                    if ~contains(title, TestCaseCompiler.ERROR_SYMBOL)
+                        currentSubObj.Tab.Title = [TestCaseCompiler.ERROR_SYMBOL, title];
                     end
                 end
                 
-                this.SelectedSubmission = strrep(newTabTitle, Problem.ERROR_SYMBOL, '');
+                this.SelectedSubmission = strrep(newTabTitle, TestCaseCompiler.ERROR_SYMBOL, '');
                 
             end
         end
