@@ -1,0 +1,8 @@
+##### MATLAB
+*.asv
+*.m~
+*.mat
+**/temp
+**/tmp
+*.swp
+testing
