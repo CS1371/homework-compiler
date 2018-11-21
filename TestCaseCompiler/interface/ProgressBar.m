@@ -37,6 +37,8 @@ classdef ProgressBar < handle
             toggleValidateFcn = @(x)(islogical(x) || any(validatestring(x, {'on', 'off'})));
             p = inputParser();
             p.addRequired('Parent', @(x)(isa(x, 'matlab.ui.Figure')));
+            % mostly for debugging purposes
+            p.addParameter('forceOld', false, @islogical);
             p.addParameter('Title', 'Progress Bar', @ischar);
             p.addParameter('Indeterminate', false, toggleValidateFcn);
             p.addParameter('Message', '', @ischar);
@@ -48,7 +50,8 @@ classdef ProgressBar < handle
             parse(p, parent, varargin{:});
             
             % Add fields
-            this.is2018a = datenum(version('-date')) >= datenum('February 23, 2018');
+            this.is2018a = (datenum(version('-date')) >= datenum('February 23, 2018')) ...
+                && ~p.Results.forceOld;
 %             setProperties(this, nargin, varargin{:});
             this.Parent = p.Results.Parent;
             this.Title = p.Results.Title;
@@ -78,6 +81,7 @@ classdef ProgressBar < handle
             if ~isempty(this.backingObject)
                 this.close();
             end
+            
             if this.is2018a
                 if strcmp(this.Indeterminate, 'on') || isequal(this.Indeterminate, true)
                     this.backingObject = uiprogressdlg(this.Parent, 'Title', this.Title, ...
@@ -106,13 +110,17 @@ classdef ProgressBar < handle
             % with show().
             if isempty(this.backingObject)
                throw(MException('TESTCASE:ProgressBar:noObject', ...
-                   'There is no progress bar to close!')); 
+                   'There is no progress bar to close.')); 
             end
 
             close(this.backingObject);
             
         end
         
+        %% Value Sets the value of the progress bar.
+        %
+        % Sets the completion value. Allows floating-point inputs from 0 to
+        % 1.
         function set.Value(this, prog)
             this.Value = prog;
             if this.isInitialized
@@ -120,26 +128,50 @@ classdef ProgressBar < handle
                 if this.is2018a
                     this.backingObject.Value = prog;
                 else
-                    waitbar(prog);
+                    waitbar(prog, this.backingObject);
                 end
-                this.show();
             end
         end
         
+        %% Title Sets the title
+        %
+        % Sets the title of the progress bar, which is the header text.
         function set.Title(this, title)
             this.Title = title;
             if this.isInitialized
-                this.show();
+%                 this.show();
+                if this.is2018a
+                    this.backingObject.Title = title;
+                else
+%                     this.backingObject = waitbar(this.Value, this.backingObject, this.Message, ...
+%                         'Name', title);
+                    this.backingObject.Name = title;
+                end
             end
         end
         
+        %% Message Sets the message
+        %
+        % Sets the message, which is the text inside the window.
         function set.Message(this, msg)
             this.Message = msg;
             if this.isInitialized
-                this.show();
+%                 this.show();
+                if this.is2018a
+                    % Sets the message directly
+                    this.backingObject.Message = msg;
+                else
+                    % Sets the title of the axes object holding the prog
+                    % bar
+                    this.backingObject.Children.Title.String = msg;
+                end
             end
         end
         
+        %% Indeterminate
+        %
+        % Sets whether the progress bar is indeterminate. Only supported
+        % for 2018a progress bars.
         function set.Indeterminate(this, ind)
            this.Indeterminate = ind;
            if this.isInitialized
@@ -147,5 +179,6 @@ classdef ProgressBar < handle
            end
         end
     end
+    
 end
 
