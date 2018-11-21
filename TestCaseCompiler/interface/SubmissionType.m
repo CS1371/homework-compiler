@@ -96,7 +96,7 @@ classdef SubmissionType < handle
             this.OutputBaseWords = {'out'};
 
 
-            this.createSubmissionTab(parentTabGroup);
+            this.createSubmissionTab(parentTabGroup, parent.Layout);
 
             % create the default number of test case tabs
             for i = 1:this.MIN_NUM_TEST_CASES
@@ -139,21 +139,21 @@ classdef SubmissionType < handle
         % words, and add/remove buttons).
         %
         % Everything is created blank.
-        function createSubmissionTab(this, parentTabGroup)
+        function createSubmissionTab(this, parentTabGroup, layout)
             % Create the tab
             this.createTab(parentTabGroup);
             
             % Create SupportingFilesPanel
-            this.createSupportingFilesPanel({});
+            this.createSupportingFilesPanel(layout, {});
                                     
             % Create OutputBaseWordsPanel
-            this.createOutputBaseWordsPanel('');
+            this.createOutputBaseWordsPanel(layout, '');
             
             % Create SubmissionValuesTabGroup
-            this.createSubmissionValuesTabGroup();
+            this.createSubmissionValuesTabGroup(layout);
             
             % buttons
-            this.createTestCaseAddRemoveButtons();
+            this.createTestCaseAddRemoveButtons(layout);
         end
         
         %% createTab Creates the tab object
@@ -163,51 +163,56 @@ classdef SubmissionType < handle
         end
         
         %% createSupportingFilesPanel Creates the supporting files panel object
-        function createSupportingFilesPanel(this, items)
+        function createSupportingFilesPanel(this, layout, items)
             % panel itself
             this.SupportingFilesPanel = uipanel(this.Tab);
             this.SupportingFilesPanel.Title = 'Supporting Files';
-            this.SupportingFilesPanel.Position = [11 132 370 94];
+%             this.SupportingFilesPanel.Position = [11 132 370 94];
+            this.SupportingFilesPanel.Position = layout.SupportingFilesPanel;
             
             % remove button
             this.SupportingFilesRemoveButton = uibutton(this.SupportingFilesPanel, 'push');
             this.SupportingFilesRemoveButton.BackgroundColor = [0.902 0.902 0.902];
-            this.SupportingFilesRemoveButton.Position = [261 12 100 22];
+%             this.SupportingFilesRemoveButton.Position = [261 12 100 22];
+            this.SupportingFilesRemoveButton.Position = layout.SupportingFilesRemoveButton;
             this.SupportingFilesRemoveButton.Text = 'Remove';
             this.SupportingFilesRemoveButton.ButtonPushedFcn = @(a, ev)(this.removeSupportingFiles());
             
             % add button
             this.SupportingFilesAddButton = uibutton(this.SupportingFilesPanel, 'push');
             this.SupportingFilesAddButton.BackgroundColor = [0.902 0.902 0.902];
-            this.SupportingFilesAddButton.Position = [261 42 100 22];
+%             this.SupportingFilesAddButton.Position = [261 42 100 22];
+            this.SupportingFilesAddButton.Position = layout.SupportingFilesAddButton;
             this.SupportingFilesAddButton.Text = 'Add...';
             this.SupportingFilesAddButton.ButtonPushedFcn = @(a, ev)(this.addSupportingFiles());
             
             % create the list box
-            this.createSupportingFilesListBox(items);
+            this.createSupportingFilesListBox(items, layout);
 
         end
         
         %% createSupportingFilesListBox Creates the list box for supporting files
-        function createSupportingFilesListBox(this, items)
+        function createSupportingFilesListBox(this, items, layout)
             this.SupportingFilesListBox = uilistbox(this.SupportingFilesPanel);
             this.SupportingFilesListBox.Items = items;
             this.SupportingFilesListBox.FontName = 'Consolas';
-            this.SupportingFilesListBox.Position = [10 14 241 50];
+%             this.SupportingFilesListBox.Position = [10 14 241 50];
+            this.SupportingFilesListBox.Position = layout.SupportingFilesListBox;
             this.SupportingFilesListBox.Value = {};
         end
         
         %% createOutputBaseWordsPanel Creates the output base words panel and editfield
-        function createOutputBaseWordsPanel(this, txt)
+        function createOutputBaseWordsPanel(this, layout, txt)
             this.OutputBaseWordsPanel = uipanel(this.Tab);
             this.OutputBaseWordsPanel.Title = 'Output Base Words';
-            this.OutputBaseWordsPanel.Position = [391 132 280 94];
-            
+%             this.OutputBaseWordsPanel.Position = [391 132 280 94];
+            this.OutputBaseWordsPanel.Position = layout.OutputBaseWordsPanel;
             
             % Create OutputBaseWordsEditField
             this.OutputBaseWordsEditField = uieditfield(this.OutputBaseWordsPanel, 'text');
             this.OutputBaseWordsEditField.FontName = 'Consolas';
-            this.OutputBaseWordsEditField.Position = [21 28 238 22];
+%             this.OutputBaseWordsEditField.Position = [21 28 238 22];
+            this.OutputBaseWordsEditField.Position = layout.OutputBaseWordsEditField;
             this.OutputBaseWordsEditField.ValueChangedFcn = @(a, ev)(this.changeBaseWords(ev.Source));
             this.OutputBaseWordsEditField.Value = txt;
             if this.Problem.NumOutputs == 0
@@ -216,20 +221,22 @@ classdef SubmissionType < handle
         end
         
         %% createSubmissionValuesTabGroup Creates the submission values tab group
-        function createSubmissionValuesTabGroup(this)
+        function createSubmissionValuesTabGroup(this, layout)
             this.TabGroup = uitabgroup(this.Tab);
-            this.TabGroup.Position = [11 46 660 77];
+%             this.TabGroup.Position = [11 46 660 77];
+            this.TabGroup.Position = layout.ValuesTabGroup;
             this.TabGroup.SelectionChangedFcn = @(a, ev)(this.setFocusedTestCase(ev.Source));
         end
         
         %% createTestCaseAddRemoveButtons Creates the add/remove buttons for test cases
-        function createTestCaseAddRemoveButtons(this)
+        function createTestCaseAddRemoveButtons(this, layout)
             % Create RemoveTestCaseButton
             this.RemoveTestCaseButton = uibutton(this.Tab, 'push');
             %             this.RemoveTestCaseButton.ButtonPushedFcn = createCallbackFcn(this, @StudentRemoveTestCaseButtonPushed, true);
             this.RemoveTestCaseButton.FontName = 'Courier New';
             this.RemoveTestCaseButton.Enable = 'off';
-            this.RemoveTestCaseButton.Position = [51 13 31 22];
+%             this.RemoveTestCaseButton.Position = [51 13 31 22];
+            this.RemoveTestCaseButton.Position = layout.RemoveTestCaseButton;
             this.RemoveTestCaseButton.Text = '-';
             this.RemoveTestCaseButton.Enable = 'off';
             this.RemoveTestCaseButton.ButtonPushedFcn = @(a, ev)(this.deleteTestCase());
@@ -238,7 +245,8 @@ classdef SubmissionType < handle
             this.AddTestCaseButton = uibutton(this.Tab, 'push');
             %             this.AddTestCaseButton.ButtonPushedFcn = createCallbackFcn(this, @StudentAddTestCaseButtonPushed, true);
             this.AddTestCaseButton.FontName = 'Courier New';
-            this.AddTestCaseButton.Position = [11 13 31 22];
+%             this.AddTestCaseButton.Position = [11 13 31 22];
+            this.AddTestCaseButton.Position = layout.AddTestCaseButton;
             this.AddTestCaseButton.Text = '+';
             this.AddTestCaseButton.ButtonPushedFcn = @(a, ev)(this.addTestCase());
         end

@@ -24,7 +24,8 @@ classdef Problem < handle
     end
     
     properties (Hidden)
-       SelectedSubmission char 
+       SelectedSubmission char % name of which submission is selected
+       Layout struct % layout of the app
     end
     
     properties (Access = private, Constant)
@@ -39,42 +40,29 @@ classdef Problem < handle
         %
         % THIS = Problem(PKGPATH, TABGROUP, 'load') loads a Problem object
         % from package path PKGPATH.
-        function this = Problem(funcPath, rubricTabGroup, varargin)
-            if isempty(varargin)
+        function this = Problem(funcPath, rubricTabGroup, layout)
+            % get nargin/nargout
+            origDir = cd(fileparts(funcPath));
 
-                % get nargin/nargout
-                origDir = cd(fileparts(funcPath));
+            this.NumInputs = nargin(funcPath);
+            this.NumOutputs = nargout(funcPath);
+            cd(origDir);
 
-                this.NumInputs = nargin(funcPath);
-                this.NumOutputs = nargout(funcPath);
-                cd(origDir);
+            [~, this.FunctionName] = fileparts(funcPath);
+            this.FunctionPath = funcPath;
+            
+            % set the layout
+            this.Layout = layout;
 
-                [~, this.FunctionName] = fileparts(funcPath);
-                this.FunctionPath = funcPath;
+            % add the submission type objects
+            this.addSubmissionType('Student', rubricTabGroup);
+            this.addSubmissionType('Submission', rubricTabGroup);
+            this.addSubmissionType('Resubmission', rubricTabGroup);
 
-                % add the submission type objects
-                this.addSubmissionType('Student', rubricTabGroup);
-                this.addSubmissionType('Submission', rubricTabGroup);
-                this.addSubmissionType('Resubmission', rubricTabGroup);
-                
-                this.SelectedSubmission = 'Student';
-                
-                % add verification callback for changing submissions
-                rubricTabGroup.SelectionChangedFcn = @(a, ev) tabGroupChangedFcn(ev.Source.SelectedTab.Title);
-                
+            this.SelectedSubmission = 'Student';
 
-                
-    %             % Create the SubmissionType objects to store the test cases
-    %             for ty = this.SUBMISSION_TYPES
-    %                 this.SubmissionTypes = [this.SubmissionTypes, SubmissionType(ty, this)];
-    %             end
-            elseif length(varargin) == 1 && strcmpi(varargin{1}, 'load')
-                % load from a package
-                this.loadFromPackage(funcPath, tabGroup);
-            else
-               throw(MException('TESTCASE:Problem:ctor:illegalArgumentException', ...
-                   'The only extra input allowed is ''load'' to load from a package.'));
-            end
+            % add verification callback for changing submissions
+            rubricTabGroup.SelectionChangedFcn = @(a, ev) tabGroupChangedFcn(ev.Source.SelectedTab.Title);
             
             function tabGroupChangedFcn(newTabTitle)
                 currentSubObj = [];
@@ -99,6 +87,7 @@ classdef Problem < handle
                 this.SelectedSubmission = strrep(newTabTitle, TestCaseCompiler.ERROR_SYMBOL, '');
                 
             end
+            
         end
         
         %% loadFromPackage Loads a Problem object from an exported package
