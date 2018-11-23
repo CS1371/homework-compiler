@@ -424,14 +424,6 @@ classdef TestCaseCompiler < matlab.apps.AppBase
             app.UIFigure.Resize = 'off';
             app.UIFigure.CloseRequestFcn = createCallbackFcn(app, @UIFigureCloseRequest, true);
 
-            % Create Menu
-            app.Menu = uimenu(app.UIFigure);
-            app.Menu.Text = 'Menu';
-
-            % Create QuitMenu
-            app.QuitMenu = uimenu(app.Menu);
-            app.QuitMenu.Text = 'Quit';
-
             % Create HelpMenu
             app.HelpMenu = uimenu(app.UIFigure);
             app.HelpMenu.Text = 'Help';
