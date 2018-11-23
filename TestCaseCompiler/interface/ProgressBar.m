@@ -50,7 +50,7 @@ classdef ProgressBar < handle
             parse(p, parent, varargin{:});
             
             % Add fields
-            this.is2018a = verLessThan('MATLAB', '9.4') ...
+            this.is2018a = ~verLessThan('MATLAB', '9.4') ...
                 && ~p.Results.forceOld;
 %             setProperties(this, nargin, varargin{:});
             this.Parent = p.Results.Parent;
