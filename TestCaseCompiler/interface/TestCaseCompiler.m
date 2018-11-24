@@ -303,13 +303,22 @@ classdef TestCaseCompiler < matlab.apps.AppBase
 
         % Button pushed function: CompileButton
         function CompileButtonPushed(app, event)
+            finished = false;
             if (~app.LocalDiskCheckBox.Value && ~app.GoogleDriveCheckBox.Value) ...
                     || isempty(app.LocalOutputDir)
                 % no output location selected!
                 uiconfirm(app.UIFigure, 'You have to choose an output location!', ...
                     'Error', 'Icon', 'error');
             else
+                finished = confirmEmpty(app, app.LocalOutputDir);
+            end
+            
+            if finished
                 testCaseGenerator(app);
+            else
+                % emulate pressing the browse button
+                LocalBrowseButtonPushed(app);
+                
             end
         end
 
@@ -373,11 +382,58 @@ classdef TestCaseCompiler < matlab.apps.AppBase
 
         % Button pushed function: LocalBrowseButton
         function LocalBrowseButtonPushed(app, event)
-            path = uigetdir('*.m', 'Select output destination');
-            if ~isempty(path) && ischar(path)
-                app.LocalOutputDir = path;
+            finished = false;
+            while ~finished
+                path = uigetdir('*.m', 'Select output destination');
+                if ~isempty(path) && ischar(path)
+                    app.LocalOutputDir = path;
+                else
+                    % cancel, no folder picked
+                    app.makeVisible();
+                    return;
+                end
+                app.makeVisible();
+                finished = confirmEmpty(app, path);
             end
-            app.makeVisible();
+        end
+        
+        %% confirmEmpty Checks whether the selected output directory is empty 
+        %               and deletes it when necessary.
+        %
+        % Returns false if the user needs to select another, or true if the
+        % directory is empty OR the contents were deleted.
+        function finished = confirmEmpty(app, path)
+            if ~app.exportLocalSelected
+                finished = true;
+            else
+                finished = false;
+                filesInside = dir([path filesep '*.m']);
+                filesInside = {filesInside.name};
+                isSameProblem = length(filesInside) == 1 ...
+                    && ispackage(app, path) ...
+                    && (isequal(filesInside{1}, [app.problem.FunctionName, '.m']) ...
+                        || isequal(strrep(filesInside{1}, '.m', '_soln'), app.problem.FunctionName));
+
+                % warn if not empty
+                if length(dir(path)) > 2 && ~isSameProblem
+                    choice = uiconfirm(app.UIFigure, ...
+                        sprintf('The contents of %s will be deleted.', path), 'Directory not empty', ...
+                        'Icon', 'warning', 'Options', {'OK', 'Choose another output folder'});
+                    if strcmp(choice, 'OK')
+                        % delete contents of folder
+                        [~, name] = fileparts(path);
+                        warning('off', 'MATLAB:RMDIR:RemovedFromPath');
+                        rmdir(path, 's');
+                        % recreate empty folder
+                        mkdir(name);
+                        finished = true;
+                        warning('on', 'MATLAB:RMDIR:RemovedFromPath');
+                    end
+                else
+                    % is empty, so all good
+                    finished = true;
+                end
+            end
         end
 
         % Value changed function: LocalDiskCheckBox
