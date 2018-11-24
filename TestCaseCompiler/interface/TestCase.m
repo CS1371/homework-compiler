@@ -79,28 +79,37 @@ classdef TestCase < handle
             this.Tab.Title = sprintf('Test Case %d', this.Index);
             
             % populate with the function preview
+            canvasSize = this.Tab.Position(3:4);
+            
+            % TODO: Have this take into account how many inputs/outputs and
+            % try to center things
+            % for now, just eyeballin it
+            ypos = 0.5*canvasSize(end) - 22;
+            
+            % Create FunctionName
+            this.FunctionName = uilabel(this.Tab);
+            this.FunctionName.FontName = 'Courier New';
+%             this.FunctionName.Position = [287 16 49 22];
+            this.FunctionName.Position = [287 ypos 49 22];
+            this.FunctionName.Text = '= %s(';
+            
+            
             % Create LeftOutBracket
             this.LeftOutBracket = uilabel(this.Tab);
             this.LeftOutBracket.FontName = 'Courier New';
-            this.LeftOutBracket.Position = [235 16 10 22];
+            this.LeftOutBracket.Position = [235 ypos 10 22];
             this.LeftOutBracket.Text = '[';
             
             % Create RightInputParen
             this.RightInputParen = uilabel(this.Tab);
             this.RightInputParen.FontName = 'Courier New';
-            this.RightInputParen.Position = [342 16 10 22];
+            this.RightInputParen.Position = [342 ypos 10 22];
             this.RightInputParen.Text = ')';
-            
-            % Create FunctionName
-            this.FunctionName = uilabel(this.Tab);
-            this.FunctionName.FontName = 'Courier New';
-            this.FunctionName.Position = [287 16 49 22];
-            this.FunctionName.Text = '= %s(';
             
             % Create RightOutBracket
             this.RightOutBracket = uilabel(this.Tab);
             this.RightOutBracket.FontName = 'Courier New';
-            this.RightOutBracket.Position = [263 16 10 22];
+            this.RightOutBracket.Position = [263 ypos 10 22];
             this.RightOutBracket.Text = ']';
             
             redrawFunctionPreview(this);
@@ -147,11 +156,45 @@ classdef TestCase < handle
             addFunctionNamePreview(this);
             addOutputNameEditFields(this);
             addInputNameEditFields(this);
+            recenterLabels(this);
         end
         
     end
     
     methods (Access = public)
+        
+        function recenterLabels(this)
+            rightmostPos = 0;
+            % Finds the rightmost label, which will be either a comma or
+            % the right paren
+            for ic = this.InCommas
+                ic = ic{1};
+                if ic.Position(1) > rightmostPos
+                    rightmostPos = ic.Position(1);
+                end
+            end
+            if rightmostPos < this.RightInputParen.Position(1)
+               rightmostPos = this.RightInputParen.Position(1); 
+            end
+            
+            leftmostPos = this.LeftOutBracket.Position(1);
+            totalPreviewWidth = rightmostPos - leftmostPos;
+            % trying to center the whole thing in the middle of the tab
+            halfwayPoint = leftmostPos + totalPreviewWidth / 2;
+            canvasSize = this.Tab.Position(3:4);
+            
+            % this is the distance each component has to move individually
+            % for the entire thing to be centered
+            distanceToMove = floor(canvasSize(1) / 2 - halfwayPoint);
+            
+            % Move everything over
+            components = this.Tab.Children;
+            for ind = 1:length(components)
+                components(ind).Position(1) = components(ind).Position(1) + distanceToMove;
+            end
+
+        end
+        
         function addOutputNameEditFields(this)
             value = this.ParentType.Problem.NumOutputs;
             CUSTOM_WIDTH = 8;
@@ -299,6 +342,12 @@ classdef TestCase < handle
             else
                 this.RightInputParen.Position = [sum(this.FunctionName.Position([1 3])), ...
                     this.FunctionName.Position(2), this.CHAR_WIDTH, this.FunctionName.Position(4)];
+            end
+            
+            % Necessary because the first comma is placed into the second
+            % position of the InCommas cell array
+            if ~isempty(this.InCommas)
+                this.InCommas = this.InCommas(2:end);
             end
         end
         
