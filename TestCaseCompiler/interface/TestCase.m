@@ -183,15 +183,39 @@ classdef TestCase < handle
             halfwayPoint = leftmostPos + totalPreviewWidth / 2;
             canvasSize = this.Tab.Position(3:4);
             
+            % account for the height of the tab label itself
+            % CHANGE THIS IF THE TABS ARE CHANGED TO BE VERTICAL INSTEAD OF
+            % HORIZONTAL
+            canvasSize(2) = floor(canvasSize(2) - canvasSize(2) / 8);
+            
             % this is the distance each component has to move individually
             % for the entire thing to be centered
-            distanceToMove = floor(canvasSize(1) / 2 - halfwayPoint);
+            horizontalDistanceToMove = floor(canvasSize(1) / 2 - halfwayPoint);
+            
+            
+            % Now it's time to do the same but for height!!
+            % It's easier this time, because the highest thing is anything
+            % on the first line and the lowest thing is always the last
+            % output paren
+            
+            % position is [x y w h] where (x,y) is the bottom left corner
+            % so top left corner is y+h
+            topmostPos = this.LeftOutBracket.Position(2) + this.LeftOutBracket.Position(4);
+            bottommostPos = this.RightInputParen.Position(2);
+            totalPreviewHeight = topmostPos - bottommostPos;
+            verticalHalfwayPoint = bottommostPos + totalPreviewHeight / 2;
+            verticalDistanceToMove = floor(canvasSize(2) / 2 - verticalHalfwayPoint);
             
             % Move everything over
             components = this.Tab.Children;
             for ind = 1:length(components)
-                components(ind).Position(1) = components(ind).Position(1) + distanceToMove;
+                % move everything horizontally
+                components(ind).Position(1) = components(ind).Position(1) + horizontalDistanceToMove;
+                % move everything vertically
+                components(ind).Position(2) = components(ind).Position(2) + verticalDistanceToMove;
+
             end
+
 
         end
         
