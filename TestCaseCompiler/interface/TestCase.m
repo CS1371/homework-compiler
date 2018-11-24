@@ -344,7 +344,7 @@ classdef TestCase < handle
             
             % copy supporting files to temp directory
             for fi = this.ParentType.SupportingFiles
-                copyfile(f);
+                copyfile(fi);
             end
             
             % copy soln
