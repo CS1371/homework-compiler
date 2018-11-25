@@ -139,7 +139,9 @@ classdef Problem < handle
                     this.IsRecursive = infoSt.isRecursive;
                     app.RecursiveCheckBox.Value = infoSt.isRecursive;
                     this.BannedFunctions = infoSt.banned;
-                    app.BannedFunctionsListBox.Items = infoSt.banned;
+                    if iscell(infoSt.banned)
+                        app.BannedFunctionsListBox.Items = infoSt.banned;
+                    end
                     subTypeObj.loadFromPackage(infoSt, tabGroup);
                 catch ME
                     throw(MException('TESTCASE:Problem:loadFromPackage:invalidJson', ...

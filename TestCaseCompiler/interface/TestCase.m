@@ -344,6 +344,9 @@ classdef TestCase < handle
             
             % copy supporting files to temp directory
             for fi = this.ParentType.SupportingFiles
+                if iscell(fi)
+                    fi = fi{1};
+                end
                 copyfile(fi);
             end
             
