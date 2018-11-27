@@ -67,11 +67,12 @@ classdef TestCaseCompiler < matlab.apps.AppBase
 
     end
     
-    properties (Access = protected)
+    properties (Access = private)
         % problem object. holds everything.
         problem Problem
         
-                
+        % listener for problem edit detection
+        probListener
     end
     
     methods (Access = protected)
@@ -133,9 +134,9 @@ classdef TestCaseCompiler < matlab.apps.AppBase
             end
             
             % add listener for the problem
-            listener(app.problem, 'isEdited', 'PostSet', @(s, ev)(editListener(app)));
+            app.probListener = listener(app.problem, 'isEdited', 'PostSet', @(s, ev)(editListener(app)));
             function editListener(app)
-                app.isEdited = true;
+                app.IsModified = true;
             end
             
             progBar.Value = 0.25;
@@ -739,12 +740,12 @@ classdef TestCaseCompiler < matlab.apps.AppBase
     methods
         %% IsModified Whether the problem has been modified since last load/export
         function set.IsModified(this, value)
-            this.IsEdited = value;
-            if value
+            if value && ~this.IsModified
                 this.UIFigure.Name = [this.UIFigure.Name, '*'];
             else
                 this.UIFigure.Name = strrep(this.UIFigure.Name, '*', '');
             end
+            this.IsModified = value;
         end
  
     end
