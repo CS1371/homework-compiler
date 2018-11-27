@@ -422,12 +422,13 @@ classdef TestCaseCompiler < matlab.apps.AppBase
                     if strcmp(choice, 'OK')
                         % delete contents of folder
                         [~, name] = fileparts(path);
-                        warning('off', 'MATLAB:RMDIR:RemovedFromPath');
+                        state = warning('off', 'MATLAB:RMDIR:RemovedFromPath');
                         rmdir(path, 's');
                         % recreate empty folder
                         mkdir(name);
                         finished = true;
-                        warning('on', 'MATLAB:RMDIR:RemovedFromPath');
+                        % restore old warning state
+                        warning(state);
                     end
                 else
                     % is empty, so all good
