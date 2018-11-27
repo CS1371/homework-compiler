@@ -9,7 +9,7 @@ classdef TestCase < handle
 
     
     %% Non-UI properties
-    properties
+    properties (SetObservable)
         % names of input variables, as selected by user in the UI
         InputNames cell
         
@@ -23,17 +23,16 @@ classdef TestCase < handle
     %% UI properties
     % This section contains all properties (UI-specific) that represent
     % objects that are generated upon creation of a new test case.
-    properties (SetAccess = private)
+    properties (SetAccess = private, Hidden)
         % The tab object itself
         Tab matlab.ui.container.Tab
         
         % Parent tab container
-        Parent matlab.ui.container.TabGroup
-        
+        Parent matlab.ui.container.TabGroup        
         
     end
     
-    properties
+    properties (Access = private)
         % Comma labels to separate outputs in the preview
         OutCommas matlab.ui.control.Label
         
@@ -51,7 +50,7 @@ classdef TestCase < handle
         RightInputParen matlab.ui.control.Label
     end
     
-    properties (Constant)
+    properties (Constant, Access = private)
         %% Constants for the function call display %%
         CHAR_WIDTH = 7.25;
         BOXES_PER_LINE = 3;
@@ -64,12 +63,24 @@ classdef TestCase < handle
         inputValues cell
     end
     
+    properties (Hidden, SetAccess = private, SetObservable)
+        % whether the test case has been edited
+        isEdited logical = false
+    end
+    
     methods
         %% TestCase Create a new test case object
         %
         % THIS = TestCase(P) creates a new test case object with parent
         % tabgroup P.
         function this = TestCase(parent, subType)
+            % Set the listener
+            function editListener
+                this.isEdited = true;
+            end
+            
+            this.addlistener(properties(this), 'PostSet', @(varargin)(editListener()));
+
             this.Parent = parent;
             this.Tab = uitab(parent);
             % associate the object with the tab

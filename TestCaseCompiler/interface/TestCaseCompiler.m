@@ -61,6 +61,9 @@ classdef TestCaseCompiler < matlab.apps.AppBase
         
         % structure of positions for all the components, by name
         Layout struct
+        
+        % whether the current problem has been modified
+        IsModified logical = false
 
     end
     
@@ -127,6 +130,12 @@ classdef TestCaseCompiler < matlab.apps.AppBase
                 app.CompileButton.Enable = 'off';
 %                 app.RefreshVariablesButton.Enable = 'on';
                 return;
+            end
+            
+            % add listener for the problem
+            listener(app.problem, 'isEdited', 'PostSet', @(s, ev)(editListener(app)));
+            function editListener(app)
+                app.isEdited = true;
             end
             
             progBar.Value = 0.25;
@@ -271,7 +280,6 @@ classdef TestCaseCompiler < matlab.apps.AppBase
             % add variable refreshing on focus gained
             ww = mlapptools.getWebWindow(app.UIFigure);
             ww.FocusGained = @(type, data)(app.windowFocusGainedCallback);
-
             
         end
 
@@ -725,5 +733,19 @@ classdef TestCaseCompiler < matlab.apps.AppBase
             % Delete UIFigure when app is deleted
             delete(app.UIFigure)
         end
+        
+    end
+    
+    methods
+        %% IsModified Whether the problem has been modified since last load/export
+        function set.IsModified(this, value)
+            this.IsEdited = value;
+            if value
+                this.UIFigure.Name = [this.UIFigure.Name, '*'];
+            else
+                this.UIFigure.Name = strrep(this.UIFigure.Name, '*', '');
+            end
+        end
+ 
     end
 end

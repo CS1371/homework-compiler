@@ -9,7 +9,7 @@ classdef SubmissionType < handle
     % % (c) 2018 CS1371 (J. Htay, D. Profili, A. Rao, H. White)
     
     %% Non-UI properties %%
-    properties
+    properties (SetObservable)
         % Cell array of output base words
         OutputBaseWords cell
         
@@ -23,12 +23,12 @@ classdef SubmissionType < handle
         Problem Problem
     end
     
-    properties (SetAccess = immutable)
+    properties (SetAccess = immutable, Hidden)
         % The name of the submission type/category
         Name char
     end
     
-    properties
+    properties (Hidden)
         % The number of test cases this submission type has (3 by default)
         NumTestCases
         
@@ -43,7 +43,7 @@ classdef SubmissionType < handle
     end
     
     %% UI properties %%
-    properties
+    properties (Access = private)
         AddTestCaseButton matlab.ui.control.Button
         RemoveTestCaseButton matlab.ui.control.Button
         Tab matlab.ui.container.Tab
@@ -67,9 +67,15 @@ classdef SubmissionType < handle
         
         % currently focused test case
         focusedTestCaseNum = 1
+        
     end
     
-    properties (Constant, Access = public)
+    properties (Hidden, SetAccess = private, SetObservable)
+        % whether the sub type has been edited
+        isEdited logical = false
+    end
+    
+    properties (Constant, Hidden)
         MIN_NUM_TEST_CASES = 3
         
         % color for editfields (i.e. the output base edit field)
@@ -87,6 +93,11 @@ classdef SubmissionType < handle
         % TESTCASE:SubmissionType:ctor:invalidSubmissionType exception is
         % thrown.
         function this = SubmissionType(name, parent, parentTabGroup)
+            function editListener
+                this.isEdited = true;
+            end
+            this.addlistener(properties(this), 'PostSet', @(varargin)(editListener()));
+
             this.Name = name;
             this.Problem = parent;
             %             this.tabGroup = testCaseTabGroup;
@@ -316,14 +327,26 @@ classdef SubmissionType < handle
         
         %% verifyAllTestCases
         %
-        % Verifies all test cases for this submission type. Returns true if
-        % all test cases pass and false if any of them fail.
-        function result = verifyAllTestCases(this)
+        % Verifies all test cases for this submission type. Changes the
+        % title to include the global error symbol if any test case fails.
+        function verifyAllTestCases(this)
             result = true;
             for tc = this.TestCases
                 out = tc.verifySelf();
                 result = result && out;
             end
+            
+            title = this.Tab.Title;
+            if result
+                % success
+                this.Tab.Title = strrep(title, TestCaseCompiler.ERROR_SYMBOL, '');
+            else
+                % fail
+                if ~contains(title, TestCaseCompiler.ERROR_SYMBOL)
+                    this.Tab.Title = [TestCaseCompiler.ERROR_SYMBOL, title];
+                end
+            end
+
         end
         
         %% changeBaseWords

@@ -10,7 +10,7 @@ classdef Problem < handle
     % (c) 2018 CS1371 (J. Htay, D. Profili, A. Rao, H. White)
 
     
-    properties (SetAccess = private)
+    properties (SetAccess = private, Hidden)
         FunctionPath char % path to the solution .m file
         FunctionName char % name of the function WITHOUT .m extension
         NumInputs double % result of nargin(functionName)
@@ -18,7 +18,7 @@ classdef Problem < handle
         SubmissionTypes SubmissionType % vector of submission type objects
     end
     
-    properties
+    properties (SetObservable)
         BannedFunctions cell % cell array of banned function names
         IsRecursive = false % whether the function is recursive or not
     end
@@ -26,6 +26,10 @@ classdef Problem < handle
     properties (Hidden)
        SelectedSubmission char % name of which submission is selected
        Layout struct % layout of the app
+    end
+    
+    properties (Hidden, SetObservable)
+        isEdited logical = false
     end
     
     properties (Access = private, Constant)
@@ -41,6 +45,11 @@ classdef Problem < handle
         % THIS = Problem(PKGPATH, TABGROUP, 'load') loads a Problem object
         % from package path PKGPATH.
         function this = Problem(funcPath, rubricTabGroup, layout)
+            function editListener
+                this.isEdited = true;
+            end
+            this.addlistener(properties(this), 'PostSet', @(varargin)(editListener()));
+
             % get nargin/nargout
             origDir = cd(fileparts(funcPath));
 
@@ -73,16 +82,7 @@ classdef Problem < handle
                     end
                 end
                 
-                title = currentSubObj.Tab.Title;
-                if currentSubObj.verifyAllTestCases()
-                    % success
-                    currentSubObj.Tab.Title = strrep(title, TestCaseCompiler.ERROR_SYMBOL, '');
-                else
-                    % fail
-                    if ~contains(title, TestCaseCompiler.ERROR_SYMBOL)
-                        currentSubObj.Tab.Title = [TestCaseCompiler.ERROR_SYMBOL, title];
-                    end
-                end
+                currentSubObj.verifyAllTestCases();
                 
                 this.SelectedSubmission = strrep(newTabTitle, TestCaseCompiler.ERROR_SYMBOL, '');
                 
