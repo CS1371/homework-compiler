@@ -115,7 +115,7 @@ classdef SubmissionType < handle
             % supporting files list is relative paths, so add the folder
 %             this.SupportingFiles = infoSt.supportingFiles;
             if ~isempty(infoSt.supportingFiles)
-                this.SupportingFiles = cellfun(@(x)(fullfile(cd(), 'supportingFiles', ...
+                this.SupportingFiles = cellfun(@(x)(fullfile(pwd, 'supportingFiles', ...
                     x)), infoSt.supportingFiles, 'UniformOutput', false);
             end
             

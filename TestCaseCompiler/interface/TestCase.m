@@ -343,10 +343,8 @@ classdef TestCase < handle
             cleanup = onCleanup(@()(cleaner(orig, tempdir)));
             
             % copy supporting files to temp directory
-            for fi = this.ParentType.SupportingFiles
-                if iscell(fi)
-                    fi = fi{1};
-                end
+            for ind = 1:length(this.ParentType.SupportingFiles)
+                fi = this.ParentType.SupportingFiles{ind};
                 copyfile(fi);
             end
             
