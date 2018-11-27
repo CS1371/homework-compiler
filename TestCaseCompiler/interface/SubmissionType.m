@@ -97,7 +97,7 @@ classdef SubmissionType < handle
             if this.Problem.NumOutputs <= 1
                 this.OutputBaseWords = {defaultWord};
             else
-                this.OutputBaseWords = {};
+                this.OutputBaseWords = cell(1, this.Problem.NumOutputs);
                 for i = 1:this.Problem.NumOutputs
                     % FIX: this assumes that there won't be any problems
                     % with more than 26 outputs. I think that's a
@@ -105,8 +105,7 @@ classdef SubmissionType < handle
                     % not going to account for an arbitrary number of
                     % outputs. If anyone has to fix this then you can go fuck
                     % yourself.
-                    this.OutputBaseWords = [this.OutputBaseWords, ...
-                        {[defaultWord, char('A' + i - 1)]}];
+                    this.OutputBaseWords{i} = [defaultWord, char('A' + i - 1)];
                 end
             end
 
