@@ -139,7 +139,11 @@ classdef Problem < handle
                     this.IsRecursive = infoSt.isRecursive;
                     app.RecursiveCheckBox.Value = infoSt.isRecursive;
                     this.BannedFunctions = infoSt.banned;
-                    app.BannedFunctionsListBox.Items = infoSt.banned;
+                    % sometimes the jsons have empty cell arrays as doubles -
+                    % so if it's empty, just leave the default value of {}
+                    if ~isempty(infoSt.banned)
+                        app.BannedFunctionsListBox.Items = infoSt.banned;
+                    end
                     subTypeObj.loadFromPackage(infoSt, tabGroup);
                 catch ME
                     throw(MException('TESTCASE:Problem:loadFromPackage:invalidJson', ...

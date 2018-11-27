@@ -112,18 +112,34 @@ classdef SubmissionType < handle
         % Loads a submission tab data from a package.
         %
         function loadFromPackage(this, infoSt, parentTabGroup)
-            this.SupportingFiles = infoSt.supportingFiles;
+            % supporting files list is relative paths, so add the folder
+%             this.SupportingFiles = infoSt.supportingFiles;
+            if ~isempty(infoSt.supportingFiles)
+                this.SupportingFiles = cellfun(@(x)(fullfile(pwd, 'supportingFiles', ...
+                    x)), infoSt.supportingFiles, 'UniformOutput', false);
+            end
+            
+            if ~iscell(infoSt.supportingFiles)
+                supFilesNames = {};
+            else
+                supFilesNames = infoSt.supportingFiles;
+            end
             this.NumTestCases = length(infoSt.calls);
             this.OutputBaseWords = infoSt.outBase;
             this.OutputNames = infoSt.outs;
             
+            % get the layout
+            layout = this.Problem.Layout;
+            
             % create autofilled tab
             this.createTab(parentTabGroup);
-            this.createSupportingFilesPanel(this.SupportingFiles);
-            this.createOutputBaseWordsPanel(strjoin(this.OutputBaseWords, ', '));
-            this.createSupportingFilesPanel(this.SupportingFiles);
-            this.createSubmissionValuesTabGroup();
-            this.createTestCaseAddRemoveButtons();
+            this.createSupportingFilesPanel(layout, this.SupportingFiles);
+            this.createOutputBaseWordsPanel(layout, strjoin(this.OutputBaseWords, ', '));
+            % note - just drawing the filenames only. the full paths to
+            % supporting files are saved internally
+            this.createSupportingFilesPanel(layout, supFilesNames);
+            this.createSubmissionValuesTabGroup(layout);
+            this.createTestCaseAddRemoveButtons(layout);
             
             % create the test cases
             this.TestCases = TestCase.empty();
