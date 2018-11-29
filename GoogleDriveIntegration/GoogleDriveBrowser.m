@@ -133,7 +133,7 @@ classdef GoogleDriveBrowser < matlab.apps.AppBase
 
         % Construct app
         function app = GoogleDriveBrowser(token)
-
+            app.accessToken = token;
             % Create and configure components
             createComponents(app)
 
@@ -142,7 +142,6 @@ classdef GoogleDriveBrowser < matlab.apps.AppBase
 
             % Execute the startup function
             runStartupFcn(app, @startupFcn)
-            app.accessToken = token;
 
             if nargout == 0
                 clear app

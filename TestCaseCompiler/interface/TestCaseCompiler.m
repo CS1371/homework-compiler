@@ -48,10 +48,10 @@ classdef TestCaseCompiler < matlab.apps.AppBase
         % Auth stuff
         % used by the google drive browser when GoogleDriveBrowser() is called.
         token
-        key = 'AIzaSyDrJfq4PT-johRn7Ws2xHdYR22yEcYJHOk'
         folderId
+        clientKey
         exportDriveSelected = true
-        exportLocalSelected = false        
+        exportLocalSelected = false
         
         % user-selected path to local output
         LocalOutputDir char
@@ -368,9 +368,37 @@ classdef TestCaseCompiler < matlab.apps.AppBase
         end
 
         % Button pushed function: OutputFolderBrowseButton
-        function OutputFolderBrowseButtonPushed(app, event)
-            browser = GoogleDriveBrowser(app, app.functionName);
+        function OutputFolderBrowseButtonPushed(app, ~)
+            tokenPath = [fileparts(mfilename('fullpath')) filesep 'google.token'];
+            fid = fopen(tokenPath, 'rt');
+            if fid == -1
+                throw(MException('ASSIGNMENTCOMPILER:authorization:notEnoughCredentials', ...
+                    'For Initial Authorization, you must provide all credentials'));
+            else
+                lines = char(fread(fid)');
+                fclose(fid);
+                % line 1 will be id, 2 secret, 3 key, 4 token
+                lines = strsplit(lines, newline);
+                if numel(lines) == 3
+                    % need to authorize
+                    [clientId, clientSecret, app.clientKey] = deal(lines{:});
+                    app.token = authorizeWithGoogle(clientId, clientSecret);
+                    fid = fopen(tokenPath, 'wt');
+                    lines{end+1} = app.token;
+                    fwrite(fid, strjoin(lines, newline));
+                    fclose(fid);
+                else
+                    [clientId, clientSecret, app.clientKey, app.token] = deal(lines{:});
+                end
+            end
+            app.token = refresh2access(app.token, clientId, clientSecret);
+            browser = GoogleDriveBrowser(app.token);
             uiwait(browser.UIFigure);
+            if ~isvalid(browser) || isempty(browser.selectedId)
+                return;
+            end
+            id = browser.selectedId;
+            name = browser.selectedName;
             delete(browser);
             % TODO: verify that user actually picked a folder
         end
