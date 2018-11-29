@@ -27,7 +27,7 @@
 %   % Assuming user says no:
 %   threw connectionError exception
 function token = authorizeWithGoogle(clientId, clientSecret)
-    SCOPE = 'https://www.googleapis.com/auth/drive.readonly';
+    SCOPE = 'https://www.googleapis.com/auth/drive';
     RESP_TYPE = 'code';
     REDIRECT = 'http://127.0.0.1:9004';
     GRANT_TYPE = 'authorization_code';
