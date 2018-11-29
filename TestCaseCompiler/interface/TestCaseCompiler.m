@@ -50,6 +50,8 @@ classdef TestCaseCompiler < matlab.apps.AppBase
         token
         folderId
         clientKey
+        clientId
+        clientSecret
         exportDriveSelected = true
         exportLocalSelected = false
         
@@ -381,26 +383,32 @@ classdef TestCaseCompiler < matlab.apps.AppBase
                 lines = strsplit(lines, newline);
                 if numel(lines) == 3
                     % need to authorize
-                    [clientId, clientSecret, app.clientKey] = deal(lines{:});
-                    app.token = authorizeWithGoogle(clientId, clientSecret);
+                    [app.clientId, app.clientSecret, app.clientKey] = deal(lines{:});
+                    app.token = authorizeWithGoogle(app.clientId, app.clientSecret);
                     fid = fopen(tokenPath, 'wt');
                     lines{end+1} = app.token;
                     fwrite(fid, strjoin(lines, newline));
                     fclose(fid);
                 else
-                    [clientId, clientSecret, app.clientKey, app.token] = deal(lines{:});
+                    [app.clientId, app.clientSecret, app.clientKey, app.token] = deal(lines{:});
                 end
             end
-            app.token = refresh2access(app.token, clientId, clientSecret);
-            browser = GoogleDriveBrowser(app.token);
+            accessToken = refresh2access(app.token, app.clientId, app.clientSecret);
+            browser = GoogleDriveBrowser(accessToken);
             uiwait(browser.UIFigure);
             if ~isvalid(browser) || isempty(browser.selectedId)
-                return;
+                app.exportDriveSelected = false;
+            else
+                app.exportDriveSelected = true;
+                app.folderId = browser.selectedId;
+                % In this case, we will only select a HOMEWORK folder -
+                % _editing_ an existing one would be handled by browsing
+                % for the input file. Right. RIGHT?!
+                workFolder = tempname;
+                mkdir(workFolder);
+                app.LocalOutputDir = workFolder;
             end
-            id = browser.selectedId;
-            name = browser.selectedName;
             delete(browser);
-            % TODO: verify that user actually picked a folder
         end
 
         % Callback function
