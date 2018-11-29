@@ -180,4 +180,5 @@ function folder = getFolder(folderId, token, key, attemptNum)
             throw(e);
         end
     end
+
 end
