@@ -21,18 +21,18 @@ function uploadToDrive(path, folder, token, key, progress)
     
     % for each file in folder, upload. For each FOLDER, create it and
     % repeat.
-    uploadFolder(path, newId, token);
+    uploadFolder(path, newId, token, key);
 end
 
-function uploadFolder(path, newId, token)
+function uploadFolder(path, newId, token, key)
     folders = dir(path);
     folders(~[folders.isdir]) = [];
     folders(strncmp({folders.name}, '.', 1)) = [];
     % for each folder, rinse and repeat
     for f = 1:numel(folders)
         % create the folder
-        subId = createFolder(newId, folders(f).name, token);
-        uploadFolder([folders(f).folder filesep folders(f).name], subId, token);
+        subId = createFolder(newId, folders(f).name, token, key);
+        uploadFolder([folders(f).folder filesep folders(f).name], subId, token, key);
     end
     
     % for each FILE, upload. for each FOLDER, create it, increment the
@@ -87,9 +87,17 @@ function uploadFile(path, newId, token)
     request.send([DRIVE_API id '?addParents=' newId '&removeParents=root']);
 end
 
-function newId = createFolder(parent, folderName, token)
+function newId = createFolder(parent, folderName, token, key)
     API = 'https://www.googleapis.com/drive/v3/files/';
     TYPE = 'application/vnd.google-apps.folder';
+    
+    % If it already exists, kill it
+    opts = weboptions();
+    opts.HeaderFields = {'Authorization', ['Bearer ' token]};
+    contents = webread(API, 'q', ['''' parent ''' in parents and name = ''' folderName ''''], 'key', key, opts);
+    if ~isempty(contents.files)
+        deleteFolder(contents.files(1).id, token, key);
+    end
     opts = weboptions();
     opts.HeaderFields = {'Authorization', ['Bearer ' token]};
     opts.ContentType = 'json';
@@ -100,6 +108,14 @@ function newId = createFolder(parent, folderName, token)
     data.mimeType  = TYPE;
     newId = webwrite(API, data, opts);
     newId = newId.id;
+end
+
+function deleteFolder(id, token, key)
+    opts = weboptions();
+    opts.HeaderFields = {'Authorization', ['Bearer ' token]};
+    opts.RequestMethod = 'DELETE';
+    API = 'https://www.googleapis.com/drive/v3/files/';
+    webwrite([API id '?key=' key], opts);
 end
 
 function newId = setupFolder(folderId, name, token, key)
@@ -115,7 +131,7 @@ function newId = setupFolder(folderId, name, token, key)
         throw(e);
     end
     if isempty(contents.files)
-        newId = createFolder(folderId, name, token);
+        newId = createFolder(folderId, name, token, key);
     else
         newId = contents.files(1).id;
     end
