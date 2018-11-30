@@ -82,10 +82,13 @@ fprintf(1, 'Done\n');
 
 %% Version
 if nargin == 1
+    fprintf(1, '[%s] Writing new version: %s...', datetime, version);
     if version(1) == 'v'
         version(1) = [];
     end
-    fprintf(1, '[%s] Writing new version: %s...', datetime, version);
+    doc = xmlread(fullfile(thisDir, 'TestCaseCompiler.prj'));
+    doc.getElementsByTagName('param.version').item(0).setTextContent(version);
+    xmlwrite(fullfile(thisDir, 'TestCaseCompiler.prj'), doc);
     fprintf(1, 'Done\n');
 end
 %% Configure MLAPP
