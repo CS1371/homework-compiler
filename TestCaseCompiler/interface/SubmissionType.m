@@ -371,6 +371,13 @@ classdef SubmissionType < handle
             else
                 editField.BackgroundColor = [1, 1, 1];
                 this.OutputBaseWords = cellfun(@strtrim, baseWords, 'UniformOutput', false);
+                mask = cellfun(@isvarname, this.OutputBaseWords);
+                if ~all(mask)
+                    badVarNames = ['"' strjoin(this.OutputBaseWords(mask), '", "') '"'];
+                    uialert(SubmissionType.getParentFigure(editField), sprintf('Variable(s) %s are not valid', badVarNames), ...
+                        'Error', 'Icon', 'error');
+                    return;
+                end
                 for i = 1:this.NumTestCases
                     this.TestCases(i).addOutputNameEditFields();
                 end
