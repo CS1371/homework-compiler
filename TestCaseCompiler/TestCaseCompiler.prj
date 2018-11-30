@@ -1,0 +1,113 @@
+<deployment-project plugin="plugin.apptool" plugin-version="1.0">
+  <configuration file="/Users/alexhrao/Documents/homework-compiler/TestCaseCompiler/TestCaseCompiler.prj" location="/Users/alexhrao/Documents/homework-compiler/TestCaseCompiler" name="TestCaseCompiler" target="target.mlapps" target-name="Package App">
+    <param.appname>Test Case Compiler</param.appname>
+    <param.authnamewatermark>Daniel Profili</param.authnamewatermark>
+    <param.email>arao81@gatech.edu</param.email>
+    <param.company>CS 1371 Software Development Team</param.company>
+    <param.icon>${PROJECT_ROOT}/Test Case Compiler_resources/icon_24.png</param.icon>
+    <param.icons>
+      <file>${PROJECT_ROOT}/Test Case Compiler_resources/icon_48.png</file>
+      <file>${PROJECT_ROOT}/Test Case Compiler_resources/icon_24.png</file>
+      <file>${PROJECT_ROOT}/Test Case Compiler_resources/icon_16.png</file>
+    </param.icons>
+    <param.summary>I am a summary</param.summary>
+    <param.description>I am a description</param.description>
+    <param.screenshot />
+    <param.version>1.0</param.version>
+    <param.products.name>
+      <item>MATLAB</item>
+    </param.products.name>
+    <param.products.id>
+      <item>1</item>
+    </param.products.id>
+    <param.products.version>
+      <item>9.5</item>
+    </param.products.version>
+    <param.platforms />
+    <param.output>/Users/alexhrao/Documents/homework-compiler/TestCaseCompiler</param.output>
+    <param.guid>4e7561e7-af47-4812-ab26-9438c5e4673e</param.guid>
+    <unset>
+      <param.screenshot />
+      <param.version />
+      <param.platforms />
+      <param.output />
+    </unset>
+    <fileset.main>
+      <file>${PROJECT_ROOT}/TestCaseCompiler.m</file>
+    </fileset.main>
+    <fileset.depfun>
+      <file>${PROJECT_ROOT}/About.mlapp</file>
+      <file>${PROJECT_ROOT}/GoogleDriveBrowser.m</file>
+      <file>${PROJECT_ROOT}/Problem.m</file>
+      <file>${PROJECT_ROOT}/ProgressBar.m</file>
+      <file>${PROJECT_ROOT}/SubmissionType.m</file>
+      <file>${PROJECT_ROOT}/TestCase.m</file>
+      <file>${PROJECT_ROOT}/TestCaseCompiler_Layout.mlapp</file>
+      <file>${PROJECT_ROOT}/WidgetID.m</file>
+      <file>${PROJECT_ROOT}/generateVarNames.m</file>
+      <file>${PROJECT_ROOT}/mlapptools.m</file>
+    </fileset.depfun>
+    <fileset.resources />
+    <fileset.package />
+    <build-deliverables>
+      <file location="/Users/alexhrao/Documents/homework-compiler" name="TestCaseCompiler" optional="false">/Users/alexhrao/Documents/homework-compiler/TestCaseCompiler</file>
+    </build-deliverables>
+    <workflow />
+    <matlab>
+      <root>/Applications/MATLAB R2018b.app</root>
+      <toolboxes>
+        <toolbox name="matlabcoder" />
+        <toolbox name="embeddedcoder" />
+        <toolbox name="fixedpoint" />
+        <toolbox name="matlabhdlcoder" />
+        <toolbox name="polyspacebugfinder" />
+        <toolbox name="neuralnetwork" />
+      </toolboxes>
+      <toolbox>
+        <matlabcoder>
+          <enabled>true</enabled>
+        </matlabcoder>
+      </toolbox>
+      <toolbox>
+        <embeddedcoder>
+          <enabled>true</enabled>
+        </embeddedcoder>
+      </toolbox>
+      <toolbox>
+        <fixedpoint>
+          <enabled>true</enabled>
+        </fixedpoint>
+      </toolbox>
+      <toolbox>
+        <matlabhdlcoder>
+          <enabled>true</enabled>
+        </matlabhdlcoder>
+      </toolbox>
+      <toolbox>
+        <polyspacebugfinder>
+          <enabled>true</enabled>
+        </polyspacebugfinder>
+      </toolbox>
+      <toolbox>
+        <neuralnetwork>
+          <enabled>true</enabled>
+        </neuralnetwork>
+      </toolbox>
+    </matlab>
+    <platform>
+      <unix>true</unix>
+      <mac>true</mac>
+      <windows>false</windows>
+      <win2k>false</win2k>
+      <winxp>false</winxp>
+      <vista>false</vista>
+      <linux>false</linux>
+      <solaris>false</solaris>
+      <osver>10.14.1</osver>
+      <os32>false</os32>
+      <os64>true</os64>
+      <arch>maci64</arch>
+      <matlab>true</matlab>
+    </platform>
+  </configuration>
+</deployment-project>
