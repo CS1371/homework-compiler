@@ -132,9 +132,9 @@ function testCaseGenerator(app)
     
     % upload to google drive
     if app.exportDriveSelected
-        token = refresh2access(app.token);
+        token = refresh2access(app.token, app.clientId, app.clientSecret);
         progress.Message = 'Uploading package to Google Drive...';
-        uploadToDrive(pwd, app.folderId, token, app.key, progress);
+        uploadToDrive(pwd, app.folderId, token, app.clientKey, progress);
         progress.close();
     end
     

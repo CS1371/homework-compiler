@@ -10,7 +10,7 @@ classdef GoogleDriveBrowser < matlab.apps.AppBase
     end
 
 
-    properties (Access = private)
+    properties (Hidden)
         refreshServer char = 'https://www.googleapis.com/oauth2/v4/token';
         clientId char = '';
         clientSecret char = '';
@@ -19,6 +19,7 @@ classdef GoogleDriveBrowser < matlab.apps.AppBase
         refreshToken char;
         accessToken char;
         selectedId char;
+        selectedName char;
     end
 
     methods (Access = private)
@@ -63,6 +64,7 @@ classdef GoogleDriveBrowser < matlab.apps.AppBase
         % Button pushed function: Select
         function SelectButtonPushed(app, ~)
             app.selectedId = app.Drive.SelectedNodes(1).NodeData;
+            app.selectedName = app.Drive.SelectedNodes(1).Text;
             uiresume(app.UIFigure);
         end
 
@@ -117,11 +119,11 @@ classdef GoogleDriveBrowser < matlab.apps.AppBase
 
             % Create Title
             app.Title = uilabel(app.UIFigure);
-            app.Title.FontSize = 20;
+            app.Title.FontSize = 17;
             app.Title.FontWeight = 'bold';
-            app.Title.Position = [18 454 605 27];
-            app.Title.Text = 'Please select the grader folder for this homework submission';
-
+            app.Title.Position = [18 424 605 57];
+            app.Title.Text = 'Select the homework folder (i.e., "Homework 10")';
+            app.Title.HorizontalAlignment = 'center';
             % Create Drive
             app.Drive = uitree(app.UIFigure);
             app.Drive.NodeExpandedFcn = createCallbackFcn(app, @DriveNodeExpanded, true);
@@ -133,7 +135,7 @@ classdef GoogleDriveBrowser < matlab.apps.AppBase
 
         % Construct app
         function app = GoogleDriveBrowser(token)
-
+            app.accessToken = token;
             % Create and configure components
             createComponents(app)
 
@@ -142,7 +144,6 @@ classdef GoogleDriveBrowser < matlab.apps.AppBase
 
             % Execute the startup function
             runStartupFcn(app, @startupFcn)
-            app.accessToken = token;
 
             if nargout == 0
                 clear app
