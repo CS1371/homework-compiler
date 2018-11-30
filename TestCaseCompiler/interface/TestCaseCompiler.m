@@ -37,6 +37,7 @@ classdef TestCaseCompiler < matlab.apps.AppBase
         LocalDiskCheckBox              matlab.ui.control.CheckBox
         GoogleDriveCheckBox            matlab.ui.control.CheckBox
         LocalBrowseButton              matlab.ui.control.Button
+        FunctionDriveBrowseButton      matlab.ui.control.Button
     end
 
     
@@ -404,9 +405,6 @@ classdef TestCaseCompiler < matlab.apps.AppBase
                 % In this case, we will only select a HOMEWORK folder -
                 % _editing_ an existing one would be handled by browsing
                 % for the input file. Right. RIGHT?!
-                workFolder = tempname;
-                mkdir(workFolder);
-                app.LocalOutputDir = workFolder;
             end
             delete(browser);
         end
@@ -431,6 +429,47 @@ classdef TestCaseCompiler < matlab.apps.AppBase
                 app.makeVisible();
                 finished = confirmEmpty(app, path);
             end
+        end
+        
+        function FunctionDriveBrowseButtonPushed(app, event)
+            tokenPath = [fileparts(mfilename('fullpath')) filesep 'google.token'];
+            fid = fopen(tokenPath, 'rt');
+            if fid == -1
+                throw(MException('ASSIGNMENTCOMPILER:authorization:notEnoughCredentials', ...
+                    'For Initial Authorization, you must provide all credentials'));
+            else
+                lines = char(fread(fid)');
+                fclose(fid);
+                % line 1 will be id, 2 secret, 3 key, 4 token
+                lines = strsplit(lines, newline);
+                if numel(lines) == 3
+                    % need to authorize
+                    [app.clientId, app.clientSecret, app.clientKey] = deal(lines{:});
+                    app.token = authorizeWithGoogle(app.clientId, app.clientSecret);
+                    fid = fopen(tokenPath, 'wt');
+                    lines{end+1} = app.token;
+                    fwrite(fid, strjoin(lines, newline));
+                    fclose(fid);
+                else
+                    [app.clientId, app.clientSecret, app.clientKey, app.token] = deal(lines{:});
+                end
+            end
+            accessToken = refresh2access(app.token, app.clientId, app.clientSecret);
+            browser = GoogleDriveBrowser(accessToken);
+            browser.Title.Text = 'Select the problem folder (i.e., "myProblem")';
+            uiwait(browser.UIFigure);
+            if isvalid(browser) && ~isempty(browser.selectedId)
+                % create local archive
+                tmp = browser.selectedId;
+                name = browser.selectedName;
+                workFolder = tempname;
+                mkdir(workFolder);
+                cd(workFolder);
+                downloadFromDrive(tmp, accessToken, workFolder, app.clientKey);
+                app.loadFunction(fullfile(pwd, name, [name '.m']));
+            end
+            delete(browser);
+                
         end
         
         %% confirmEmpty Checks whether the selected output directory is empty 
@@ -733,6 +772,11 @@ classdef TestCaseCompiler < matlab.apps.AppBase
 %             app.LocalBrowseButton.Position = [306 68 70 22];
             app.LocalBrowseButton.Position = layout.LocalBrowseButton;
             app.LocalBrowseButton.Text = 'Browse...';
+            
+            app.FunctionDriveBrowseButton = uibutton(app.GeneralPanel, 'push');
+            app.FunctionDriveBrowseButton.Position = layout.FunctionDriveBrowseButton;
+            app.FunctionDriveBrowseButton.ButtonPushedFcn = createCallbackFcn(app, @FunctionDriveBrowseButtonPushed, true);
+            app.FunctionDriveBrowseButton.Text = 'Drive...';
         end
     end
 

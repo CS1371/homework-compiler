@@ -19,6 +19,7 @@ classdef GoogleDriveBrowser < matlab.apps.AppBase
         refreshToken char;
         accessToken char;
         selectedId char;
+        selectedName char;
     end
 
     methods (Access = private)
@@ -63,6 +64,7 @@ classdef GoogleDriveBrowser < matlab.apps.AppBase
         % Button pushed function: Select
         function SelectButtonPushed(app, ~)
             app.selectedId = app.Drive.SelectedNodes(1).NodeData;
+            app.selectedName = app.Drive.SelectedNodes(1).Text;
             uiresume(app.UIFigure);
         end
 
