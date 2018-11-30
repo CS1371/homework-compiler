@@ -308,7 +308,7 @@ classdef TestCaseCompiler < matlab.apps.AppBase
         function CompileButtonPushed(app, event)
             finished = false;
             if (~app.LocalDiskCheckBox.Value && ~app.GoogleDriveCheckBox.Value) ...
-                    || isempty(app.LocalOutputDir)
+                    || (isempty(app.LocalOutputDir) && isempty(app.folderId))
                 % no output location selected!
                 uiconfirm(app.UIFigure, 'You have to choose an output location!', ...
                     'Error', 'Icon', 'error');
@@ -466,7 +466,7 @@ classdef TestCaseCompiler < matlab.apps.AppBase
                 mkdir(workFolder);
                 cd(workFolder);
                 downloadFromDrive(tmp, accessToken, workFolder, app.clientKey);
-                app.loadFunction(fullfile(pwd, name, [name '.m']));
+                app.loadFunction(fullfile(pwd, [name '.m']));
             end
             delete(browser);
                 
