@@ -9,7 +9,7 @@ classdef TestCase < handle
 
     
     %% Non-UI properties
-    properties
+    properties (Dependent)
         % names of input variables, as selected by user in the UI
         InputNames cell
         
@@ -23,7 +23,7 @@ classdef TestCase < handle
     %% UI properties
     % This section contains all properties (UI-specific) that represent
     % objects that are generated upon creation of a new test case.
-    properties (SetAccess = private)
+    properties (Dependent, SetAccess = private)
         % The tab object itself
         Tab matlab.ui.container.Tab
         
@@ -167,8 +167,8 @@ classdef TestCase < handle
             rightmostPos = 0;
             % Finds the rightmost label, which will be either a comma or
             % the right paren
-            for ic = this.InCommas
-                ic = ic{1};
+            for i = this.InCommas
+                ic = i{1};
                 if ic.Position(1) > rightmostPos
                     rightmostPos = ic.Position(1);
                 end
@@ -221,7 +221,6 @@ classdef TestCase < handle
         
         function addOutputNameEditFields(this)
             value = this.ParentType.Problem.NumOutputs;
-            CUSTOM_WIDTH = 8;
             % do separate things if auto or not
             % if auto, always out#
             % otherwise, length of each tb? -> 8 chars
@@ -436,7 +435,7 @@ classdef TestCase < handle
                 
                 % if it worked, then great
                 this.Tab.Title = strrep(this.Tab.Title, TestCaseCompiler.ERROR_SYMBOL, '');
-            catch ME
+            catch
                 % failed, so fuck you
                 % TODO: set dropdowns red maybe?
                 currentTitle = this.Tab.Title;

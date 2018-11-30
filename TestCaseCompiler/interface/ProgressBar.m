@@ -7,7 +7,7 @@ classdef ProgressBar < handle
     % (c) 2018 CS1371 (J. Htay, D. Profili, A. Rao, H. White)
 
     
-    properties
+    properties (Dependent)
         Indeterminate
         Message
         Title
@@ -17,7 +17,7 @@ classdef ProgressBar < handle
         ShowPercentage
     end
     
-    properties (Access = private)
+    properties (Dependent, Access=private)
         is2018a
         backingObject
         Parent

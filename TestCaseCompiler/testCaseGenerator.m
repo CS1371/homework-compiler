@@ -126,7 +126,7 @@ function testCaseGenerator(app)
             createPackage('resub', resub);
             verifyPackage('resub');
         end
-    catch ME
+    catch
         return;
     end
     

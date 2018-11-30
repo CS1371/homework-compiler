@@ -177,7 +177,7 @@ cd(initialDir);
 end
 
 % Try and reset everything to before verifier was run
-function cleanup(initialDir, sandboxDir)
+function cleanup(initialDir, ~)
 % try
 %     cd(toDelete); cd('..'); % go up one from the delete dir [~] =
 %     rmdir(toDelete, 's'); % delete it from above
