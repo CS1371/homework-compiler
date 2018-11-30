@@ -361,8 +361,12 @@ classdef SubmissionType < handle
         % Callback for when the base words edit field is changed.
         function changeBaseWords(this, editField)
             value = editField.Value;
+            value(value == ' ') = [];
+            if value(end) == ','
+                value(end) = [];
+            end
             % split input by commas
-            baseWords = strsplit(value, ', ');
+            baseWords = strsplit(value, ',');
             if length(baseWords) ~= this.Problem.NumOutputs
                 editField.BackgroundColor = this.EDITFIELD_ERROR_COLOR;
                 uiconfirm(SubmissionType.getParentFigure(editField), sprintf('You entered %d outputs, but %s has only %d outputs.', ...
