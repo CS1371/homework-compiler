@@ -9,7 +9,7 @@ classdef TestCase < handle
 
     
     %% Non-UI properties
-    properties (Dependent)
+    properties
         % names of input variables, as selected by user in the UI
         InputNames cell
         
@@ -23,7 +23,7 @@ classdef TestCase < handle
     %% UI properties
     % This section contains all properties (UI-specific) that represent
     % objects that are generated upon creation of a new test case.
-    properties (Dependent, SetAccess = private)
+    properties (SetAccess = private)
         % The tab object itself
         Tab matlab.ui.container.Tab
         
@@ -138,7 +138,7 @@ classdef TestCase < handle
         % accordingly.
         function set.Index(this, value)
             this.Index = value;
-            this.Tab.Title = ['Test Case ', num2str(value)];
+            this.Tab.Title = ['Test Case ', num2str(value)]; %#ok<*MCSUP>
         end
         
         %% redrawFunctionPreview
