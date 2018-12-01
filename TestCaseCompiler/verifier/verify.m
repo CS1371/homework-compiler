@@ -106,6 +106,10 @@ if ~isempty(missingFields)
         'Package json has missing field(s): %s', missing)); 
 end
 
+if rubricSt.isRecursive && ~checkRecur([pwd filesep rubricSt.name '.m'])
+    throw(MException('TESTCASE:verifier:verify:notRecursive', ...
+        'Solution is not recursive, yet recursion is mandated'));
+end
 % collect all the function calls
 calls = rubricSt.calls;
 
