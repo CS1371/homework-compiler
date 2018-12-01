@@ -77,6 +77,13 @@ function package(path, out, ins, name, vals, paths, num, recurs, ban)
     end
     
     % input / output bases are OK; we have enough input values.
+    % for each input name that has '', that's actually a filename. So, why
+    % don't we just chop off the extension, and then
+    % matlab.lang.makeValidName it?
+    mask = strncmp(ins, '''', 1);
+    ins(mask) = strrep(ins(mask), '''', '');
+    ins(mask) = strtok(ins(mask), '.');
+    ins(mask) = matlab.lang.makeValidName(ins(mask));
     createInputs(ins, vals);
     % create supportingFiles
     mkdir('supportingFiles');
