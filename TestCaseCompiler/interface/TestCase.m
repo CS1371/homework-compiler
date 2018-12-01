@@ -399,7 +399,7 @@ classdef TestCase < handle
         function updateAllDropdowns(this)
             newInputs = TestCase.getInputsFromWorkspace();
             supFiles = this.ParentType.SupportingFilesListBox.Items;
-            newInputs = [newInputs, compose('''%s''', string(supFiles))];
+            newInputs = [newInputs', compose('''%s''', string(supFiles))];
             for dd = this.InputDropdowns
                 dd.Items = newInputs;
             end
