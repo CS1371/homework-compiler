@@ -334,7 +334,7 @@ classdef SubmissionType < handle
         % Also verifies the function call on the current test case.
         function setFocusedTestCase(this, tabGroup)
             name = tabGroup.SelectedTab.Title;
-            num = str2num(name(name >= '0' & name <= '9'));
+            num = str2double(name(name >= '0' & name <= '9'));
             
             % verify the single test case
             tc = this.TestCases(this.focusedTestCaseNum).Tab.UserData;
@@ -453,10 +453,12 @@ classdef SubmissionType < handle
         % array. But not really though. Actually, it puts inputs into cell
         % arrays, which are then put into a 1x(numTestCases) cell array.
         function value = get.InputNames(this)
-            value = {};
-            for tc = this.TestCases
-                value = [value, tc.InputNames{:}];
+            value = cell(1, numel(this.TestCases));
+            for t = 1:numel(this.TestCases)
+                tc = this.TestCases(t);
+                value{t} = [tc.InputNames{:}];
             end
+            value = [value{:}];
             
         end
         
@@ -503,7 +505,7 @@ classdef SubmissionType < handle
                 else
                     p = SubmissionType.getParentFigure(elem.Parent);
                 end
-            catch ME
+            catch
                 % TODO: do this better
                 p = [];
             end

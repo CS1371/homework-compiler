@@ -68,7 +68,7 @@ classdef tcpip < icinterface
         function obj = tcpip(varargin)
             defaultPort = 80;
             
-            obj = obj@icinterface('tcpip'); %#ok<PROP>
+            obj = obj@icinterface('tcpip');
             % Create the parent class.
             try
                 obj.icinterface = icinterface('tcpip');
@@ -106,7 +106,7 @@ classdef tcpip < icinterface
                         port = defaultPort;
                         iniprop = 2;
                     end
-                    props = {varargin{iniprop:end}};
+                    props = varargin(iniprop:end);
             end
 
             % Set the doc ID for the interface object. This sets values for
@@ -114,7 +114,7 @@ classdef tcpip < icinterface
             obj = obj.setDocID('tcpip');
 
             % parse the host
-            if (strcmp(class(host), 'char'))
+            if ischar(host)
                 % Ex. t = tcpip('144.212.100.10')
                 % Call the java constructor and store the java object in the
                 % tcpip object.
@@ -127,7 +127,7 @@ classdef tcpip < icinterface
                     newExc = MException('instrument:tcpip:cannotCreate',aException.message);
                     throw(newExc);
                 end
-            elseif strcmp(class(host), 'tcpip')
+            elseif isa(host, 'tcpip')
                 obj = host;
             elseif isa(host, 'com.mathworks.toolbox.instrument.TCPIP')
                 obj.jobject = handle(host);
@@ -135,7 +135,7 @@ classdef tcpip < icinterface
                 obj.jobject = host;
             elseif ishandle(host)
                 % True if loading an array of objects and the first is a TCPIP object.
-                if ~isempty(findstr(class(host(1)), 'com.mathworks.toolbox.instrument.TCPIP'))
+                if ~contains(class(host(1)), 'com.mathworks.toolbox.instrument.TCPIP')
                     obj.jobject = host;
                 else
                     error(message('instrument:tcpip:invalidRHOST'));
@@ -189,7 +189,7 @@ id = exception.identifier;
 errmsg =  exception.message;
 
 % Remove the trailing carriage returns from errmsg.
-while errmsg(end) == sprintf('\n')
+while errmsg(end) == newline
     errmsg = errmsg(1:end-1);
 end
 

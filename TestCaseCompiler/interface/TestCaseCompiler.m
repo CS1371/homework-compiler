@@ -274,12 +274,12 @@ classdef TestCaseCompiler < matlab.apps.AppBase
             % add variable refreshing on focus gained
             ww = mlapptools.getWebWindow(app.UIFigure);
             ww.FocusGained = @(type, data)(app.windowFocusGainedCallback);
-
+            app.makeVisible();
             
         end
 
         % Close request function: UIFigure
-        function UIFigureCloseRequest(app, event)
+        function UIFigureCloseRequest(app, ~)
             % reset the path
             %             path(app.initialPath);
             cd(app.cleanupDir);
@@ -288,12 +288,12 @@ classdef TestCaseCompiler < matlab.apps.AppBase
         end
 
         % Menu selected function: AboutMenu
-        function AboutMenuSelected(app, event)
+        function AboutMenuSelected(~, ~)
             About;
         end
 
         % Button pushed function: FunctionBrowseButton
-        function FunctionBrowseButtonPushed(app, event)
+        function FunctionBrowseButtonPushed(app, ~)
             [file, path] = uigetfile('*.m', 'Select function solution file');
             if ~isempty(file) && ~isempty(path) && ischar(file) && ischar(path)
                 % user picked something, so can enable everything
@@ -305,7 +305,7 @@ classdef TestCaseCompiler < matlab.apps.AppBase
         end
 
         % Button pushed function: CompileButton
-        function CompileButtonPushed(app, event)
+        function CompileButtonPushed(app, ~)
             finished = false;
             if (~app.LocalDiskCheckBox.Value && ~app.GoogleDriveCheckBox.Value) ...
                     || (isempty(app.LocalOutputDir) && isempty(app.folderId))
@@ -326,7 +326,7 @@ classdef TestCaseCompiler < matlab.apps.AppBase
         end
 
         % Button pushed function: BannedFunctionsAddButton
-        function BannedFunctionsAddButtonPushed(app, event)
+        function BannedFunctionsAddButtonPushed(app, ~)
             % adds a function to the banned functions list (if not already there)
             toAdd = app.BannedFunctionsEditField.Value;
             if ~(isempty(toAdd))
@@ -352,7 +352,7 @@ classdef TestCaseCompiler < matlab.apps.AppBase
         end
 
         % Button pushed function: BannedFunctionsRemoveButton
-        function BannedFunctionsRemoveButtonPushed(app, event)
+        function BannedFunctionsRemoveButtonPushed(app, ~)
             % remove a function from the banned functions listbox
             selected = app.BannedFunctionsListBox.Value;
             if ~isempty(selected)
@@ -364,7 +364,7 @@ classdef TestCaseCompiler < matlab.apps.AppBase
         end
 
         % Value changed function: RecursiveCheckBox
-        function RecursiveCheckBoxValueChanged(app, event)
+        function RecursiveCheckBoxValueChanged(app, ~)
             value = app.RecursiveCheckBox.Value;
 %             app.isRecursive = value;
             app.problem.IsRecursive = value;
@@ -410,12 +410,12 @@ classdef TestCaseCompiler < matlab.apps.AppBase
         end
 
         % Callback function
-        function RefreshVariablesButtonPushed(app, event)
+        function RefreshVariablesButtonPushed(app, ~)
             app.problem.refreshInputsFromWorkspace();
         end
 
         % Button pushed function: LocalBrowseButton
-        function LocalBrowseButtonPushed(app, event)
+        function LocalBrowseButtonPushed(app, ~)
             finished = false;
             while ~finished
                 path = uigetdir('*.m', 'Select output destination');
@@ -431,7 +431,7 @@ classdef TestCaseCompiler < matlab.apps.AppBase
             end
         end
         
-        function FunctionDriveBrowseButtonPushed(app, event)
+        function FunctionDriveBrowseButtonPushed(app, ~)
             tokenPath = [fileparts(mfilename('fullpath')) filesep 'google.token'];
             fid = fopen(tokenPath, 'rt');
             if fid == -1
@@ -513,7 +513,7 @@ classdef TestCaseCompiler < matlab.apps.AppBase
         end
 
         % Value changed function: LocalDiskCheckBox
-        function LocalDiskCheckBoxValueChanged(app, event)
+        function LocalDiskCheckBoxValueChanged(app, ~)
             value = app.LocalDiskCheckBox.Value;
             if value
                 txt = 'on';
@@ -525,7 +525,7 @@ classdef TestCaseCompiler < matlab.apps.AppBase
         end
 
         % Value changed function: GoogleDriveCheckBox
-        function GoogleDriveCheckBoxValueChanged(app, event)
+        function GoogleDriveCheckBoxValueChanged(app, ~)
             value = app.GoogleDriveCheckBox.Value;
             if value
                 txt = 'on';

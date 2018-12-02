@@ -17,7 +17,7 @@ classdef ProgressBar < handle
         ShowPercentage
     end
     
-    properties (Access = private)
+    properties (Access=private)
         is2018a
         backingObject
         Parent
@@ -123,7 +123,7 @@ classdef ProgressBar < handle
         % 1.
         function set.Value(this, prog)
             this.Value = prog;
-            if this.isInitialized
+            if this.isInitialized %#ok<*MCSUP>
                 this.Indeterminate = false;
                 if this.is2018a
                     this.backingObject.Value = prog;
