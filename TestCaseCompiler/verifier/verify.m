@@ -165,7 +165,9 @@ cd(sandboxDir);
 
 for i = length(calls):-1:1
     try
-        funcWrapper(calls{i}, inputFiles);
+        % create call
+        call = ['[' strjoin(calls(i).outs, ', ') '] = ' rubricSt.name '(' strjoin(calls(i).ins, ', ') ');'];
+        funcWrapper(call, inputFiles);
     catch ME
         failedCases(i) = i;
         msg{i} = ME;
