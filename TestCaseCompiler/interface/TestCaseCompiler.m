@@ -2,25 +2,35 @@ classdef TestCaseCompiler < matlab.apps.AppBase
 
     % Properties that correspond to app components
     properties (Access = public)
+        % Parent uifig
         UIFigure                       matlab.ui.Figure
+        
+        % The menubar
         Menu                           matlab.ui.container.Menu
         QuitMenu                       matlab.ui.container.Menu
         HelpMenu                       matlab.ui.container.Menu
         HelpMenu_2                     matlab.ui.container.Menu
         AboutMenu                      matlab.ui.container.Menu
+        
+        % TabGroup that holds all the rubrics (student, submission, resub)
         RubricTabGroup                 matlab.ui.container.TabGroup
-        StudentTab                     matlab.ui.container.Tab
-        StudentSupportingFilesPanel    matlab.ui.container.Panel
-        StudentSupportingFilesAddButton  matlab.ui.control.Button
-        StudentSupportingFilesRemoveButton  matlab.ui.control.Button
-        StudentSupportingFilesListBox  matlab.ui.control.ListBox
-        StudentValuesTabGroup          matlab.ui.container.TabGroup
-        StudentTestCase1Tab            matlab.ui.container.Tab
-        StudentOutputBaseWordsPanel    matlab.ui.container.Panel
-        StudentOutputBaseWordsEditField  matlab.ui.control.EditField
-        StudentRemoveTestCaseButton    matlab.ui.control.Button
-        StudentAddTestCaseButton       matlab.ui.control.Button
+        
+%         StudentTab                     matlab.ui.container.Tab
+%         StudentSupportingFilesPanel    matlab.ui.container.Panel
+%         StudentSupportingFilesAddButton  matlab.ui.control.Button
+%         StudentSupportingFilesRemoveButton  matlab.ui.control.Button
+%         StudentSupportingFilesListBox  matlab.ui.control.ListBox
+%         StudentValuesTabGroup          matlab.ui.container.TabGroup
+%         StudentTestCase1Tab            matlab.ui.container.Tab
+%         StudentOutputBaseWordsPanel    matlab.ui.container.Panel
+%         StudentOutputBaseWordsEditField  matlab.ui.control.EditField
+%         StudentRemoveTestCaseButton    matlab.ui.control.Button
+%         StudentAddTestCaseButton       matlab.ui.control.Button
+
+        % Button to compile
         CompileButton                  matlab.ui.control.Button
+        
+        % Problem settings: banned functions and recursion
         ProblemSettingsPanel           matlab.ui.container.Panel
         RecursiveCheckBox              matlab.ui.control.CheckBox
         BannedFunctionsLabel           matlab.ui.control.Label
@@ -28,21 +38,23 @@ classdef TestCaseCompiler < matlab.apps.AppBase
         BannedFunctionsAddButton       matlab.ui.control.Button
         BannedFunctionsRemoveButton    matlab.ui.control.Button
         BannedFunctionsEditField       matlab.ui.control.EditField
-        GeneralPanel                   matlab.ui.container.Panel
-        FunctionLabel                  matlab.ui.control.Label
-        FunctionBrowseButton           matlab.ui.control.Button
-        SavetoLabel                    matlab.ui.control.Label
-        OutputFolderBrowseButton       matlab.ui.control.Button
-        FunctionNameField              matlab.ui.control.EditField
-        LocalDiskCheckBox              matlab.ui.control.CheckBox
-        GoogleDriveCheckBox            matlab.ui.control.CheckBox
+        
+%         FunctionLabel                  matlab.ui.control.Label
+
+        % Where the function saves to
+        SaveLocationPanel            matlab.ui.container.Panel
         LocalBrowseButton              matlab.ui.control.Button
-        FunctionDriveBrowseButton      matlab.ui.control.Button
+        OutputFolderBrowseButton       matlab.ui.control.Button
+
+        % Function browse panel
+        FunctionBrowsePanel          matlab.ui.container.Panel
+        FunctionBrowseButton         matlab.ui.control.Button
+        FunctionDriveBrowseButton    matlab.ui.control.Button
     end
 
     
     properties (Access = public, Constant)
-        ERROR_SYMBOL = '? ' % Global error symbol, used to illustrate test case verification failure
+        ERROR_SYMBOL = TestCaseCompiler_Layout.ERROR_ICON; % Global error symbol, used to illustrate test case verification failure
     end
     
     properties (Hidden)
@@ -124,7 +136,7 @@ classdef TestCaseCompiler < matlab.apps.AppBase
                     'Function load error', 'Options', {'OK'}, 'Icon', 'error');
                 
                 % make the edit field red
-                app.FunctionNameField.BackgroundColor = [1.0 0 0];
+%                 app.FunctionNameField.BackgroundColor = [1.0 0 0];
                 
                 % compile button
                 app.CompileButton.Enable = 'off';
@@ -139,9 +151,9 @@ classdef TestCaseCompiler < matlab.apps.AppBase
             
             % enable all the disabled fields
 %             [~, fnName] = fileparts(path);
-            app.FunctionNameField.Value = app.problem.FunctionName;
-            app.FunctionNameField.FontName = 'Consolas';
-            app.FunctionNameField.BackgroundColor = [1 1 1];
+%             app.FunctionNameField.Value = app.problem.FunctionName;
+%             app.FunctionNameField.FontName = 'Consolas';
+%             app.FunctionNameField.BackgroundColor = [1 1 1];
                         
             % compile button
             app.CompileButton.Enable = 'on';
@@ -391,7 +403,7 @@ classdef TestCaseCompiler < matlab.apps.AppBase
             fid = fopen(tokenPath, 'rt');
             if fid == -1
                 throw(MException('ASSIGNMENTCOMPILER:authorization:notEnoughCredentials', ...
-                    'For Initial Authorization, you must provide all credentials'));
+                    'For initial authorization, you must provide all credentials'));
             else
                 lines = char(fread(fid)');
                 fclose(fid);
@@ -451,7 +463,7 @@ classdef TestCaseCompiler < matlab.apps.AppBase
             fid = fopen(tokenPath, 'rt');
             if fid == -1
                 throw(MException('ASSIGNMENTCOMPILER:authorization:notEnoughCredentials', ...
-                    'For Initial Authorization, you must provide all credentials'));
+                    'For initial authorization, you must provide all credentials'));
             else
                 lines = char(fread(fid)');
                 fclose(fid);
@@ -559,239 +571,311 @@ classdef TestCaseCompiler < matlab.apps.AppBase
         function createComponents(app)
             % get all component positions from the layout
             layoutApp = TestCaseCompiler_Layout;
-            layout = layoutApp.getLayout();
+            layout = layoutApp.getLayout({'Name', 'Text', 'Value', 'Position', 'FontName', ...
+                'BackgroundColor', 'Enable', 'HorizontalAlignment', 'Items', 'Title', ...
+                'FontSize'});
             app.Layout = layout;
             delete(layoutApp);
+
 
             % Create UIFigure
             app.UIFigure = uifigure;
 %             app.UIFigure.Position = [100 100 701 474];
-            app.UIFigure.Position = layout.UIFigure;
-            app.UIFigure.Name = 'CS1371 Test Case Generator';
+%             app.UIFigure.Position = layout.UIFigure.Position;
+%             app.UIFigure.Name = 'CS1371 Test Case Generator';
             app.UIFigure.Resize = 'off';
             app.UIFigure.CloseRequestFcn = createCallbackFcn(app, @UIFigureCloseRequest, true);
-
+            copyFrom(app.UIFigure, layout.UIFigure, {'Position', 'Name'});
             % Create HelpMenu
             app.HelpMenu = uimenu(app.UIFigure);
-            app.HelpMenu.Text = 'Help';
+%             app.HelpMenu.Text = 'Help';
 
             % Create HelpMenu_2
             app.HelpMenu_2 = uimenu(app.HelpMenu);
-            app.HelpMenu_2.Text = 'Help';
+%             app.HelpMenu_2.Text = 'Help';
 
             % Create AboutMenu
             app.AboutMenu = uimenu(app.HelpMenu);
             app.AboutMenu.MenuSelectedFcn = createCallbackFcn(app, @AboutMenuSelected, true);
-            app.AboutMenu.Text = 'About';
+%             app.AboutMenu.Text = 'About';
+            copyFrom(app.AboutMenu, layout.AboutMenu, {'Text'});
+
 
             % Create RubricTabGroup
             app.RubricTabGroup = uitabgroup(app.UIFigure);
 %             app.RubricTabGroup.Position = [11 5 680 330];
-            app.RubricTabGroup.Position = layout.RubricTabGroup;
+%             app.RubricTabGroup.Position = layout.RubricTabGroup.Position;
+%             app.RubricTabGroup = copy(layout.RubricTabGroup);
+%             app.RubricTabGroup.Parent = app.UIFigure;
+            copyFrom(app.RubricTabGroup, layout.RubricTabGroup, {'Position'});
 
 
-            % Create StudentTab
-            app.StudentTab = uitab(app.RubricTabGroup);
-            app.StudentTab.Title = '? Student';
-
-            % Create StudentSupportingFilesPanel
-            app.StudentSupportingFilesPanel = uipanel(app.StudentTab);
-            app.StudentSupportingFilesPanel.Title = 'Supporting Files';
-%             app.StudentSupportingFilesPanel.Position = [11 202 370 94];
-            app.StudentSupportingFilesPanel.Position = layout.SupportingFilesPanel;
-
-
-            % Create StudentSupportingFilesAddButton
-            app.StudentSupportingFilesAddButton = uibutton(app.StudentSupportingFilesPanel, 'push');
-            app.StudentSupportingFilesAddButton.BackgroundColor = [0.902 0.902 0.902];
-%             app.StudentSupportingFilesAddButton.Position = [261 42 100 22];
-            app.StudentSupportingFilesAddButton.Position = layout.SupportingFilesAddButton;
-            app.StudentSupportingFilesAddButton.Text = 'Add...';
-
-            % Create StudentSupportingFilesRemoveButton
-            app.StudentSupportingFilesRemoveButton = uibutton(app.StudentSupportingFilesPanel, 'push');
-            app.StudentSupportingFilesRemoveButton.BackgroundColor = [0.902 0.902 0.902];
-%             app.StudentSupportingFilesRemoveButton.Position = [261 12 100 22];
-            app.StudentSupportingFilesRemoveButton.Position = layout.SupportingFilesRemoveButton;
-            app.StudentSupportingFilesRemoveButton.Text = 'Remove';
-
-            % Create StudentSupportingFilesListBox
-            app.StudentSupportingFilesListBox = uilistbox(app.StudentSupportingFilesPanel);
-            app.StudentSupportingFilesListBox.Items = {};
-            app.StudentSupportingFilesListBox.FontName = 'Consolas';
-%             app.StudentSupportingFilesListBox.Position = [10 14 241 50];
-            app.StudentSupportingFilesListBox.Position = layout.SupportingFilesListBox;
-            app.StudentSupportingFilesListBox.Value = {};
-
-            % Create StudentValuesTabGroup
-            app.StudentValuesTabGroup = uitabgroup(app.StudentTab);
-%             app.StudentValuesTabGroup.Position = [11 55 660 138];
-            app.StudentValuesTabGroup.Position = layout.ValuesTabGroup;
-
-            % Create StudentTestCase1Tab
-            app.StudentTestCase1Tab = uitab(app.StudentValuesTabGroup);
-            app.StudentTestCase1Tab.Title = 'Test Case 1';
-
-            % Create StudentOutputBaseWordsPanel
-            app.StudentOutputBaseWordsPanel = uipanel(app.StudentTab);
-            app.StudentOutputBaseWordsPanel.Title = 'Output Base Words';
-%             app.StudentOutputBaseWordsPanel.Position = [391 202 280 94];
-            app.StudentOutputBaseWordsPanel.Position = layout.OutputBaseWordsPanel;
-
-            % Create StudentOutputBaseWordsEditField
-            app.StudentOutputBaseWordsEditField = uieditfield(app.StudentOutputBaseWordsPanel, 'text');
-            app.StudentOutputBaseWordsEditField.FontName = 'Consolas';
-%             app.StudentOutputBaseWordsEditField.Position = [21 28 238 22];
-            app.StudentOutputBaseWordsEditField.Position = layout.OutputBaseWordsEditField;
-
-            % Create StudentRemoveTestCaseButton
-            app.StudentRemoveTestCaseButton = uibutton(app.StudentTab, 'push');
-            app.StudentRemoveTestCaseButton.FontName = 'Courier New';
-            app.StudentRemoveTestCaseButton.Enable = 'off';
-%             app.StudentRemoveTestCaseButton.Position = [51 13 31 22];
-            app.StudentRemoveTestCaseButton.Position = layout.RemoveTestCaseButton;
-            app.StudentRemoveTestCaseButton.Text = '-';
-
-            % Create StudentAddTestCaseButton
-            app.StudentAddTestCaseButton = uibutton(app.StudentTab, 'push');
-            app.StudentAddTestCaseButton.FontName = 'Courier New';
+%             % Create StudentTab
+%             app.StudentTab = uitab(app.RubricTabGroup);
+%             app.StudentTab.Title = layout.SubTypeTab.Title;
+% 
+%             % Create StudentSupportingFilesPanel
+%             app.StudentSupportingFilesPanel = uipanel(app.StudentTab);
+%             app.StudentSupportingFilesPanel.Title = 'Supporting Files';
+% %             app.StudentSupportingFilesPanel.Position = [11 202 370 94];
+%             app.StudentSupportingFilesPanel.Position = layout.SupportingFilesPanel.Position;
+% 
+% 
+%             % Create StudentSupportingFilesAddButton
+%             app.StudentSupportingFilesAddButton = uibutton(app.StudentSupportingFilesPanel, 'push');
+%             app.StudentSupportingFilesAddButton.BackgroundColor = [0.902 0.902 0.902];
+% %             app.StudentSupportingFilesAddButton.Position = [261 42 100 22];
+%             app.StudentSupportingFilesAddButton.Position = layout.SupportingFilesAddButton.Position;
+%             app.StudentSupportingFilesAddButton.Text = 'Add...';
+% 
+%             % Create StudentSupportingFilesRemoveButton
+%             app.StudentSupportingFilesRemoveButton = uibutton(app.StudentSupportingFilesPanel, 'push');
+%             app.StudentSupportingFilesRemoveButton.BackgroundColor = [0.902 0.902 0.902];
+% %             app.StudentSupportingFilesRemoveButton.Position = [261 12 100 22];
+%             app.StudentSupportingFilesRemoveButton.Position = layout.SupportingFilesRemoveButton;
+%             app.StudentSupportingFilesRemoveButton.Text = 'Remove';
+% 
+%             % Create StudentSupportingFilesListBox
+%             app.StudentSupportingFilesListBox = uilistbox(app.StudentSupportingFilesPanel);
+%             app.StudentSupportingFilesListBox.Items = {};
+%             app.StudentSupportingFilesListBox.FontName = 'Consolas';
+% %             app.StudentSupportingFilesListBox.Position = [10 14 241 50];
+%             app.StudentSupportingFilesListBox.Position = layout.SupportingFilesListBox.Position;
+%             app.StudentSupportingFilesListBox.Value = {};
+% 
+%             % Create StudentValuesTabGroup
+%             app.StudentValuesTabGroup = uitabgroup(app.StudentTab);
+% %             app.StudentValuesTabGroup.Position = [11 55 660 138];
+%             app.StudentValuesTabGroup.Position = layout.ValuesTabGroup;
+% 
+%             % Create StudentTestCase1Tab
+%             app.StudentTestCase1Tab = uitab(app.StudentValuesTabGroup);
+%             app.StudentTestCase1Tab.Title = 'Test Case 1';
+% 
+%             % Create StudentOutputBaseWordsPanel
+%             app.StudentOutputBaseWordsPanel = uipanel(app.StudentTab);
+%             app.StudentOutputBaseWordsPanel.Title = 'Output Base Words';
+% %             app.StudentOutputBaseWordsPanel.Position = [391 202 280 94];
+%             app.StudentOutputBaseWordsPanel.Position = layout.OutputBaseWordsPanel;
+% 
+%             % Create StudentOutputBaseWordsEditField
+%             app.StudentOutputBaseWordsEditField = uieditfield(app.StudentOutputBaseWordsPanel, 'text');
+%             app.StudentOutputBaseWordsEditField.FontName = 'Consolas';
+% %             app.StudentOutputBaseWordsEditField.Position = [21 28 238 22];
+%             app.StudentOutputBaseWordsEditField.Position = layout.OutputBaseWordsEditField;
+% 
+%             % Create StudentRemoveTestCaseButton
+%             app.StudentRemoveTestCaseButton = uibutton(app.StudentTab, 'push');
+%             app.StudentRemoveTestCaseButton.FontName = 'Courier New';
+%             app.StudentRemoveTestCaseButton.Enable = 'off';
+% %             app.StudentRemoveTestCaseButton.Position = [51 13 31 22];
+%             app.StudentRemoveTestCaseButton.Position = layout.RemoveTestCaseButton;
+%             app.StudentRemoveTestCaseButton.Text = '-';
+% 
+%             % Create StudentAddTestCaseButton
+%             app.StudentAddTestCaseButton = uibutton(app.StudentTab, 'push');
+%             app.StudentAddTestCaseButton.FontName = 'Courier New';
 %             app.StudentAddTestCaseButton.Position = [11 13 31 22];
-            app.StudentAddTestCaseButton.Position = layout.AddTestCaseButton;
-            app.StudentAddTestCaseButton.Text = '+';
+%             app.StudentAddTestCaseButton.Position = layout.AddTestCaseButton;
+%             app.StudentAddTestCaseButton.Text = '+';
 
             % Create CompileButton
             app.CompileButton = uibutton(app.UIFigure, 'push');
+            copyFrom(app.CompileButton, layout.CompileButton, {'Position', 'Text'});
+%             app.CompileButton = copy(layout.CompileButton);
+%             app.CompileButton.Parent = app.UIFigure;
             app.CompileButton.ButtonPushedFcn = createCallbackFcn(app, @CompileButtonPushed, true);
 %             app.CompileButton.Position = [571 11 100 24];
-            app.CompileButton.Position = layout.CompileButton;
-            app.CompileButton.Text = '? Compile!';
+%             app.CompileButton.Position = layout.CompileButton.Position;
+%             app.CompileButton.Text = layout.CompileButton.Text;
 
             % Create ProblemSettingsPanel
             app.ProblemSettingsPanel = uipanel(app.UIFigure);
-            app.ProblemSettingsPanel.Title = 'Problem Settings';
+            copyFrom(app.ProblemSettingsPanel, layout.ProblemSettingsPanel, ...
+                {'Title', 'Position'});
+%             app.ProblemSettingsPanel.Title = 'Problem Settings';
 %             app.ProblemSettingsPanel.Position = [411 345 280 120];
-            app.ProblemSettingsPanel.Position = layout.ProblemSettingsPanel;
-
+%             app.ProblemSettingsPanel.Position = layout.ProblemSettingsPanel.Position;
+            % Create FunctionBrowsePanel
+            
             % Create RecursiveCheckBox
-            app.RecursiveCheckBox = uicheckbox(app.ProblemSettingsPanel);
-            app.RecursiveCheckBox.ValueChangedFcn = createCallbackFcn(app, @RecursiveCheckBoxValueChanged, true);
-            app.RecursiveCheckBox.Enable = 'off';
-            app.RecursiveCheckBox.Text = 'Recursive?';
-%             app.RecursiveCheckBox.Position = [12 7 90 22];
-            app.RecursiveCheckBox.Position = layout.RecursiveCheckBox;
+%             app.RecursiveCheckBox = uicheckbox(app.ProblemSettingsPanel);
+%             app.RecursiveCheckBox.ValueChangedFcn = createCallbackFcn(app, @RecursiveCheckBoxValueChanged, true);
+%             app.RecursiveCheckBox.Enable = 'off';
+%             app.RecursiveCheckBox.Text = 'Recursive?';
+% %             app.RecursiveCheckBox.Position = [12 7 90 22];
+%             app.RecursiveCheckBox.Position = layout.RecursiveCheckBox.Position;
 
             % Create BannedFunctionsLabel
             app.BannedFunctionsLabel = uilabel(app.ProblemSettingsPanel);
-            app.BannedFunctionsLabel.HorizontalAlignment = 'center';
-            app.BannedFunctionsLabel.Enable = 'off';
+            copyFrom(app.BannedFunctionsLabel, layout.BannedFunctionsLabel, ...
+                {'HorizontalAlignment', 'Enable', 'Position', 'Text'});
+%             app.BannedFunctionsLabel.HorizontalAlignment = 'center';
+%             app.BannedFunctionsLabel.Enable = 'off';
 %             app.BannedFunctionsLabel.Position = [10 68 102 22];
-            app.BannedFunctionsLabel.Position = layout.BannedFunctionsLabel;
-            app.BannedFunctionsLabel.Text = 'Banned Functions';
+%             app.BannedFunctionsLabel.Position = layout.BannedFunctionsLabel.Position;
+%             app.BannedFunctionsLabel.Text = 'Banned Functions';
 
             % Create BannedFunctionsListBox
             app.BannedFunctionsListBox = uilistbox(app.ProblemSettingsPanel);
-            app.BannedFunctionsListBox.Items = {};
-            app.BannedFunctionsListBox.Enable = 'off';
-            app.BannedFunctionsListBox.FontName = 'Consolas';
+            copyFrom(app.BannedFunctionsListBox, layout.BannedFunctionsListBox, ...
+                {'Items', 'Enable', 'FontName', 'Position', 'Value'});
+%             app.BannedFunctionsListBox.Items = {};
+%             app.BannedFunctionsListBox.Enable = 'off';
+%             app.BannedFunctionsListBox.FontName = 'Consolas';
 %             app.BannedFunctionsListBox.Position = [170 40 95 50];
-            app.BannedFunctionsListBox.Position = layout.BannedFunctionsListBox;
+%             app.BannedFunctionsListBox.Position = layout.BannedFunctionsListBox.Position;
 
-            app.BannedFunctionsListBox.Value = {};
+%             app.BannedFunctionsListBox.Value = {};
 
             % Create BannedFunctionsAddButton
             app.BannedFunctionsAddButton = uibutton(app.ProblemSettingsPanel, 'push');
             app.BannedFunctionsAddButton.ButtonPushedFcn = createCallbackFcn(app, @BannedFunctionsAddButtonPushed, true);
-            app.BannedFunctionsAddButton.Enable = 'off';
+            copyFrom(app.BannedFunctionsAddButton, layout.BannedFunctionsAddButton, ...
+                {'Enable', 'Position', 'Text'});
+            %             app.BannedFunctionsAddButton.Enable = 'off';
 %             app.BannedFunctionsAddButton.Position = [101 38 60 22];
-            app.BannedFunctionsAddButton.Position = layout.BannedFunctionsAddButton;
+%             app.BannedFunctionsAddButton.Position = layout.BannedFunctionsAddButton.Position;
 
-            app.BannedFunctionsAddButton.Text = 'Add';
+%             app.BannedFunctionsAddButton.Text = 'Add';
 
             % Create BannedFunctionsRemoveButton
             app.BannedFunctionsRemoveButton = uibutton(app.ProblemSettingsPanel, 'push');
             app.BannedFunctionsRemoveButton.ButtonPushedFcn = createCallbackFcn(app, @BannedFunctionsRemoveButtonPushed, true);
-            app.BannedFunctionsRemoveButton.Enable = 'off';
+            copyFrom(app.BannedFunctionsRemoveButton, layout.BannedFunctionsRemoveButton, ...
+                {'Enable', 'Position', 'Text'});
+            %             app.BannedFunctionsRemoveButton.Enable = 'off';
 %             app.BannedFunctionsRemoveButton.Position = [170 8 95 22];
-            app.BannedFunctionsRemoveButton.Position = layout.BannedFunctionsRemoveButton;
+%             app.BannedFunctionsRemoveButton.Position = layout.BannedFunctionsRemoveButton.Position;
 
-            app.BannedFunctionsRemoveButton.Text = 'Remove';
+%             app.BannedFunctionsRemoveButton.Text = 'Remove';
 
             % Create BannedFunctionsEditField
             app.BannedFunctionsEditField = uieditfield(app.ProblemSettingsPanel, 'text');
-            app.BannedFunctionsEditField.FontName = 'Consolas';
-            app.BannedFunctionsEditField.Enable = 'off';
+            copyFrom(app.BannedFunctionsEditField, layout.BannedFunctionsEditField, ...
+                {'FontName', 'Enable', 'Position'});
+%             app.BannedFunctionsEditField.FontName = 'Consolas';
+%             app.BannedFunctionsEditField.Enable = 'off';
 %             app.BannedFunctionsEditField.Position = [11 38 80 22];
-            app.BannedFunctionsEditField.Position = layout.BannedFunctionsEditField;
+%             app.BannedFunctionsEditField.Position = layout.BannedFunctionsEditField.Position;
+            
+            app.FunctionBrowsePanel = uipanel(app.UIFigure);
+            copyFrom(app.FunctionBrowsePanel, layout.FunctionBrowsePanel, ...
+                {'Title', 'Position'});
+            app.FunctionBrowseButton = uibutton(app.FunctionBrowsePanel);
+            copyFrom(app.FunctionBrowseButton, layout.FunctionBrowseButton, ...
+                {'Text', 'HorizontalAlignment', 'FontSize', 'Position'});
+            app.FunctionBrowseButton.ButtonPushedFcn = createCallbackFcn(app, @FunctionBrowseButtonPushed, true);
+            
+            app.FunctionDriveBrowseButton = uibutton(app.FunctionBrowsePanel);
+            copyFrom(app.FunctionDriveBrowseButton, layout.FunctionDriveBrowseButton, ...
+                {'Text', 'HorizontalAlignment', 'FontSize', 'Position'});
+            app.FunctionDriveBrowseButton.ButtonPushedFcn = createCallbackFcn(app, @FunctionDriveBrowseButtonPushed, true);
+            
+            app.SaveLocationPanel = uipanel(app.UIFigure);
+            copyFrom(app.SaveLocationPanel, layout.SaveLocationPanel, ...
+                {'Title', 'Position'});
+            app.LocalBrowseButton = uibutton(app.SaveLocationPanel);
+            copyFrom(app.LocalBrowseButton, layout.LocalBrowseButton, ...
+                {'Text', 'HorizontalAlignment', 'FontSize', 'Position'});
+            app.LocalBrowseButton.ButtonPushedFcn = createCallbackFcn(app, @LocalBrowseButtonPushed, true);
+            
+            app.OutputFolderBrowseButton = uibutton(app.SaveLocationPanel);
+            copyFrom(app.OutputFolderBrowseButton, layout.OutputFolderBrowseButton, ...
+                {'Text', 'HorizontalAlignment', 'FontSize', 'Position'});
+            app.OutputFolderBrowseButton.ButtonPushedFcn = createCallbackFcn(app, @OutputFolderBrowseButtonPushed, true);
 
+            
 
             % Create GeneralPanel
-            app.GeneralPanel = uipanel(app.UIFigure);
-            app.GeneralPanel.Title = 'General';
-%             app.GeneralPanel.Position = [11 345 390 120];
-            app.GeneralPanel.Position = layout.GeneralPanel;
+%             app.GeneralPanel = uipanel(app.UIFigure);
+%             app.GeneralPanel.Title = 'General';
+% %             app.GeneralPanel.Position = [11 345 390 120];
+%             app.GeneralPanel.Position = layout.GeneralPanel.Position;
 
 
             % Create FunctionLabel
-            app.FunctionLabel = uilabel(app.GeneralPanel);
-%             app.FunctionLabel.Position = [11 68 55 22];
-            app.FunctionLabel.Position = layout.FunctionLabel;
-
-            app.FunctionLabel.Text = 'Function:';
+%             app.FunctionLabel = uilabel(app.GeneralPanel);
+% %             app.FunctionLabel.Position = [11 68 55 22];
+%             app.FunctionLabel.Position = layout.FunctionLabel.Position;
+% 
+%             app.FunctionLabel.Text = 'Function:';
 
             % Create FunctionBrowseButton
-            app.FunctionBrowseButton = uibutton(app.GeneralPanel, 'push');
-            app.FunctionBrowseButton.ButtonPushedFcn = createCallbackFcn(app, @FunctionBrowseButtonPushed, true);
-%             app.FunctionBrowseButton.Position = [71 68 70 22];
-            app.FunctionBrowseButton.Position = layout.FunctionBrowseButton;
-            app.FunctionBrowseButton.Text = 'Browse...';
+%             app.FunctionBrowseButton = uibutton(app.GeneralPanel, 'push');
+%             app.FunctionBrowseButton.ButtonPushedFcn = createCallbackFcn(app, @FunctionBrowseButtonPushed, true);
+% %             app.FunctionBrowseButton.Position = [71 68 70 22];
+%             app.FunctionBrowseButton.Position = layout.FunctionBrowseButton.Position;
+%             app.FunctionBrowseButton.Text = 'Browse...';
 
             % Create SavetoLabel
-            app.SavetoLabel = uilabel(app.GeneralPanel);
-%             app.SavetoLabel.Position = [151 68 50 22];
-            app.SavetoLabel.Position = layout.SavetoLabel;
-            app.SavetoLabel.Text = 'Save to:';
+%             app.SavetoLabel = uilabel(app.GeneralPanel);
+% %             app.SavetoLabel.Position = [151 68 50 22];
+%             app.SavetoLabel.Position = layout.SavetoLabel.Position;
+%             app.SavetoLabel.Text = 'Save to:';
 
             % Create OutputFolderBrowseButton
-            app.OutputFolderBrowseButton = uibutton(app.GeneralPanel, 'push');
-            app.OutputFolderBrowseButton.ButtonPushedFcn = createCallbackFcn(app, @OutputFolderBrowseButtonPushed, true);
-%             app.OutputFolderBrowseButton.Position = [306 28 70 22];
-            app.OutputFolderBrowseButton.Position = layout.OutputFolderBrowseButton;
-            app.OutputFolderBrowseButton.Text = 'Browse...';
+%             app.OutputFolderBrowseButton = uibutton(app.GeneralPanel, 'push');
+%             app.OutputFolderBrowseButton.ButtonPushedFcn = createCallbackFcn(app, @OutputFolderBrowseButtonPushed, true);
+% %             app.OutputFolderBrowseButton.Position = [306 28 70 22];
+%             app.OutputFolderBrowseButton.Position = layout.OutputFolderBrowseButton.Position;
+%             app.OutputFolderBrowseButton.Text = 'Browse...';
+% 
+%             % Create FunctionNameField
+%             app.FunctionNameField = uieditfield(app.GeneralPanel, 'text');
+%             app.FunctionNameField.Editable = 'off';
+% %             app.FunctionNameField.Position = [11 28 190 22];
+%             app.FunctionNameField.Position = layout.FunctionNameField;
+%             app.FunctionNameField.Value = 'No problem selected!';
+% 
+%             % Create LocalDiskCheckBox
+%             app.LocalDiskCheckBox = uicheckbox(app.GeneralPanel);
+%             app.LocalDiskCheckBox.ValueChangedFcn = createCallbackFcn(app, @LocalDiskCheckBoxValueChanged, true);
+%             app.LocalDiskCheckBox.Text = 'Local disk';
+% %             app.LocalDiskCheckBox.Position = [211 68 75 22];
+%             app.LocalDiskCheckBox.Position = layout.LocalDiskCheckBox;
+% 
+%             % Create GoogleDriveCheckBox
+%             app.GoogleDriveCheckBox = uicheckbox(app.GeneralPanel);
+%             app.GoogleDriveCheckBox.ValueChangedFcn = createCallbackFcn(app, @GoogleDriveCheckBoxValueChanged, true);
+%             app.GoogleDriveCheckBox.Text = 'Google Drive';
+% %             app.GoogleDriveCheckBox.Position = [211 28 92 22];
+%             app.GoogleDriveCheckBox.Position = layout.GoogleDriveCheckBox;
+%             app.GoogleDriveCheckBox.Value = true;
+% 
+%             % Create LocalBrowseButton
+%             app.LocalBrowseButton = uibutton(app.GeneralPanel, 'push');
+%             app.LocalBrowseButton.ButtonPushedFcn = createCallbackFcn(app, @LocalBrowseButtonPushed, true);
+%             app.LocalBrowseButton.Enable = 'off';
+% %             app.LocalBrowseButton.Position = [306 68 70 22];
+%             app.LocalBrowseButton.Position = layout.LocalBrowseButton;
+%             app.LocalBrowseButton.Text = 'Browse...';
+%             
+%             app.FunctionDriveBrowseButton = uibutton(app.GeneralPanel, 'push');
+%             app.FunctionDriveBrowseButton.Position = layout.FunctionDriveBrowseButton;
+%             app.FunctionDriveBrowseButton.ButtonPushedFcn = createCallbackFcn(app, @FunctionDriveBrowseButtonPushed, true);
+%             app.FunctionDriveBrowseButton.Text = 'Drive...';
 
-            % Create FunctionNameField
-            app.FunctionNameField = uieditfield(app.GeneralPanel, 'text');
-            app.FunctionNameField.Editable = 'off';
-%             app.FunctionNameField.Position = [11 28 190 22];
-            app.FunctionNameField.Position = layout.FunctionNameField;
-            app.FunctionNameField.Value = 'No problem selected!';
-
-            % Create LocalDiskCheckBox
-            app.LocalDiskCheckBox = uicheckbox(app.GeneralPanel);
-            app.LocalDiskCheckBox.ValueChangedFcn = createCallbackFcn(app, @LocalDiskCheckBoxValueChanged, true);
-            app.LocalDiskCheckBox.Text = 'Local disk';
-%             app.LocalDiskCheckBox.Position = [211 68 75 22];
-            app.LocalDiskCheckBox.Position = layout.LocalDiskCheckBox;
-
-            % Create GoogleDriveCheckBox
-            app.GoogleDriveCheckBox = uicheckbox(app.GeneralPanel);
-            app.GoogleDriveCheckBox.ValueChangedFcn = createCallbackFcn(app, @GoogleDriveCheckBoxValueChanged, true);
-            app.GoogleDriveCheckBox.Text = 'Google Drive';
-%             app.GoogleDriveCheckBox.Position = [211 28 92 22];
-            app.GoogleDriveCheckBox.Position = layout.GoogleDriveCheckBox;
-            app.GoogleDriveCheckBox.Value = true;
-
-            % Create LocalBrowseButton
-            app.LocalBrowseButton = uibutton(app.GeneralPanel, 'push');
-            app.LocalBrowseButton.ButtonPushedFcn = createCallbackFcn(app, @LocalBrowseButtonPushed, true);
-            app.LocalBrowseButton.Enable = 'off';
-%             app.LocalBrowseButton.Position = [306 68 70 22];
-            app.LocalBrowseButton.Position = layout.LocalBrowseButton;
-            app.LocalBrowseButton.Text = 'Browse...';
+            % Copy relevant properties from the layout
+%             components = properties(app);
+%             for i = 1:length(components)
+%                 comp = components{i};
+%                 if isgraphics(app.(comp))
+%                     layoutComp = layout.(comp);
+%                     fields = fieldnames(layoutComp);
+%                     for f = 1:length(fields)
+%                         app.(comp).(fields{f}) = layoutComp.(fields{f});
+%                     end
+%                 end
+%             end
             
-            app.FunctionDriveBrowseButton = uibutton(app.GeneralPanel, 'push');
-            app.FunctionDriveBrowseButton.Position = layout.FunctionDriveBrowseButton;
-            app.FunctionDriveBrowseButton.ButtonPushedFcn = createCallbackFcn(app, @FunctionDriveBrowseButtonPushed, true);
-            app.FunctionDriveBrowseButton.Text = 'Drive...';
+            
+            
+%             function copyFrom(to, from, fields)
+%                 for x = 1:length(fields)
+%                     to.(fields{x}) = from.(fields{x});
+%                 end
+%             end
         end
     end
 
