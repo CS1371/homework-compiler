@@ -73,7 +73,7 @@ classdef Problem < handle
                     end
                 end
                 
-                title = currentSubObj.Tab.Title;
+%                 title = currentSubObj.Tab.Title;
                 if currentSubObj.verifyAllTestCases()
                     % success
 %                     currentSubObj.Tab.Title = strrep(title, TestCaseCompiler.ERROR_SYMBOL, '');
