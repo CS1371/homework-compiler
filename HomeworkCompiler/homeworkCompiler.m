@@ -172,10 +172,11 @@ function homeworkCompiler(clientId, clientSecret, clientKey)
     fprintf(1, 'Done\nVerifying Student...');
     cd(['release' filesep 'student']);
     for p = 1:numel(problemInfo)
-        for c = 1:numel(problemInfo(p).calls)
+        calls = problemInfo(p).calls;
+        for c = 1:numel(calls)
             try
-                runCall(strrep(problemInfo(p).calls{c}, ['= ' problems{p}], ['= ' problems{p} '_soln']), ...
-                    [problems{p} '.mat']);
+                call = constructCall(problems{p}, calls(c).ins, calls(c).outs);
+                runCall(call, [problems{p} '.mat']);
             catch e
                 % die
                 throw(MException('ASSIGNMENTCOMPILER:verification:studentCallFailure', ...
@@ -253,8 +254,8 @@ function homeworkCompiler(clientId, clientSecret, clientKey)
         json.loadFile = [json.loadFile '.mat'];
         testPoints = pointAllocate(problemPoints(p), numel(problemInfo(p).calls));
         for t = numel(testPoints):-1:1
-            testCases(t).call = problemInfo(p).calls{t};
-            testCases(t).initializer = '';
+            testCases(t).inputs = problemInfo(p).calls(t).ins;
+            testCases(t).outputs = problemInfo(p).calls(t).outs;
             testCases(t).points = testPoints(t);
         end
         json.testCases = testCases;
@@ -272,8 +273,10 @@ function homeworkCompiler(clientId, clientSecret, clientKey)
     for p = 1:numel(problemInfo)
         for c = 1:numel(problemInfo(p).calls)
             try
-                runCall(problemInfo(p).calls{c}, ...
-                    [problems{p} '.mat']);
+                call = constructCall(problemInfo(p).name, ...
+                    problemInfo(p).calls(c).ins, ...
+                    problemInfo(p).calls(c).outs);
+                runCall(call, [problems{p} '.mat']);
             catch e
                 % die
                 throw(MException('ASSIGNMENTCOMPILER:verification:submissionCallFailure', ...
@@ -332,8 +335,8 @@ function homeworkCompiler(clientId, clientSecret, clientKey)
         json.loadFile = [json.loadFile '.mat'];
         testPoints = pointAllocate(problemPoints(p), numel(problemInfo(p).calls));
         for t = numel(testPoints):-1:1
-            testCases(t).call = problemInfo(p).calls{t};
-            testCases(t).initializer = '';
+            testCases(t).inputs = problemInfo(p).calls(t).ins;
+            testCases(t).outputs = problemInfo(p).calls(t).outs;
             testCases(t).points = testPoints(t);
         end
         json.testCases = testCases;
@@ -351,7 +354,10 @@ function homeworkCompiler(clientId, clientSecret, clientKey)
     for p = 1:numel(problemInfo)
         for c = 1:numel(problemInfo(p).calls)
             try
-                runCall(problemInfo(p).calls{c}, ...
+                call = constructCall(problemInfo(p).name, ...
+                    problemInfo(p).calls(c).ins, ...
+                    problemInfo(p).calls(c).outs);
+                runCall(call, ...
                     [problems{p} '.mat']);
             catch e
                 % die

@@ -45,8 +45,10 @@ function lines = createManifest(num, topic, problems)
         % for each test case, engage
         counter = 5;
         for t = 1:numel(problems(p).calls)
-            probStatement{counter} = ['%    ' problems(p).calls{t}];
-            probStatement{counter+1} = ['%    ' orig2soln(problems(p).calls{t})];
+            c = problems(p).calls(t);
+            call = constructCall(problems(p).name, c.ins, c.outs);
+            probStatement{counter} = ['%    ' call];
+            probStatement{counter+1} = ['%    ' orig2soln(call)];
             probStatement{counter+2} = '%';
             counter = counter + 3;
         end
