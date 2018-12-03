@@ -373,6 +373,15 @@ classdef TestCaseCompiler < matlab.apps.AppBase
         function RecursiveCheckBoxValueChanged(app, ~)
             value = app.RecursiveCheckBox.Value;
 %             app.isRecursive = value;
+            if value
+                % check recursion
+                if ~checkRecur(app.problem.FunctionPath)
+                    % warn and undo
+                    value = false;
+                    app.RecursiveCheckBox.Value = value;
+                    uialert(app.UIFigure, 'Your solution is not recursive', 'Recursion Error');
+                end
+            end
             app.problem.IsRecursive = value;
         end
 
