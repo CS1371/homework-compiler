@@ -61,6 +61,7 @@ classdef TestCaseCompiler < matlab.apps.AppBase
     
     
     properties (Access = public, Constant)
+        GOOD_COLOR = [0.25 1 0.25];
         ERROR_SYMBOL = TestCaseCompiler_Layout.ERROR_ICON; % Global error symbol, used to illustrate test case verification failure
     end
     
@@ -92,8 +93,6 @@ classdef TestCaseCompiler < matlab.apps.AppBase
         
         % default name for the window
         DefaultName char = 'CS1371 Test Case Compiler';
-        
-        
     end
     
     methods (Access = protected)
@@ -542,7 +541,11 @@ classdef TestCaseCompiler < matlab.apps.AppBase
                 else
                     % cancel, no folder picked
                     app.makeVisible();
-                    app.LocalOutputEditField.Value = app.Layout.LocalOutputEditField.Value;
+                    if isempty(app.LocalOutputDir)
+                        app.LocalOutputEditField.Value = app.Layout.LocalOutputEditField.Value;
+                        app.LocalOutputEditField.BackgroundColor = app.Layout.LocalOutputEditField.BackgroundColor;
+                    end
+                    
                     return;
                 end
                 app.makeVisible();
@@ -550,6 +553,7 @@ classdef TestCaseCompiler < matlab.apps.AppBase
             end
             
             app.LocalOutputEditField.Value = abbreviate(app.LocalOutputDir, 30);
+            app.LocalOutputEditField.BackgroundColor = app.GOOD_COLOR;
         end
         
         function FunctionDriveBrowseButtonPushed(app, ~)
@@ -590,8 +594,10 @@ classdef TestCaseCompiler < matlab.apps.AppBase
                 app.loadFunction(fullfile(pwd, [name '.m']));
                 % set name in status bar
                 app.GoogleDriveEditField.Value = abbreviate(browser.selectedName, 20);
+                app.GoogleDriveEditField.BackgroundColor = app.GOOD_COLOR;
             else
                 app.GoogleDriveEditField.Value = app.Layout.GoogleDriveEditField.Value;
+                app.GoogleDriveEditField.BackgroundColor = app.Layout.GoogleDriveEditField.BackgroundColor;
             end
             delete(browser);
             
