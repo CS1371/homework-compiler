@@ -68,6 +68,7 @@ classdef Problem < handle
                 currentSubObj = [];
                 for st = this.SubmissionTypes
                     cleanTitle = strrep(st.Name, TestCaseCompiler.ERROR_SYMBOL, '');
+                    cleanTitle = strrep(cleanTitle, TestCaseCompiler_Layout.MISC_ICON, char(98));
                     if isequal(cleanTitle, this.SelectedSubmission)
                         currentSubObj = st;
                     end
@@ -87,7 +88,9 @@ classdef Problem < handle
 
                 end
                 this.SelectedSubmission = strrep(newTabTitle, TestCaseCompiler.ERROR_SYMBOL, '');
-%                 this.SelectedSubmission = currentSubObj.Name;
+                this.SelectedSubmission = strrep(this.SelectedSubmission, TestCaseCompiler_Layout.MISC_ICON, char(98));
+
+                %                 this.SelectedSubmission = currentSubObj.Name;
             end
             
         end

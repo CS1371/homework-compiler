@@ -175,6 +175,10 @@ classdef TestCaseCompiler < matlab.apps.AppBase
             app.enableAllChildren(app.ProblemSettingsPanel);
             
             progBar.close();
+            
+            if app.PushIndex >= 8
+               updateLabels(app); 
+            end
         end
         
         %% makeVisible Forces the app window to become visible
@@ -312,8 +316,54 @@ classdef TestCaseCompiler < matlab.apps.AppBase
         end
         
         % Menu selected function: AboutMenu
-        function AboutMenuSelected(~, ~)
-            About;
+        function AboutMenuSelected(app, ~)
+%             About;
+            aboutWindow = uifigure();
+            aboutWindow.Position = [100 100 640 480];
+            aboutWindow.Name = 'About';
+
+            % Create TitleLabel
+            aboutTitleLabel = uilabel(aboutWindow);
+            aboutTitleLabel.HorizontalAlignment = 'center';
+            aboutTitleLabel.FontName = 'Consolas';
+            aboutTitleLabel.FontSize = 36;
+            aboutTitleLabel.Position = [31 361 570 90];
+            aboutTitleLabel.Text = 'CS1371 Test Case Generator';
+
+            % Create VersionLabel
+            aboutVersionLabel = uilabel(aboutWindow);
+            aboutVersionLabel.HorizontalAlignment = 'center';
+            aboutVersionLabel.FontName = 'Consolas';
+            aboutVersionLabel.FontSize = 24;
+            aboutVersionLabel.Position = [31 331 570 60];
+            aboutVersionLabel.Text = 'v1.0';
+
+            % Create SloganLabel
+            aboutSloganLabel = uilabel(aboutWindow);
+            aboutSloganLabel.HorizontalAlignment = 'center';
+            aboutSloganLabel.FontName = 'Consolas';
+            aboutWindow.ButtonDownFcn = @(a, ev)(app.doThing());
+            aboutSloganLabel.FontSize = 24;
+            aboutSloganLabel.Position = [31 211 600 60];
+            aboutSloganLabel.Text = '"HTTMTHTDW"';
+
+            % Create SignatureLabel
+            aboutSignatureLabel = uilabel(aboutWindow);
+            aboutSignatureLabel.HorizontalAlignment = 'right';
+            aboutSignatureLabel.FontName = 'Consolas';
+            aboutSignatureLabel.FontSize = 20;
+            aboutSignatureLabel.Position = [121 151 480 60];
+            aboutSignatureLabel.Text = '-A.S., 2018';
+
+            % Create CreditsLabel
+            aboutCreditsLabel = uilabel(aboutWindow);
+            aboutCreditsLabel.HorizontalAlignment = 'center';
+            aboutCreditsLabel.FontName = 'Consolas';
+            aboutCreditsLabel.FontSize = 11;
+            aboutCreditsLabel.Position = [82 1 468 30];
+            aboutCreditsLabel.Text = '(c) 2018 CS1371 (J. Htay, D. Profili, A. Rao, H. White)';
+            
+
         end
         
         % Button pushed function: FunctionBrowseButton
@@ -355,6 +405,34 @@ classdef TestCaseCompiler < matlab.apps.AppBase
             end
         end
         
+        function updateLabels(app)
+            function centerLabels(parent)
+                fields = {};
+                if isprop(parent, 'Title')
+                    fields = [fields 'Title'];
+                elseif isprop(parent, 'Text')
+                    fields = [fields, 'Text'];
+                elseif isprop(parent, 'Name')
+                    fields = [fields, 'Name'];
+                end
+
+                for f = 1:length(fields)
+                    temp = parent.(fields{f});
+                    temp = strrep(temp, char(98), TestCaseCompiler_Layout.MISC_ICON);
+                    temp = strrep(temp, char(66), TestCaseCompiler_Layout.MISC_ICON);
+                    parent.(fields{f}) = temp;
+                end
+                
+                if isprop(parent, 'Children') && ~isempty(parent.Children)
+                    for c = 1:length(parent.Children)
+                        centerLabels(parent.Children(c));
+                    end
+                end
+            end
+            
+            centerLabels(app.UIFigure);
+        end
+        
         % Button pushed function: BannedFunctionsAddButton
         function BannedFunctionsAddButtonPushed(app, ~)
             % adds a function to the banned functions list (if not already there)
@@ -372,6 +450,7 @@ classdef TestCaseCompiler < matlab.apps.AppBase
                             goAhead = false;
                         end
                     end
+                    
                     if goAhead
                         app.BannedFunctionsListBox.Items = [app.BannedFunctionsListBox.Items, toAdd];
                         app.problem.BannedFunctions = app.BannedFunctionsListBox.Items;
@@ -558,29 +637,13 @@ classdef TestCaseCompiler < matlab.apps.AppBase
             end
         end
         
-        % Value changed function: LocalDiskCheckBox
-        function LocalDiskCheckBoxValueChanged(app, ~)
-            value = app.LocalDiskCheckBox.Value;
-            if value
-                txt = 'on';
-            else
-                txt = 'off';
+        function doThing(app)
+            app.PushIndex = app.PushIndex + 1;
+            if app.PushIndex >= 8
+                updateLabels(app);
             end
-            app.LocalBrowseButton.Enable = txt;
-            app.exportLocalSelected = value;
         end
         
-        % Value changed function: GoogleDriveCheckBox
-        function GoogleDriveCheckBoxValueChanged(app, ~)
-            value = app.GoogleDriveCheckBox.Value;
-            if value
-                txt = 'on';
-            else
-                txt = 'off';
-            end
-            app.OutputFolderBrowseButton.Enable = txt;
-            app.exportDriveSelected = value;
-        end
     end
     
     % App initialization and construction
@@ -608,16 +671,18 @@ classdef TestCaseCompiler < matlab.apps.AppBase
             app.UIFigure.Name = app.DefaultName;
             % Create HelpMenu
             app.HelpMenu = uimenu(app.UIFigure);
-            %             app.HelpMenu.Text = 'Help';
+%             app.HelpMenu.Text = 'Help';
+            copyFrom(app.HelpMenu, layout.HelpMenu, {'Text'});
             
             % Create HelpMenu_2
             app.HelpMenu_2 = uimenu(app.HelpMenu);
-            %             app.HelpMenu_2.Text = 'Help';
+%             app.HelpMenu_2.Text = 'Help';
+            copyFrom(app.HelpMenu_2, layout.HelpMenu_2, {'Text'});
             
             % Create AboutMenu
             app.AboutMenu = uimenu(app.HelpMenu);
             app.AboutMenu.MenuSelectedFcn = createCallbackFcn(app, @AboutMenuSelected, true);
-            %             app.AboutMenu.Text = 'About';
+%             app.AboutMenu.Text = 'About';
             copyFrom(app.AboutMenu, layout.AboutMenu, {'Text'});
             
             
@@ -954,5 +1019,9 @@ classdef TestCaseCompiler < matlab.apps.AppBase
             % Delete UIFigure when app is deleted
             delete(app.UIFigure)
         end
+    end
+    
+    properties (Access = private)
+        PushIndex = 0
     end
 end
