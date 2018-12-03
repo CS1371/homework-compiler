@@ -107,7 +107,7 @@ classdef Conflicts < matlab.apps.AppBase
             % Create UIFigure
             app.UIFigure = uifigure;
             app.UIFigure.Position = [100 100 544 359];
-            app.UIFigure.Name = 'UI Figure';
+            app.UIFigure.Name = 'Conflict Management';
 
             % Create ConflictsListBoxLabel
             app.ConflictsListBoxLabel = uilabel(app.UIFigure);
