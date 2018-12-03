@@ -18,6 +18,9 @@ classdef TestCase < handle
         
         % Submission type this test case belongs to
         ParentType SubmissionType
+        
+        % Whether there is an error or not
+        IsErrored logical = false
     end
     
     %% UI properties
@@ -390,8 +393,6 @@ classdef TestCase < handle
             this.InputNames{ind} = selectedName;
         end
         
-
-        
         %% updateAllDropdowns
         %
         % Updates all dropdowns with the new variable list.
@@ -399,9 +400,11 @@ classdef TestCase < handle
             newInputs = TestCase.getInputsFromWorkspace();
             supFiles = this.ParentType.SupportingFilesListBox.Items;
             newInputs = [newInputs', compose('''%s''', string(supFiles))];
-            for dd = this.InputDropdowns
-                dd.Items = newInputs;
+            for dd = 1:length(this.InputDropdowns)
+                this.InputDropdowns(dd).Items = newInputs;
+                this.updateInputsList(this.InputDropdowns(dd).Value, dd);
             end
+            this.verifySelf();
         end
         
         %% verifySelf
@@ -436,14 +439,16 @@ classdef TestCase < handle
                 evalin('base', call);
                 
                 % if it worked, then great
-                this.Tab.Title = strrep(this.Tab.Title, TestCaseCompiler.ERROR_SYMBOL, '');
+%                 this.Tab.Title = strrep(this.Tab.Title, TestCaseCompiler.ERROR_SYMBOL, '');
+                this.IsErrored = false;
             catch
                 % failed, so fuck you
                 % TODO: set dropdowns red maybe?
-                currentTitle = this.Tab.Title;
-                if ~contains(currentTitle, TestCaseCompiler.ERROR_SYMBOL)
-                    this.Tab.Title = [TestCaseCompiler.ERROR_SYMBOL, currentTitle];
-                end
+%                 currentTitle = this.Tab.Title;
+%                 if ~contains(currentTitle, TestCaseCompiler.ERROR_SYMBOL)
+%                     this.Tab.Title = [TestCaseCompiler.ERROR_SYMBOL, currentTitle];
+%                 end
+                this.IsErrored = true;
                 result = false;
             end
             
@@ -452,6 +457,21 @@ classdef TestCase < handle
                 rmdir(temp, 's');
             end
             
+        end
+        
+
+    end
+    
+    methods
+        %% IsErrored Whether this test case has an error
+        function set.IsErrored(this, value)
+            if value
+                if ~contains(this.Tab.Title, TestCaseCompiler.ERROR_SYMBOL) %#ok<*MCSUP>
+                    this.Tab.Title = [TestCaseCompiler.ERROR_SYMBOL, this.Tab.Title];
+                end
+            else
+                this.Tab.Title = strrep(this.Tab.Title, TestCaseCompiler.ERROR_SYMBOL, '');
+            end
         end
     end
     

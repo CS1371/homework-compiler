@@ -40,6 +40,9 @@ classdef SubmissionType < handle
         
         % all input names for this submission type
         InputNames cell
+        
+        % whether there is an error or not
+        IsErrored logical = false
     end
     
     %% UI properties %%
@@ -68,7 +71,7 @@ classdef SubmissionType < handle
         % currently focused test case
         focusedTestCaseNum = 1
     end
-    
+        
     properties (Constant, Access = public)
         MIN_NUM_TEST_CASES = 3
         
@@ -196,24 +199,31 @@ classdef SubmissionType < handle
         function createSupportingFilesPanel(this, layout, items)
             % panel itself
             this.SupportingFilesPanel = uipanel(this.Tab);
-            this.SupportingFilesPanel.Title = 'Supporting Files';
+%             this.SupportingFilesPanel.Title = 'Supporting Files';
 %             this.SupportingFilesPanel.Position = [11 132 370 94];
-            this.SupportingFilesPanel.Position = layout.SupportingFilesPanel;
+%             this.SupportingFilesPanel.Position = layout.SupportingFilesPanel;
+            copyFrom(this.SupportingFilesPanel, layout.SupportingFilesPanel, ...
+                {'Title', 'Position'});
             
             % remove button
             this.SupportingFilesRemoveButton = uibutton(this.SupportingFilesPanel, 'push');
-            this.SupportingFilesRemoveButton.BackgroundColor = [0.902 0.902 0.902];
+%             this.SupportingFilesRemoveButton.BackgroundColor = [0.902 0.902 0.902];
 %             this.SupportingFilesRemoveButton.Position = [261 12 100 22];
-            this.SupportingFilesRemoveButton.Position = layout.SupportingFilesRemoveButton;
-            this.SupportingFilesRemoveButton.Text = 'Remove';
+%             this.SupportingFilesRemoveButton.Position = layout.SupportingFilesRemoveButton;
+%             this.SupportingFilesRemoveButton.Text = 'Remove';
+            copyFrom(this.SupportingFilesRemoveButton, layout.SupportingFilesRemoveButton, ...
+                {'BackgroundColor', 'Position', 'Text'});
             this.SupportingFilesRemoveButton.ButtonPushedFcn = @(a, ev)(this.removeSupportingFiles());
             
             % add button
             this.SupportingFilesAddButton = uibutton(this.SupportingFilesPanel, 'push');
-            this.SupportingFilesAddButton.BackgroundColor = [0.902 0.902 0.902];
+%             this.SupportingFilesAddButton.BackgroundColor = [0.902 0.902 0.902];
 %             this.SupportingFilesAddButton.Position = [261 42 100 22];
-            this.SupportingFilesAddButton.Position = layout.SupportingFilesAddButton;
-            this.SupportingFilesAddButton.Text = 'Add...';
+%             this.SupportingFilesAddButton.Position = layout.SupportingFilesAddButton;
+%             this.SupportingFilesAddButton.Text = 'Add...';
+            copyFrom(this.SupportingFilesAddButton, layout.SupportingFilesAddButton, ...
+                {'BackgroundColor', 'Position', 'Text'});
+
             this.SupportingFilesAddButton.ButtonPushedFcn = @(a, ev)(this.addSupportingFiles());
             
             % create the list box
@@ -225,25 +235,31 @@ classdef SubmissionType < handle
         function createSupportingFilesListBox(this, items, layout)
             this.SupportingFilesListBox = uilistbox(this.SupportingFilesPanel);
             this.SupportingFilesListBox.Items = items;
-            this.SupportingFilesListBox.FontName = 'Consolas';
+            copyFrom(this.SupportingFilesListBox, layout.SupportingFilesListBox, ...
+                {'FontName', 'Position'});
+%             this.SupportingFilesListBox.FontName = 'Consolas';
 %             this.SupportingFilesListBox.Position = [10 14 241 50];
-            this.SupportingFilesListBox.Position = layout.SupportingFilesListBox;
+%             this.SupportingFilesListBox.Position = layout.SupportingFilesListBox;
             this.SupportingFilesListBox.Value = {};
         end
         
         %% createOutputBaseWordsPanel Creates the output base words panel and editfield
         function createOutputBaseWordsPanel(this, layout, txt)
             this.OutputBaseWordsPanel = uipanel(this.Tab);
-            this.OutputBaseWordsPanel.Title = 'Output Base Words';
+%             this.OutputBaseWordsPanel.Title = 'Output Base Words';
 %             this.OutputBaseWordsPanel.Position = [391 132 280 94];
-            this.OutputBaseWordsPanel.Position = layout.OutputBaseWordsPanel;
+%             this.OutputBaseWordsPanel.Position = layout.OutputBaseWordsPanel;
+            copyFrom(this.OutputBaseWordsPanel, layout.OutputBaseWordsPanel, ...
+                {'Title', 'Position'});
             
             % Create OutputBaseWordsEditField
             this.OutputBaseWordsEditField = uieditfield(this.OutputBaseWordsPanel, 'text');
-            this.OutputBaseWordsEditField.FontName = 'Consolas';
+%             this.OutputBaseWordsEditField.FontName = 'Consolas';
 %             this.OutputBaseWordsEditField.Position = [21 28 238 22];
-            this.OutputBaseWordsEditField.Position = layout.OutputBaseWordsEditField;
+%             this.OutputBaseWordsEditField.Position = layout.OutputBaseWordsEditField;
             this.OutputBaseWordsEditField.ValueChangedFcn = @(a, ev)(this.changeBaseWords(ev.Source));
+            copyFrom(this.OutputBaseWordsEditField, layout.OutputBaseWordsEditField, ...
+                {'FontName', 'Position'});
             this.OutputBaseWordsEditField.Value = txt;
             if this.Problem.NumOutputs == 0
                 this.OutputBaseWordsEditField.Enable = 'off';
@@ -254,7 +270,7 @@ classdef SubmissionType < handle
         function createSubmissionValuesTabGroup(this, layout)
             this.TabGroup = uitabgroup(this.Tab);
 %             this.TabGroup.Position = [11 46 660 77];
-            this.TabGroup.Position = layout.ValuesTabGroup;
+            this.TabGroup.Position = layout.ValuesTabGroup.Position;
             this.TabGroup.SelectionChangedFcn = @(a, ev)(this.setFocusedTestCase(ev.Source));
         end
         
@@ -263,21 +279,25 @@ classdef SubmissionType < handle
             % Create RemoveTestCaseButton
             this.RemoveTestCaseButton = uibutton(this.Tab, 'push');
             %             this.RemoveTestCaseButton.ButtonPushedFcn = createCallbackFcn(this, @StudentRemoveTestCaseButtonPushed, true);
-            this.RemoveTestCaseButton.FontName = 'Courier New';
-            this.RemoveTestCaseButton.Enable = 'off';
+%             this.RemoveTestCaseButton.FontName = 'Courier New';
+%             this.RemoveTestCaseButton.Enable = 'off';
 %             this.RemoveTestCaseButton.Position = [51 13 31 22];
-            this.RemoveTestCaseButton.Position = layout.RemoveTestCaseButton;
-            this.RemoveTestCaseButton.Text = '-';
-            this.RemoveTestCaseButton.Enable = 'off';
+%             this.RemoveTestCaseButton.Position = layout.RemoveTestCaseButton;
+%             this.RemoveTestCaseButton.Text = '-';
+%             this.RemoveTestCaseButton.Enable = 'off';
+            copyFrom(this.RemoveTestCaseButton, layout.RemoveTestCaseButton, ...
+                {'FontName', 'Enable', 'Position', 'Text'});
             this.RemoveTestCaseButton.ButtonPushedFcn = @(a, ev)(this.deleteTestCase());
             
             % Create AddTestCaseButton
             this.AddTestCaseButton = uibutton(this.Tab, 'push');
             %             this.AddTestCaseButton.ButtonPushedFcn = createCallbackFcn(this, @StudentAddTestCaseButtonPushed, true);
-            this.AddTestCaseButton.FontName = 'Courier New';
+%             this.AddTestCaseButton.FontName = 'Courier New';
 %             this.AddTestCaseButton.Position = [11 13 31 22];
-            this.AddTestCaseButton.Position = layout.AddTestCaseButton;
-            this.AddTestCaseButton.Text = '+';
+%             this.AddTestCaseButton.Position = layout.AddTestCaseButton;
+%             this.AddTestCaseButton.Text = '+';
+            copyFrom(this.AddTestCaseButton, layout.AddTestCaseButton, ...
+                {'FontName', 'Position', 'Text'});
             this.AddTestCaseButton.ButtonPushedFcn = @(a, ev)(this.addTestCase());
         end
         
@@ -493,6 +513,17 @@ classdef SubmissionType < handle
         function refreshInputsList(this)
             for tc = this.TestCases
                 tc.updateAllDropdowns();
+            end
+        end
+        
+        %% IsErrored Whether this submission type has an error
+        function set.IsErrored(this, value)
+            if value
+                if ~contains(this.Tab.Title, TestCaseCompiler.ERROR_SYMBOL) %#ok<*MCSUP>
+                    this.Tab.Title = [TestCaseCompiler.ERROR_SYMBOL, this.Tab.Title];
+                end
+            else
+                this.Tab.Title = strrep(this.Tab.Title, TestCaseCompiler.ERROR_SYMBOL, ''); 
             end
         end
     end
