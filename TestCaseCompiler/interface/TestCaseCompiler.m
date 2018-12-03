@@ -317,6 +317,12 @@ classdef TestCaseCompiler < matlab.apps.AppBase
             end
             
             if finished
+                % check that we have outputs selected
+                if isempty(evalin('base', 'whos;'))
+                    % die
+                    uialert(app.UIFigure, 'No variables are selected!', 'Compile Error', 'icon', 'error');
+                    return;
+                end
                 testCaseGenerator(app);
             else
                 % emulate pressing the browse button
