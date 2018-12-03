@@ -74,7 +74,7 @@ classdef SubmissionType < handle
         
         % color for editfields (i.e. the output base edit field)
         % for when there is an error
-        EDITFIELD_ERROR_COLOR = [1.0, 0, 0]
+        EDITFIELD_ERROR_COLOR = [1.0, .25, .25]
         
     end
     
@@ -360,13 +360,9 @@ classdef SubmissionType < handle
         %
         % Callback for when the base words edit field is changed.
         function changeBaseWords(this, editField)
-            value = editField.Value;
-            value(value == ' ') = [];
-            if value(end) == ','
-                value(end) = [];
-            end
+            value = strtrim(editField.Value);
             % split input by commas
-            baseWords = strsplit(value, ',');
+            baseWords = strsplit(value, {' ', ','});
             if length(baseWords) ~= this.Problem.NumOutputs
                 editField.BackgroundColor = this.EDITFIELD_ERROR_COLOR;
                 uiconfirm(SubmissionType.getParentFigure(editField), sprintf('You entered %d outputs, but %s has only %d outputs.', ...
@@ -377,7 +373,8 @@ classdef SubmissionType < handle
                 this.OutputBaseWords = cellfun(@strtrim, baseWords, 'UniformOutput', false);
                 mask = cellfun(@isvarname, this.OutputBaseWords);
                 if ~all(mask)
-                    badVarNames = ['"' strjoin(this.OutputBaseWords(mask), '", "') '"'];
+                    editField.BackgroundColor = this.EDITFIELD_ERROR_COLOR;
+                    badVarNames = ['"' strjoin(this.OutputBaseWords(~mask), '", "') '"'];
                     uialert(SubmissionType.getParentFigure(editField), sprintf('Variable(s) %s are not valid', badVarNames), ...
                         'Error', 'Icon', 'error');
                     return;
