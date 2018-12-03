@@ -40,6 +40,9 @@ classdef SubmissionType < handle
         
         % all input names for this submission type
         InputNames cell
+        
+        % whether there is an error or not
+        IsErrored logical = false
     end
     
     %% UI properties %%
@@ -68,7 +71,7 @@ classdef SubmissionType < handle
         % currently focused test case
         focusedTestCaseNum = 1
     end
-    
+        
     properties (Constant, Access = public)
         MIN_NUM_TEST_CASES = 3
         
@@ -510,6 +513,17 @@ classdef SubmissionType < handle
         function refreshInputsList(this)
             for tc = this.TestCases
                 tc.updateAllDropdowns();
+            end
+        end
+        
+        %% IsErrored Whether this submission type has an error
+        function set.IsErrored(this, value)
+            if value
+                if ~contains(this.Tab.Title, TestCaseCompiler.ERROR_SYMBOL) %#ok<*MCSUP>
+                    this.Tab.Title = [TestCaseCompiler.ERROR_SYMBOL, this.Tab.Title];
+                end
+            else
+                this.Tab.Title = strrep(this.Tab.Title, TestCaseCompiler.ERROR_SYMBOL, ''); 
             end
         end
     end

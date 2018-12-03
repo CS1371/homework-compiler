@@ -76,16 +76,18 @@ classdef Problem < handle
                 title = currentSubObj.Tab.Title;
                 if currentSubObj.verifyAllTestCases()
                     % success
-                    currentSubObj.Tab.Title = strrep(title, TestCaseCompiler.ERROR_SYMBOL, '');
+%                     currentSubObj.Tab.Title = strrep(title, TestCaseCompiler.ERROR_SYMBOL, '');
+                    currentSubObj.IsErrored = false;
                 else
                     % fail
-                    if ~contains(title, TestCaseCompiler.ERROR_SYMBOL)
-                        currentSubObj.Tab.Title = [TestCaseCompiler.ERROR_SYMBOL, title];
-                    end
+%                     if ~contains(title, TestCaseCompiler.ERROR_SYMBOL)
+%                         currentSubObj.Tab.Title = [TestCaseCompiler.ERROR_SYMBOL, title];
+%                     end
+                    currentSubObj.IsErrored = true;
+
                 end
-                
                 this.SelectedSubmission = strrep(newTabTitle, TestCaseCompiler.ERROR_SYMBOL, '');
-                
+%                 this.SelectedSubmission = currentSubObj.Name;
             end
             
         end
