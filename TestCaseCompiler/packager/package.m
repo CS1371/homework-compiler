@@ -77,6 +77,31 @@ function package(path, out, ins, name, vals, paths, num, recurs, ban)
     end
     
     % input / output bases are OK; we have enough input values.
+    % for each input name that has '', that's actually a filename. So, why
+    % don't we just chop off the extension, and then
+    % matlab.lang.makeValidName it?
+    mask = strncmp(ins, '''', 1);
+    ins(mask) = strrep(ins(mask), '''', '');
+    ins(mask) = strtok(ins(mask), '.');
+    ins(mask) = matlab.lang.makeValidName(ins(mask));
+    % make sure rest of ins don't have same anme
+    % arguably, could be more efficient with contains and friends. However,
+    % we lose most of our visibility, and since it is unlikely this will
+    % ever affect more than two variables, the enhanced ability to debug
+    % far outweighs any menial time saved with vector operations
+    toCheck = ins(~mask);
+    files = ins(mask);
+    for f = 1:numel(files)
+        counter = 1;
+        remover = 0;
+        while any(strcmp(toCheck, files{f}))
+            files{f} = files{f}(1:(end-remover));
+            files{f} = [files{f} num2str(counter)];
+            remover = length(num2str(counter));
+            counter = counter + 1;
+        end
+    end
+    ins(mask) = files;
     createInputs(ins, vals);
     % create supportingFiles
     mkdir('supportingFiles');

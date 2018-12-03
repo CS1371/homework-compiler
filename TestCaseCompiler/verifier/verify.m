@@ -106,6 +106,10 @@ if ~isempty(missingFields)
         'Package json has missing field(s): %s', missing)); 
 end
 
+if rubricSt.isRecursive && ~checkRecur([pwd filesep rubricSt.name '.m'])
+    throw(MException('TESTCASE:verifier:verify:notRecursive', ...
+        'Solution is not recursive, yet recursion is mandated'));
+end
 % collect all the function calls
 calls = rubricSt.calls;
 
@@ -177,7 +181,7 @@ cd(initialDir);
 end
 
 % Try and reset everything to before verifier was run
-function cleanup(initialDir, sandboxDir)
+function cleanup(initialDir, ~)
 % try
 %     cd(toDelete); cd('..'); % go up one from the delete dir [~] =
 %     rmdir(toDelete, 's'); % delete it from above
