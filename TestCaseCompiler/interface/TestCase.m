@@ -468,9 +468,61 @@ classdef TestCase < handle
         
         %% createFromPackage Creates a test case from a loaded package
         function tc = createFromPackage(tabGroup, parentType, infoSt)
+            persistent resolution;
+            if isempty(resolution)
+                resolution = struct();
+            end
             % load variables into workspace
             % TODO: check for conflicts here
-            evalin('base', sprintf('load(''%s'')', infoSt.loadFile));
+            % check load file
+            vars = load(infoSt.loadFile);
+            % see if we even have any conflicts
+            main = evalin('base', 'who');
+            archive = fieldnames(vars);
+            mask = ismember(archive, main);
+            % mask is true where archive variable name matches a main
+            % variable name
+            possible = archive(mask);
+            isClean = true(size(possible));
+            for p = numel(possible):-1:1
+                % IF we already have a resolution, then the conflict has
+                % already been resolved - just replace the value with out
+                % own
+                if isfield(resolution, possible{p})
+                    isClean(p) = true;
+                    vars.(possible{p}) = resolution.(possible{p});
+                else
+                    isClean(p) = isequaln(evalin('base', possible{p}), ...
+                        vars.(possible{p}));
+                end
+            end
+            mask(mask) = ~isClean;
+            % now, mask is true where we have a death
+            % if we have conflict, manage
+            % check our conflict resolution variable. If we find it, just
+            % use that value instead.
+            
+            if any(mask)
+                conflicts = archive(mask);
+                conflictManager = Conflicts(conflicts);
+                uiwait(conflictManager.UIFigure);
+                if ~isvalid(conflictManager) || ~isvalid(conflictManager.UIFigure)
+                    throw(MException('TESTCASE:createFromPackage:conflicts', ...
+                        'No conflict resolution given'));
+                end
+                % for each one that WAS main, replace our own with main
+                toReplace = conflicts(conflictManager.IsMain);
+                for t = 1:numel(toReplace)
+                    vars.(toReplace{t}) = evalin('base', toReplace{t});
+                end
+                close(conflictManager.UIFigure);
+            end
+            % guaranteed to be clean, but we save in ever growing
+            % resolution, for future reference.
+            for v = 1:numel(archive)
+                resolution.(archive{v}) = vars.(archive{v});
+                assignin('base', archive{v}, vars.(archive{v}));
+            end
             tc = TestCase(tabGroup, parentType);
             value = parentType.Problem.NumInputs;
             tcInputs = infoSt.ins((value*(tc.Index - 1) + 1):(tc.Index*value));

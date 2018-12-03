@@ -146,9 +146,13 @@ classdef Problem < handle
                     end
                     subTypeObj.loadFromPackage(infoSt, tabGroup);
                 catch ME
-                    throw(MException('TESTCASE:Problem:loadFromPackage:invalidJson', ...
-                        sprintf('Submission type ''%s'' has an invalid json structure.', ...
-                        d.name)));
+                    if strcmp(ME.identifier, 'TESTCASE:createFromPackage:conflicts')
+                        ME.rethrow();
+                    else
+                        throw(MException('TESTCASE:Problem:loadFromPackage:invalidJson', ...
+                            sprintf('Submission type ''%s'' has an invalid json structure.', ...
+                            d.name)));
+                    end
                 end
 
                 cd(homeDir);

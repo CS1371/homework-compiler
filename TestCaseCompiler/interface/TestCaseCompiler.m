@@ -105,6 +105,7 @@ classdef TestCaseCompiler < matlab.apps.AppBase
                 'function'), 'Indeterminate', 'on');
             
             origDir = cd(fileparts(path));
+            clear TestCase;
             try
                 delete(app.RubricTabGroup.Children);
                 if app.ispackage(cd())
