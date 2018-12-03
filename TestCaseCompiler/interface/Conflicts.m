@@ -9,6 +9,7 @@ classdef Conflicts < matlab.apps.AppBase
         WorkspaceSwitch        matlab.ui.control.Switch
         ConfirmButton          matlab.ui.control.Button
         CancelButton           matlab.ui.control.Button
+        VariablePreview        matlab.ui.control.TextArea
     end
 
     
@@ -20,6 +21,8 @@ classdef Conflicts < matlab.apps.AppBase
     properties (Access = private)
         isMain logical;
         variableNames string;
+        archiveValues cell;
+        mainValues cell;
     end
     
     methods
@@ -48,11 +51,36 @@ classdef Conflicts < matlab.apps.AppBase
         end
     end
     
+    methods (Static, Access = private)
+        function [str] = toString(in)
+            if islogical(in)
+                if in
+                    str = 'true';
+                else
+                    str = 'false';
+                end
+            elseif ischar(in) && size(in, 1) == 1
+                str = ['''', in, ''''];
+            else
+               str = rptgen.toString(in, 200);
+
+            end
+        end
+    end
 
     methods (Access = private)
 
         % Code that executes after component creation
-        function startupFcn(app, varNames)
+        function startupFcn(app, vars)
+            varNames = fieldnames(vars)';
+            % Keep in a cell array so we can index correctly
+            app.archiveValues = cell(1, numel(varNames));
+            app.mainValues = cell(1, numel(varNames));
+            for v = 1:numel(varNames)
+                app.archiveValues{v} = vars.(varNames{v});
+                app.mainValues{v} = evalin('base', varNames{v});
+            end
+            % 
             % default to main.
             % ItemsData will just be the varNames;
             % Keep separate array of tf values (t is in main)
@@ -70,6 +98,7 @@ classdef Conflicts < matlab.apps.AppBase
             if iscell(value)
                 % none selected; die
                 app.WorkspaceSwitch.Enable = false;
+                app.VariablePreview.Value = '';
                 return;
             elseif all(app.IsMain(value))
                 app.WorkspaceSwitch.Value = 'Main';
@@ -78,13 +107,37 @@ classdef Conflicts < matlab.apps.AppBase
             else
                 app.WorkspaceSwitch.Value = 'Main';
             end
+            
+            % if a single selection, show preview
+            if isscalar(value)
+                if strcmp(app.WorkspaceSwitch.Value, 'Main')
+                    % show main val
+                    app.VariablePreview.Value = Conflicts.toString(app.mainValues{value});
+                else
+                    app.VariablePreview.Value = Conflicts.toString(app.archiveValues{value});
+                end
+            else
+                app.VariablePreview.Value = '';
+            end
             app.WorkspaceSwitch.Enable = true;
         end
 
         % Value changed function: WorkspaceSwitch
         function WorkspaceSwitchValueChanged(app, ~)
             value = app.WorkspaceSwitch.Value;
-            app.IsMain(app.ConflictsListBox.Value) = strcmpi(value, 'Main');
+            if ~iscell(app.ConflictsListBox.Value)
+                app.IsMain(app.ConflictsListBox.Value) = strcmpi(value, 'Main');
+            end
+            if isscalar(app.ConflictsListBox.Value)
+                if strcmp(app.WorkspaceSwitch.Value, 'Main')
+                    % show main val
+                    app.VariablePreview.Value = ...
+                        Conflicts.toString(app.mainValues{app.ConflictsListBox.Value});
+                else
+                    app.VariablePreview.Value = ...
+                        Conflicts.toString(app.archiveValues{app.ConflictsListBox.Value});
+                end
+            end
         end
 
         % Button pushed function: ConfirmButton
@@ -136,7 +189,7 @@ classdef Conflicts < matlab.apps.AppBase
             app.WorkspaceSwitch.Items = {'Main', 'Archive'};
             app.WorkspaceSwitch.ValueChangedFcn = createCallbackFcn(app, @WorkspaceSwitchValueChanged, true);
             app.WorkspaceSwitch.FontSize = 20;
-            app.WorkspaceSwitch.Position = [321 223 45 20];
+            app.WorkspaceSwitch.Position = [321 300 45 20];
             app.WorkspaceSwitch.Value = 'Main';
 
             % Create ConfirmButton
@@ -158,6 +211,11 @@ classdef Conflicts < matlab.apps.AppBase
             app.CancelButton.FontColor = [1 1 1];
             app.CancelButton.Position = [6 31 255 49];
             app.CancelButton.Text = 'Cancel';
+            
+            % Create VariablePreview
+            app.VariablePreview = uitextarea(app.UIFigure);
+            app.VariablePreview.Position = [273 106 250 190];
+            app.VariablePreview.Editable = false;
         end
     end
 
