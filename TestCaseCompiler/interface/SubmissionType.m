@@ -460,7 +460,7 @@ classdef SubmissionType < handle
             value = cell(1, numel(this.TestCases));
             for t = 1:numel(this.TestCases)
                 tc = this.TestCases(t);
-                value{t} = [tc.InputNames{:}];
+                value{t} = tc.InputNames;
             end
             value = [value{:}];
             
