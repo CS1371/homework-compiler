@@ -73,8 +73,6 @@ classdef TestCaseCompiler < matlab.apps.AppBase
         clientKey
         clientId
         clientSecret
-        exportDriveSelected = true
-        exportLocalSelected = false
         
         % user-selected path to local output
         LocalOutputDir char
@@ -132,6 +130,8 @@ classdef TestCaseCompiler < matlab.apps.AppBase
                     % load the package
                     app.problem = Problem(path, app.RubricTabGroup, app.Layout);
                     app.problem.loadFromPackage(cd, app.RubricTabGroup, app);
+                    app.LocalOutputDir = fileparts(app.problem.FunctionPath);
+                    
                 else
                     % create a new problem
                     app.problem = Problem(path, app.RubricTabGroup, app.Layout);
@@ -240,6 +240,29 @@ classdef TestCaseCompiler < matlab.apps.AppBase
             % TODO Do this better
             contents = dir(path);
             result = sum(contains({contents.name}, {'student', 'submission'})) == 2;
+        end
+        
+        
+    end
+    
+    methods
+        %% LocalOutputDir
+        % 
+        % Sets the local output folder and the contents of the edit field.
+        %
+        % Sets the editfield to be green if not the default message, and
+        % white otherwise.
+        function set.LocalOutputDir(app, value)
+            if strcmp(value, app.Layout.LocalOutputEditField.Value) %#ok<*MCSUP>
+                app.LocalOutputEditField.Value = app.Layout.LocalOutputEditField.Value;
+                app.LocalOutputEditField.BackgroundColor = app.Layout.LocalOutputEditField.BackgroundColor;
+            else
+                app.LocalOutputEditField.Value = abbreviate(value, 30);
+                app.LocalOutputEditField.BackgroundColor = app.GOOD_COLOR;
+                app.LocalOutputDir = value;
+
+            end
+
         end
         
         
@@ -380,8 +403,7 @@ classdef TestCaseCompiler < matlab.apps.AppBase
         % Button pushed function: CompileButton
         function CompileButtonPushed(app, ~)
             finished = false;
-            if (~app.LocalDiskCheckBox.Value && ~app.GoogleDriveCheckBox.Value) ...
-                    || (isempty(app.LocalOutputDir) && isempty(app.folderId))
+            if isempty(app.LocalOutputDir) && isempty(app.folderId)
                 % no output location selected!
                 uiconfirm(app.UIFigure, 'You have to choose an output location!', ...
                     'Error', 'Icon', 'error');
@@ -481,7 +503,7 @@ classdef TestCaseCompiler < matlab.apps.AppBase
                     % warn and undo
                     value = false;
                     app.RecursiveCheckBox.Value = value;
-                    uialert(app.UIFigure, 'Your solution is not recursive', 'Recursion Error');
+                    uialert(app.UIFigure, 'Your solution is not recursive!', 'Recursion Error');
                 end
             end
             app.problem.IsRecursive = value;
@@ -609,7 +631,7 @@ classdef TestCaseCompiler < matlab.apps.AppBase
         % Returns false if the user needs to select another, or true if the
         % directory is empty OR the contents were deleted.
         function finished = confirmEmpty(app, path)
-            if ~app.exportLocalSelected
+            if isempty(app.LocalOutputDir)
                 finished = true;
             else
                 finished = false;
@@ -790,9 +812,11 @@ classdef TestCaseCompiler < matlab.apps.AppBase
             % Create FunctionBrowsePanel
             
             % Create RecursiveCheckBox
-            %             app.RecursiveCheckBox = uicheckbox(app.ProblemSettingsPanel);
-            %             app.RecursiveCheckBox.ValueChangedFcn = createCallbackFcn(app, @RecursiveCheckBoxValueChanged, true);
-            %             app.RecursiveCheckBox.Enable = 'off';
+            app.RecursiveCheckBox = uicheckbox(app.ProblemSettingsPanel);
+            app.RecursiveCheckBox.ValueChangedFcn = createCallbackFcn(app, @RecursiveCheckBoxValueChanged, true);
+            copyFrom(app.RecursiveCheckBox, layout.RecursiveCheckBox, ...
+                {'Enable', 'Text', 'Position'});
+                        %             app.RecursiveCheckBox.Enable = 'off';
             %             app.RecursiveCheckBox.Text = 'Recursive?';
             % %             app.RecursiveCheckBox.Position = [12 7 90 22];
             %             app.RecursiveCheckBox.Position = layout.RecursiveCheckBox.Position;
