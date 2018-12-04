@@ -142,6 +142,20 @@ classdef Conflicts < matlab.apps.AppBase
 
         % Button pushed function: ConfirmButton
         function ConfirmButtonPushed(app, ~)
+            % if ~all, then at least one variable is going to die. Warn.
+            if ~all(app.IsMain)
+                % warn
+                choice = uiconfirm(app.UIFigure, ...
+                    'You''ve chosen to use at least one archive variable - that means the variable in the main workspace will be overwritten. Are you sure you''d like to continue?', ...
+                    'Conflict Management', ...
+                    'Options', {'No, let me think', 'Yes, I am sure'}, ...
+                    'CancelOption', 'No, let me think', ...
+                    'DefaultOption', 'No, let me think', ...
+                    'Icon', 'warning');
+                if strcmp(choice, 'No, let me think')
+                    return;
+                end
+            end
             uiresume(app.UIFigure);
         end
 
