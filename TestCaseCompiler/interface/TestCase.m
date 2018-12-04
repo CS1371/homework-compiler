@@ -503,8 +503,11 @@ classdef TestCase < handle
             % use that value instead.
             
             if any(mask)
+                vals = struct2cell(vars);
                 conflicts = archive(mask);
-                conflictManager = Conflicts(conflicts);
+                vals = vals(mask);
+                conflictSt = cell2struct(vals, conflicts);
+                conflictManager = Conflicts(conflictSt);
                 uiwait(conflictManager.UIFigure);
                 if ~isvalid(conflictManager) || ~isvalid(conflictManager.UIFigure)
                     throw(MException('TESTCASE:createFromPackage:conflicts', ...
