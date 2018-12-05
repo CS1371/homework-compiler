@@ -65,7 +65,7 @@ classdef TestCaseCompiler < matlab.apps.AppBase
     
     properties (Access = public, Constant)
         GOOD_COLOR = [0.25 1 0.25];
-        ERROR_SYMBOL = TestCaseCompiler_Layout.ERROR_ICON; % Global error symbol, used to illustrate test case verification failure
+%         ERROR_SYMBOL = TestCaseCompiler_Layout.ERROR_ICON; % Global error symbol, used to illustrate test case verification failure
     end
     
     properties (Hidden)

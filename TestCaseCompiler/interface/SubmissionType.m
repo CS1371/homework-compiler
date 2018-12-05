@@ -526,11 +526,11 @@ classdef SubmissionType < handle
         %% IsErrored Whether this submission type has an error
         function set.IsErrored(this, value)
             if value
-                if ~contains(this.Tab.Title, TestCaseCompiler.ERROR_SYMBOL) %#ok<*MCSUP>
-                    this.Tab.Title = [TestCaseCompiler.ERROR_SYMBOL, this.Tab.Title];
+                if ~contains(this.Tab.Title, TestCaseCompiler_Layout.ERROR_ICON) %#ok<*MCSUP>
+                    this.Tab.Title = [TestCaseCompiler_Layout.ERROR_ICON, this.Tab.Title];
                 end
             else
-                this.Tab.Title = strrep(this.Tab.Title, TestCaseCompiler.ERROR_SYMBOL, ''); 
+                this.Tab.Title = strrep(this.Tab.Title, TestCaseCompiler_Layout.ERROR_ICON, ''); 
             end
         end
     end
