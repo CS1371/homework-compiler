@@ -192,6 +192,9 @@ classdef SubmissionType < handle
         %% createTab Creates the tab object
         function createTab(this, parentTabGroup)
             this.Tab = uitab(parentTabGroup, 'title', this.Name);
+            % set the user data to this, so it can be accessed if only the
+            % tab is available (see Problem's tab group changed selection
+            % callback function in the ctor for where it's useful)
             this.Tab.UserData = this;
         end
         
@@ -358,7 +361,11 @@ classdef SubmissionType < handle
             
             % verify the single test case
             tc = this.TestCases(this.focusedTestCaseNum).Tab.UserData;
-            tc.verifySelf();
+            tc.IsErrored = ~tc.verifySelf();
+            
+            % verify the new one
+            newTestCase = tabGroup.SelectedTab.UserData;
+            newTestCase.IsErrored = ~newTestCase.verifySelf();
             
             % set the number of the new focused test case
             this.focusedTestCaseNum = num;
@@ -385,7 +392,7 @@ classdef SubmissionType < handle
             baseWords = strsplit(value, {' ', ','});
             if length(baseWords) ~= this.Problem.NumOutputs
                 editField.BackgroundColor = this.EDITFIELD_ERROR_COLOR;
-                uiconfirm(SubmissionType.getParentFigure(editField), sprintf('You entered %d outputs, but %s has %d outputs.', ...
+                uiconfirm(getParentFigure(editField), sprintf('You entered %d outputs, but %s has %d outputs.', ...
                     length(baseWords), this.Problem.FunctionName, this.Problem.NumOutputs), ...
                     'Error', 'Icon', 'error');
             else
@@ -519,34 +526,17 @@ classdef SubmissionType < handle
         %% IsErrored Whether this submission type has an error
         function set.IsErrored(this, value)
             if value
-                if ~contains(this.Tab.Title, TestCaseCompiler.ERROR_SYMBOL) %#ok<*MCSUP>
-                    this.Tab.Title = [TestCaseCompiler.ERROR_SYMBOL, this.Tab.Title];
+                if ~contains(this.Tab.Title, TestCaseCompiler_Layout.ERROR_ICON) %#ok<*MCSUP>
+                    this.Tab.Title = [TestCaseCompiler_Layout.ERROR_ICON, this.Tab.Title];
                 end
             else
-                this.Tab.Title = strrep(this.Tab.Title, TestCaseCompiler.ERROR_SYMBOL, ''); 
+                this.Tab.Title = strrep(this.Tab.Title, TestCaseCompiler_Layout.ERROR_ICON, ''); 
             end
         end
     end
     
     %% Utility methods
-    methods (Static)
-        %% getParentFigure
-        %
-        % Gets the parent UIfigure object of a child element.
-        function p = getParentFigure(elem)
-            try
-                if isa(elem, 'matlab.ui.Figure') || ~isprop(elem, 'Parent')
-                    p = elem;
-                else
-                    p = SubmissionType.getParentFigure(elem.Parent);
-                end
-            catch
-                % TODO: do this better
-                p = [];
-            end
-            
-        end
-        
+    methods (Static)        
         %% makeVisible Forces the app window to become visible
         %
         % A workaround for the annoying habit of uigetfile() to minimize the uifigure it is

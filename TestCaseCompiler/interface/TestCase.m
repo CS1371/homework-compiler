@@ -75,7 +75,9 @@ classdef TestCase < handle
         function this = TestCase(parent, subType)
             this.Parent = parent;
             this.Tab = uitab(parent);
-            % associate the object with the tab
+            % associate the object with the tab - used for verifying itself
+            % in the SubmissionType's test case tab group selection changed
+            % function
             this.Tab.UserData = this;
             this.ParentType = subType;
             this.Index = length(this.ParentType.TestCases) + 1;
@@ -338,6 +340,8 @@ classdef TestCase < handle
                     if isempty(tmp.Items)
                         % todo: warning or something here (no variables in
                         % workspace)
+%                         uiwait(uialert(getParentFigure(this.Parent), 'You need variables in the workspace to use them in test cases.', ...
+%                             'No variables in workspace'));
                     else
                         tmp.Value = tmp.Items{mod(e - 1, length(tmp.Items)) + 1};
                         this.InputNames{e} = tmp.Value;
@@ -390,7 +394,9 @@ classdef TestCase < handle
         %
         % Called whenever one of the input dropdowns is changed.
         function updateInputsList(this, selectedName, ind)
-            this.InputNames{ind} = selectedName;
+            if ~isempty(selectedName)
+                this.InputNames{ind} = selectedName;
+            end
         end
         
         %% updateAllDropdowns
@@ -430,25 +436,29 @@ classdef TestCase < handle
             fnName = this.ParentType.Problem.FunctionName;
             
             % build the function call
-            call = sprintf('%s(%s);', fnName, strjoin(this.InputNames, ','));
-            
-            % eval
-%             evalin('base', call);
-            
-            try
-                evalin('base', call);
-                
-                % if it worked, then great
-%                 this.Tab.Title = strrep(this.Tab.Title, TestCaseCompiler.ERROR_SYMBOL, '');
-                this.IsErrored = false;
-            catch
-                % failed, so fuck you
-                % TODO: set dropdowns red maybe?
-%                 currentTitle = this.Tab.Title;
-%                 if ~contains(currentTitle, TestCaseCompiler.ERROR_SYMBOL)
-%                     this.Tab.Title = [TestCaseCompiler.ERROR_SYMBOL, currentTitle];
-%                 end
-                this.IsErrored = true;
+            if ~isempty(this.InputNames)
+                call = sprintf('%s(%s);', fnName, strjoin(this.InputNames, ','));
+
+                % eval
+    %             evalin('base', call);
+
+                try
+                    evalin('base', call);
+
+                    % if it worked, then great
+    %                 this.Tab.Title = strrep(this.Tab.Title, TestCaseCompiler_Layout.ERROR_ICON, '');
+                    this.IsErrored = false;
+                catch
+                    % failed, so fuck you
+                    % TODO: set dropdowns red maybe?
+    %                 currentTitle = this.Tab.Title;
+    %                 if ~contains(currentTitle, TestCaseCompiler_Layout.ERROR_ICON)
+    %                     this.Tab.Title = [TestCaseCompiler_Layout.ERROR_ICON, currentTitle];
+    %                 end
+                    this.IsErrored = true;
+                    result = false;
+                end
+            else
                 result = false;
             end
             
@@ -456,6 +466,7 @@ classdef TestCase < handle
                 cd(orig);
                 rmdir(temp, 's');
             end
+            
             
         end
         
@@ -466,11 +477,11 @@ classdef TestCase < handle
         %% IsErrored Whether this test case has an error
         function set.IsErrored(this, value)
             if value
-                if ~contains(this.Tab.Title, TestCaseCompiler.ERROR_SYMBOL) %#ok<*MCSUP>
-                    this.Tab.Title = [TestCaseCompiler.ERROR_SYMBOL, this.Tab.Title];
+                if ~contains(this.Tab.Title, TestCaseCompiler_Layout.ERROR_ICON) %#ok<*MCSUP>
+                    this.Tab.Title = [TestCaseCompiler_Layout.ERROR_ICON, this.Tab.Title];
                 end
             else
-                this.Tab.Title = strrep(this.Tab.Title, TestCaseCompiler.ERROR_SYMBOL, '');
+                this.Tab.Title = strrep(this.Tab.Title, TestCaseCompiler_Layout.ERROR_ICON, '');
             end
         end
     end
