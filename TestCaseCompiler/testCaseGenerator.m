@@ -131,7 +131,7 @@ function testCaseGenerator(app)
     end
     
     % upload to google drive
-    if app.exportDriveSelected
+    if ~isempty(app.folderId)
         token = refresh2access(app.token, app.clientId, app.clientSecret);
         progress.Message = 'Uploading package to Google Drive...';
         uploadToDrive(pwd, app.folderId, token, app.clientKey, progress);
@@ -139,8 +139,11 @@ function testCaseGenerator(app)
     end
     
     % local output
-    if app.exportLocalSelected
+    if ~isempty(app.LocalOutputDir)
         progress.Message = sprintf('Saving to %s...', app.LocalOutputDir);
+        % watch out for this---not sure if it'll cause problems if the file
+        % exists and isn't the same
+%         delete(fullfile(app.LocalOutputDir, '*'));
         copyfile([workDir, filesep, solnFunction, filesep, '*'], app.LocalOutputDir, 'f');
     end
     
