@@ -73,6 +73,7 @@ classdef TestCaseCompiler < matlab.apps.AppBase
         % used by the google drive browser when GoogleDriveBrowser() is called.
         token
         folderId
+        folderName;
         clientKey
         clientId
         clientSecret
@@ -276,13 +277,13 @@ classdef TestCaseCompiler < matlab.apps.AppBase
             end
         end
         
-        %% folderId
+        %% folderName
         %
-        % Sets the Google Drive folder id and the contents of the edit
+        % Sets the Google Drive folder name and the contents of the edit
         % field.
         %
         % See above.
-        function set.folderId(app, value)
+        function set.folderName(app, value)
             if isempty(value)
                 app.GoogleDriveEditField.Value = app.Layout.GoogleDriveEditField.Value;
                 app.GoogleDriveEditField.BackgroundColor = app.Layout.GoogleDriveEditField.BackgroundColor;
@@ -291,7 +292,7 @@ classdef TestCaseCompiler < matlab.apps.AppBase
                 app.GoogleDriveEditField.BackgroundColor = app.GOOD_COLOR;
             end
             
-            app.folderId = value;
+            app.folderName = value;
 
         end
         
@@ -568,11 +569,9 @@ classdef TestCaseCompiler < matlab.apps.AppBase
             accessToken = refresh2access(app.token, app.clientId, app.clientSecret);
             browser = GoogleDriveBrowser(accessToken);
             uiwait(browser.UIFigure);
-            if ~isvalid(browser) || isempty(browser.selectedId)
-%                 app.exportDriveSelected = false;
-            else
-                app.exportDriveSelected = true;
+            if isvalid(browser) && ~isempty(browser.selectedId)
                 app.folderId = browser.selectedId;
+                app.folderName = browser.selectedName;
                 % In this case, we will only select a HOMEWORK folder -
                 % _editing_ an existing one would be handled by browsing
                 % for the input file. Right. RIGHT?!
