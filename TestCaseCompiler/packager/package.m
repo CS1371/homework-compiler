@@ -147,10 +147,9 @@ function package(path, out, ins, name, vals, paths, num, recurs, ban)
     % create test cases
     ins = ins(end:-1:1);
     outs = outs(end:-1:1);
-    calls = cell(1, num);
     for t = num:-1:1
-        % create call
-        calls{t} = ['[' strjoin(outs(numOuts:-1:1), ', ') '] = ' fName '(' strjoin(ins(numIns:-1:1), ', ') ');'];
+        calls(t).ins = ins(numIns:-1:1);
+        calls(t).outs = outs(numOuts:-1:1);
         outs(1:numOuts) = [];
         ins(1:numIns) = [];
     end
