@@ -24,7 +24,7 @@ classdef Problem < handle
     end
     
     properties (Hidden)
-       SelectedSubmission char % name of which submission is selected
+       SelectedSubmission SubmissionType % which submission is selected
        Layout struct % layout of the app
     end
     
@@ -59,36 +59,37 @@ classdef Problem < handle
             this.addSubmissionType('Submission', rubricTabGroup);
             this.addSubmissionType('Resubmission', rubricTabGroup);
 
-            this.SelectedSubmission = 'Student';
+            this.SelectedSubmission = this.SubmissionTypes(1);
 
             % add verification callback for changing submissions
-            rubricTabGroup.SelectionChangedFcn = @(a, ev) tabGroupChangedFcn(ev.Source.SelectedTab.Title);
+            rubricTabGroup.SelectionChangedFcn = @(a, ev) tabGroupChangedFcn(ev.Source.SelectedTab);
             
-            function tabGroupChangedFcn(newTabTitle)
-                currentSubObj = [];
-                for st = this.SubmissionTypes
-                    cleanTitle = strrep(st.Name, TestCaseCompiler.ERROR_SYMBOL, '');
-                    cleanTitle = strrep(cleanTitle, TestCaseCompiler_Layout.MISC_ICON, char(98));
-                    if isequal(cleanTitle, this.SelectedSubmission)
-                        currentSubObj = st;
-                    end
-                end
+            function tabGroupChangedFcn(newTab)
+%                 currentSubObj = [];
+%                 for st = this.SubmissionTypes
+%                     cleanTitle = strrep(st.Name, TestCaseCompiler.ERROR_SYMBOL, '');
+%                     cleanTitle = strrep(cleanTitle, TestCaseCompiler_Layout.MISC_ICON, char(98));
+%                     if isequal(cleanTitle, this.SelectedSubmission)
+%                         currentSubObj = st;
+%                     end
+%                 end
+                currentSubObj = newTab.UserData;
                 
 %                 title = currentSubObj.Tab.Title;
-                if currentSubObj.verifyAllTestCases()
-                    % success
-%                     currentSubObj.Tab.Title = strrep(title, TestCaseCompiler.ERROR_SYMBOL, '');
-                    currentSubObj.IsErrored = false;
-                else
-                    % fail
-%                     if ~contains(title, TestCaseCompiler.ERROR_SYMBOL)
-%                         currentSubObj.Tab.Title = [TestCaseCompiler.ERROR_SYMBOL, title];
-%                     end
-                    currentSubObj.IsErrored = true;
-
-                end
-                this.SelectedSubmission = strrep(newTabTitle, TestCaseCompiler.ERROR_SYMBOL, '');
-                this.SelectedSubmission = strrep(this.SelectedSubmission, TestCaseCompiler_Layout.MISC_ICON, char(98));
+                currentSubObj.IsErrored = ~currentSubObj.verifyAllTestCases();
+                this.SelectedSubmission.IsErrored = ~this.SelectedSubmission.verifyAllTestCases();
+                
+                % set the new selected submission
+                this.SelectedSubmission = currentSubObj;
+%                 if currentSubObj.verifyAllTestCases()
+%                     % success
+% %                     currentSubObj.Tab.Title = strrep(title, TestCaseCompiler.ERROR_SYMBOL, '');
+%                     currentSubObj.IsErrored = false;
+%                 else
+%                     currentSubObj.IsErrored = true;
+%                 end
+%                 this.SelectedSubmission = strrep(newTabTitle, TestCaseCompiler.ERROR_SYMBOL, '');
+%                 this.SelectedSubmission = strrep(this.SelectedSubmission, TestCaseCompiler_Layout.MISC_ICON, char(98));
 
                 %                 this.SelectedSubmission = currentSubObj.Name;
             end
