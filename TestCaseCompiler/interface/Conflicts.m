@@ -62,7 +62,7 @@ classdef Conflicts < matlab.apps.AppBase
             elseif ischar(in) && size(in, 1) == 1
                 str = ['''', in, ''''];
             else
-               str = rptgen.toString(in, 200);
+               str = rptgen.toString(in);
 
             end
         end
@@ -229,7 +229,7 @@ classdef Conflicts < matlab.apps.AppBase
             % Create VariablePreview
             app.VariablePreview = uitextarea(app.UIFigure);
             app.VariablePreview.Position = [273 106 250 190];
-            app.VariablePreview.Editable = false;
+            app.VariablePreview.Editable = true;
         end
     end
 
