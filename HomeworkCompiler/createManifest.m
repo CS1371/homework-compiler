@@ -21,7 +21,7 @@ function lines = createManifest(num, topic, problems)
     lines = strrep(lines, '<<TOPIC>>', topic);
     
     filesToSubmit = ['% - ' strjoin({problems.name}, '.m\n% - ') '.m'];
-    lines = strrep(lines, '<<PROBLEMS>>', filesToSubmit);
+    lines = strrep(lines, '% <<PROBLEMS>>', filesToSubmit);
     
     % create test cases
     % for each problem, looks like:
@@ -54,5 +54,5 @@ function lines = createManifest(num, topic, problems)
         testCases{p} = strjoin(probStatement, newline);
     end
     testCases = strjoin(testCases, newline);
-    lines = strrep(lines, '<<TESTCASE>>', testCases);
+    lines = strrep(lines, '% <<TESTCASE>>', testCases);
 end

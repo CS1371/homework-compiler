@@ -37,6 +37,7 @@ function homeworkCompiler(clientId, clientSecret, clientKey)
     tokenPath = [fileparts(mfilename('fullpath')) filesep 'google.token'];
     fid = fopen(tokenPath, 'rt');
     if fid == -1
+        
         % No Token; authorize (if ID and SECRET given; otherwise, die?)
         if nargin == 3 && (~isempty(clientId) && ~isempty(clientSecret) && ~isempty(clientKey))
             token = authorizeWithGoogle(clientId, clientSecret);
@@ -55,9 +56,18 @@ function homeworkCompiler(clientId, clientSecret, clientKey)
     else
         lines = char(fread(fid)');
         fclose(fid);
-        % line 1 will be id, 2 secret, 3 key, 4 token
         lines = strsplit(lines, newline);
-        [clientId, clientSecret, clientKey, token] = deal(lines{:});
+        if numel(lines) == 3
+            % need to authorize
+            [clientId, clientSecret, clientKey] = deal(lines{:});
+            token = authorizeWithGoogle(clientId, clientSecret);
+            fid = fopen(tokenPath, 'wt');
+            lines{end+1} = token;
+            fwrite(fid, strjoin(lines, newline));
+            fclose(fid);
+        else
+            [clientId, clientSecret, clientKey, token] = deal(lines{:});
+        end
     end
     token = refresh2access(token, clientId, clientSecret);
     
@@ -69,7 +79,11 @@ function homeworkCompiler(clientId, clientSecret, clientKey)
     
     browser = GoogleDriveBrowser(token);
     uiwait(browser.UIFigure);
-    if ~isvalid(browser) || isempty(browser.selectedId)
+    if ~isvalid(browser)
+        return;
+    elseif isempty(browser.selectedId)
+        close(browser.UIFigure);
+        fprintf(1, '\n');
         return;
     end
     id = browser.selectedId;
@@ -103,7 +117,6 @@ function homeworkCompiler(clientId, clientSecret, clientKey)
     %% Verification
     fprintf(1, 'Done\nVerifying Packages...');
     % Verify each package separately
-    verify = @(varargin)(true);
     for p = 1:numel(problems)
         problemDir = [pwd filesep problems{p} filesep];
         isCorrect = verify([problemDir problems{p} '.m'], ...
