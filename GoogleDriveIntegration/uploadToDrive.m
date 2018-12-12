@@ -130,7 +130,7 @@ function newId = setupFolder(folderId, name, token, key)
         e = e.addCause(reason);
         throw(e);
     end
-    if isempty(contents.files)
+    if strcmp(name, 'release') || isempty(contents.files)
         newId = createFolder(folderId, name, token, key);
     else
         newId = contents.files(1).id;

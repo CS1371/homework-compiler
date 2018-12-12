@@ -53,10 +53,11 @@ clean = onCleanup(@()(cleaner(safeDir, workDir)));
 %
 % After copying, remove anything that ends in *.token
 dependencies = [dir(thisDir);
-                dir(fullfile(thisDir, '..', 'GoogleDriveIntegration'))];
+                dir(fullfile(thisDir, '..', 'GoogleDriveIntegration'));
+                dir(fullfile(thisDir, '..', 'TestCaseCompiler', 'verifier'))];
 dependencies(strncmp({dependencies.name}, '.', 1)) = [];
-dependencies(endsWith({dependencies.name}, '.md', 'IgnoreCase', true)) = [];
 dependencies(strcmp({dependencies.name}, 'build.m')) = [];
+dependencies(endsWith({dependencies.name}, {'.asv', '.m~', '.prj', '.md'}, 'IgnoreCase', true)) = [];
 % save ID, Secret, Key
 ind = find(endsWith({dependencies.name}, '.token'), 1);
 fid = fopen(fullfile(dependencies(ind).folder, dependencies(ind).name), 'rt');

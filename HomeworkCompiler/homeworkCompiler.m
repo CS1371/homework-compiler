@@ -122,7 +122,7 @@ function homeworkCompiler(clientId, clientSecret, clientKey)
         isCorrect = verify([problemDir problems{p} '.m'], ...
             [problemDir filesep 'submission']);
         isCorrect = isCorrect && verify([problemDir problems{p} '.m'], ...
-            [problemDir filesep 'resubmission']);
+            [problemDir filesep 'resub']);
         isCorrect = isCorrect && verify([problemDir problems{p} '.m'], ...
             [problemDir filesep 'student']);
         if ~isCorrect
@@ -157,7 +157,7 @@ function homeworkCompiler(clientId, clientSecret, clientKey)
         movefile([pwd filesep 'release' filesep 'student' filesep 'inputs.mat'], ...
             [pwd filesep 'release' filesep 'student' filesep problems{p} '.mat']);
         % parse rubric
-        fid = fopen([pwd filesep 'release' filesep 'student' filesep 'rubric.json'], 'rt');
+        fid = fopen([pwd filesep 'release' filesep 'student' filesep 'student.json'], 'rt');
         lines = char(fread(fid)');
         fclose(fid);
         json = jsondecode(lines);
@@ -165,7 +165,7 @@ function homeworkCompiler(clientId, clientSecret, clientKey)
         problemInfo(p).banned = json.banned;
         problemInfo(p).isRecursive = json.isRecursive;
         % delete rubric
-        delete([pwd filesep 'release' filesep 'student' filesep 'rubric.json']);
+        delete([pwd filesep 'release' filesep 'student' filesep 'student.json']);
     end
     
     % create manifest for student
@@ -177,8 +177,10 @@ function homeworkCompiler(clientId, clientSecret, clientKey)
     copyfile([pwd filesep '*.pdf'], ...
         [pwd filesep 'release' filesep 'student' filesep]);
     % Copy over any orphan .m files (ABCs)
-    copyfile([pwd filesep '*.m'], ...
-        [pwd filesep 'release' filesep 'student' filesep]);
+    if ~isempty(dir([pwd filesep '*.m']))
+        copyfile([pwd filesep '*.m'], ...
+            [pwd filesep 'release' filesep 'student' filesep]);
+    end
     
     %%% Verify Student
     % for each call, call it!
@@ -188,7 +190,7 @@ function homeworkCompiler(clientId, clientSecret, clientKey)
         calls = problemInfo(p).calls;
         for c = 1:numel(calls)
             try
-                call = constructCall(problems{p}, calls(c).ins, calls(c).outs);
+                call = constructCall([problems{p} '_soln'], calls(c).ins, calls(c).outs);
                 runCall(call, [problems{p} '.mat']);
             catch e
                 % die
@@ -219,14 +221,14 @@ function homeworkCompiler(clientId, clientSecret, clientKey)
         supFiles = dir([problemDir 'submission']);
         supFiles([supFiles.isdir]) = [];
         supFiles(strncmp({supFiles.name}, '.', 1)) = [];
-        supFiles(strcmp({supFiles.name}, 'rubric.json')) = [];
+        supFiles(strcmp({supFiles.name}, 'submission.json')) = [];
         supFiles(strcmp({supFiles.name}, 'inputs.mat')) = [];
         problemInfo(p).supportingFiles = {supFiles.name};
         % rename mat file
         movefile([pwd filesep 'release' filesep 'submission' filesep 'inputs.mat'], ...
             [pwd filesep 'release' filesep 'submission' filesep problems{p} '.mat']);
         % parse rubric
-        fid = fopen([pwd filesep 'release' filesep 'submission' filesep 'rubric.json'], 'rt');
+        fid = fopen([pwd filesep 'release' filesep 'submission' filesep 'submission.json'], 'rt');
         lines = char(fread(fid)');
         fclose(fid);
         json = jsondecode(lines);
@@ -234,7 +236,7 @@ function homeworkCompiler(clientId, clientSecret, clientKey)
         problemInfo(p).banned = json.banned;
         problemInfo(p).isRecursive = json.isRecursive;
         % delete rubric
-        delete([pwd filesep 'release' filesep 'submission' filesep 'rubric.json']);
+        delete([pwd filesep 'release' filesep 'submission' filesep 'submission.json']);
     end
     % Create overarching rubric
     %
@@ -275,13 +277,13 @@ function homeworkCompiler(clientId, clientSecret, clientKey)
         problemJson(p) = json;
     end
     lines = jsonencode(problemJson);
-    fid = fopen([pwd filesep 'release' filesep 'submission' filesep 'rubric.json'], 'wt');
+    fid = fopen([pwd filesep 'release' filesep 'rubrica.json'], 'wt');
     fwrite(fid, lines);
     fclose(fid);
     
     %%% Verification
     % for each call, call it!
-    fprintf(1, 'Done\Verifying Submission...');
+    fprintf(1, 'Done\nVerifying Submission...');
     cd(['release' filesep 'submission']);
     for p = 1:numel(problemInfo)
         for c = 1:numel(problemInfo(p).calls)
@@ -300,8 +302,8 @@ function homeworkCompiler(clientId, clientSecret, clientKey)
     end
     cd(['..' filesep '..']);
     %% Create Resubmission
-    fprintf(1, 'Done\Compiling Resubmission...');
-    mkdir(['release' filesep 'resubmission']);
+    fprintf(1, 'Done\nCompiling Resubmission...');
+    mkdir(['release' filesep 'resub']);
     problemInfo = struct('name', problems, ...
         'calls', '', ...
         'banned', '', ...
@@ -310,22 +312,22 @@ function homeworkCompiler(clientId, clientSecret, clientKey)
         problemDir = [pwd filesep problems{p} filesep];
         % copy over soln file
         copyfile([problemDir problems{p} '.m'], ...
-            [pwd filesep 'release' filesep 'resubmission' filesep problems{p} '.m']);
+            [pwd filesep 'release' filesep 'resub' filesep problems{p} '.m']);
         
         % copy over supporting files
-        copyfile([problemDir 'resubmission'], ...
-            [pwd filesep 'release' filesep 'resubmission']);
+        copyfile([problemDir 'resub'], ...
+            [pwd filesep 'release' filesep 'resub']);
         supFiles = dir([problemDir 'submission']);
         supFiles([supFiles.isdir]) = [];
         supFiles(strncmp({supFiles.name}, '.', 1)) = [];
-        supFiles(strcmp({supFiles.name}, 'rubric.json')) = [];
+        supFiles(strcmp({supFiles.name}, 'resub.json')) = [];
         supFiles(strcmp({supFiles.name}, 'inputs.mat')) = [];
         problemInfo(p).supportingFiles = {supFiles.name};
         % rename mat file
-        movefile([pwd filesep 'release' filesep 'resubmission' filesep 'inputs.mat'], ...
-            [pwd filesep 'release' filesep 'resubmission' filesep problems{p} '.mat']);
+        movefile([pwd filesep 'release' filesep 'resub' filesep 'inputs.mat'], ...
+            [pwd filesep 'release' filesep 'resub' filesep problems{p} '.mat']);
         % parse rubric
-        fid = fopen([pwd filesep 'release' filesep 'resubmission' filesep 'rubric.json'], 'rt');
+        fid = fopen([pwd filesep 'release' filesep 'resub' filesep 'resub.json'], 'rt');
         lines = char(fread(fid)');
         fclose(fid);
         json = jsondecode(lines);
@@ -333,7 +335,7 @@ function homeworkCompiler(clientId, clientSecret, clientKey)
         problemInfo(p).banned = json.banned;
         problemInfo(p).isRecursive = json.isRecursive;
         % delete rubric
-        delete([pwd filesep 'release' filesep 'resubmission' filesep 'rubric.json']);
+        delete([pwd filesep 'release' filesep 'resub' filesep 'resub.json']);
     end
     
     problemJson = struct('name', problems, ...
@@ -356,14 +358,14 @@ function homeworkCompiler(clientId, clientSecret, clientKey)
         problemJson(p) = json;
     end
     lines = jsonencode(problemJson);
-    fid = fopen([pwd filesep 'release' filesep 'resubmission' filesep 'rubric.json'], 'wt');
+    fid = fopen([pwd filesep 'release' filesep 'rubricb.json'], 'wt');
     fwrite(fid, lines);
     fclose(fid);
     
     %%% Verification
     % for each call, call it!
-    fprintf(1, 'Done\Verifying Resubmission...');
-    cd(['release' filesep 'resubmission']);
+    fprintf(1, 'Done\nVerifying Resubmission...');
+    cd(['release' filesep 'resub']);
     for p = 1:numel(problemInfo)
         for c = 1:numel(problemInfo(p).calls)
             try
