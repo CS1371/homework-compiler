@@ -402,7 +402,7 @@ classdef SubmissionType < handle
                 if ~all(mask)
                     editField.BackgroundColor = this.EDITFIELD_ERROR_COLOR;
                     badVarNames = ['"' strjoin(this.OutputBaseWords(~mask), '", "') '"'];
-                    uialert(SubmissionType.getParentFigure(editField), sprintf('Variable(s) %s are not valid', badVarNames), ...
+                    uialert(getParentFigure(editField), sprintf('Variable(s) %s are not valid', badVarNames), ...
                         'Error', 'Icon', 'error');
                     return;
                 end
@@ -420,7 +420,7 @@ classdef SubmissionType < handle
         function addSupportingFiles(this)
             listBox = this.SupportingFilesListBox;
             [filename, path] = uigetfile('*', 'Select supporting files', 'MultiSelect', 'on');
-            SubmissionType.makeVisible(SubmissionType.getParentFigure(listBox));
+            SubmissionType.makeVisible(getParentFigure(listBox));
             fullpath = fullfile(path, filename);
             if ~iscell(fullpath)
                 fullpath = {fullpath};
@@ -430,7 +430,7 @@ classdef SubmissionType < handle
             end
             if (ischar(filename) && ischar(path)) || (iscell(filename) && ischar(path))
                 if any(strcmp(fullpath, this.Problem.FunctionPath))
-                    uiconfirm(SubmissionType.getParentFigure(listBox), 'You can''t add the solution function as a supporting file!', ...
+                    uiconfirm(getParentFigure(listBox), 'You can''t add the solution function as a supporting file!', ...
                         'Error', 'Icon', 'error');
                     % delete the function file from the list of selected files
                     mask = strcmp(fullpath, this.Problem.FunctionPath);
