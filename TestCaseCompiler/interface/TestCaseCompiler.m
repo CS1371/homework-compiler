@@ -638,19 +638,40 @@ classdef TestCaseCompiler < matlab.apps.AppBase
             browser.Title.Text = 'Select the problem folder (i.e., "myProblem")';
             uiwait(browser.UIFigure);
             if isvalid(browser) && ~isempty(browser.selectedId)
-                % create local archive
+                p = uiprogressdlg(browser.UIFigure, ...
+                    'Message', 'Downloading...', ...
+                    'Title', 'Test Case Compiler', ...
+                    'Indeterminate', 'on', ...
+                    'Cancelable', 'off', ...
+                    'ShowPercentage', 'off');
                 tmp = browser.selectedId;
                 name = browser.selectedName;
+                % create local archive
+                % get parent (since that's where we're uploading...)
+                API = 'https://www.googleapis.com/drive/v3/files/';
+                opts = weboptions();
+                opts.HeaderFields = {'Authorization', ['Bearer ' accessToken]};
+                try
+                    contents = webread([API tmp '?fields=parents'], opts);
+                    parentId = contents.parents{1};
+                    % now get the name
+                    contents = webread([API parentId '?fields=name'], opts);
+                    parentName = contents.name;
+                catch reason
+                    e = MException('AUTOGRADER:networking:connectionError', ...
+                        'Connection was terminated (Are you connected to the internet?');
+                    e = e.addCause(reason);
+                    throw(e);
+                end
                 workFolder = tempname;
                 mkdir(workFolder);
                 cd(workFolder);
                 downloadFromDrive(tmp, accessToken, workFolder, app.clientKey);
                 app.loadFunction(fullfile(pwd, [name '.m']));
                 % set name in status bar
-                app.folderId = tmp;
-                app.folderName = name;
-                app.GoogleDriveEditField.Value = abbreviate(browser.selectedName, 20);
-                app.GoogleDriveEditField.BackgroundColor = app.GOOD_COLOR;
+                app.folderId = parentId;
+                app.folderName = parentName;
+                close(p);
             else
                 app.GoogleDriveEditField.Value = app.Layout.GoogleDriveEditField.Value;
                 app.GoogleDriveEditField.BackgroundColor = app.Layout.GoogleDriveEditField.BackgroundColor;

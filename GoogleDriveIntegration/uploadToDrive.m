@@ -119,26 +119,5 @@ function deleteFolder(id, token, key)
 end
 
 function newId = setupFolder(folderId, name, token, key)
-    % if we are uploading to release, always create new one
-    if strcmp(name, 'release')
-        newId = createFolder(folderId, name, token, key);
-    else
-        % otherwise, we need to die, create an empty clone
-        % inside our parent
-        % get parent
-        API = 'https://www.googleapis.com/drive/v3/files/';
-        opts = weboptions();
-        opts.HeaderFields = {'Authorization', ['Bearer ' token]};
-        try
-            contents = webread([API folderId '?fields=parents'], opts);
-        catch reason
-            e = MException('AUTOGRADER:networking:connectionError', ...
-                'Connection was terminated (Are you connected to the internet?');
-            e = e.addCause(reason);
-            throw(e);
-        end
-        % die
-        deleteFolder(folderId, token, key);
-        newId = createFolder(contents.parents{1}, name, token, key);
-    end
+    newId = createFolder(folderId, name, token, key);
 end
