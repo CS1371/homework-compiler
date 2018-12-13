@@ -647,6 +647,8 @@ classdef TestCaseCompiler < matlab.apps.AppBase
                 downloadFromDrive(tmp, accessToken, workFolder, app.clientKey);
                 app.loadFunction(fullfile(pwd, [name '.m']));
                 % set name in status bar
+                app.folderId = tmp;
+                app.folderName = name;
                 app.GoogleDriveEditField.Value = abbreviate(browser.selectedName, 20);
                 app.GoogleDriveEditField.BackgroundColor = app.GOOD_COLOR;
             else

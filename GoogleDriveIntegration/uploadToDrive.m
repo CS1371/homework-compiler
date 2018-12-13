@@ -119,20 +119,5 @@ function deleteFolder(id, token, key)
 end
 
 function newId = setupFolder(folderId, name, token, key)
-    API = 'https://www.googleapis.com/drive/v3/files/';
-    opts = weboptions();
-    opts.HeaderFields = {'Authorization', ['Bearer ' token]};
-    try
-        contents = webread(API, 'q', ['''' folderId ''' in parents and name = ''' name ''''], 'key', key, opts);
-    catch reason
-        e = MException('AUTOGRADER:networking:connectionError', ...
-            'Connection was terminated (Are you connected to the internet?');
-        e = e.addCause(reason);
-        throw(e);
-    end
-    if strcmp(name, 'release') || isempty(contents.files)
-        newId = createFolder(folderId, name, token, key);
-    else
-        newId = contents.files(1).id;
-    end
+    newId = createFolder(folderId, name, token, key);
 end
