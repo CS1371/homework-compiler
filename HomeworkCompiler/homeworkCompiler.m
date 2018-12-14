@@ -117,8 +117,18 @@ function homeworkCompiler(clientId, clientSecret, clientKey)
     %% Verification
     fprintf(1, 'Done\nVerifying Packages...');
     % Verify each package separately
+    % collect supporting file names
+    sups = cell(2, numel(problems));
     for p = 1:numel(problems)
         problemDir = [pwd filesep problems{p} filesep];
+        sups{1, p} = [dir(fullfile(problemDir, 'submission', 'supportingFiles')); ...
+            dir(fullfile(problemDir, 'resub', 'supportingFiles'))];
+        sups{2, p} = dir(fullfile(problemDir, 'student', 'supportingFiles'));
+        [~, inds, ~] = unique({sups{1, p}.name});
+        sups{1, p} = sups{1, p}(inds);
+        [~, inds, ~] = unique({sups{2, p}.name});
+        sups{2, p} = sups{2, p}(inds);
+        
         isCorrect = verify([problemDir problems{p} '.m'], ...
             [problemDir filesep 'submission']);
         isCorrect = isCorrect && verify([problemDir problems{p} '.m'], ...
@@ -130,7 +140,53 @@ function homeworkCompiler(clientId, clientSecret, clientKey)
                 'Problem %s failed verification', problems{p}));
         end
     end
+    % check that no supporting file is the same as problem name
+    % no valid 
+    probNames = cellstr(string(problems) + ".m");
+    if ~isDuplicated(vertcat(sups{1, :})) || ~isDuplicated(vertcat(sups{2, :}))
+        return;
+    end
     
+    function isValid = isDuplicated(sups)
+        sups([sups.isdir]) = [];
+        % get names
+        names = {sups.name};
+        [~, duplicateInds, ~] = unique(names);
+        duplicateInds = setdiff(1:numel(names), duplicateInds);
+        duplicates = unique(names(duplicateInds));
+        duplicates = sups(ismember(names, duplicates));
+        problemMask = ismember(probNames, names);
+        isValid = isempty(duplicates) && ~any(problemMask);
+        if ~isValid
+            fprintf(2, 'Failed. ');
+        end
+        if ~isempty(duplicates)
+            % die
+            [~, duplicateInds] = sort({duplicates.name});
+            duplicates = duplicates(duplicateInds);
+            duplicates = fullfile({duplicates.folder}, {duplicates.name});
+            % remove base path
+            ind = length(fileparts(fileparts(fileparts(fileparts(duplicates{1})))));
+            duplicates = extractAfter(duplicates, ind);
+            duplicates = strjoin(duplicates, '\n\t');
+            fprintf(2, 'The following files are duplicated:\n\t%s\n', duplicates);
+        end
+        
+        % check that no name is same as problems
+        if any(problemMask)
+            % die
+            problemMask = ismember(names, probNames);
+            duplicates = sups(problemMask);
+            [~, duplicateInds] = sort({duplicates.name});
+            duplicates = duplicates(duplicateInds);
+            duplicates = fullfile({duplicates.folder}, {duplicates.name});
+            % remove base path
+            ind = length(fileparts(fileparts(fileparts(fileparts(duplicates{1})))));
+            duplicates = extractAfter(duplicates, ind);
+            duplicates = strjoin(duplicates, '\n\t');
+            fprintf(2, 'The following files duplicate a homework problem:\n\t%s\n', duplicates);
+        end
+    end
     % all clear. Create release folder and compile
     mkdir('release');
     fprintf(1, 'Done\nCompiling Student...');
@@ -151,8 +207,10 @@ function homeworkCompiler(clientId, clientSecret, clientKey)
         delete([pwd filesep 'release' filesep 'student' filesep problems{p} '_soln.m']);
         
         % copy over supporting files
-        copyfile([problemDir 'student'], ...
-            [pwd filesep 'release' filesep 'student']);
+        if numel(dir(fullfile(problemDir, 'student', 'supportingFiles'))) > 2
+            copyfile(fullfile(problemDir, 'student', 'supportingFiles', '*'), ...
+                fullfile(pwd, 'release', 'student'));
+        end
         % rename mat file
         movefile([pwd filesep 'release' filesep 'student' filesep 'inputs.mat'], ...
             [pwd filesep 'release' filesep 'student' filesep problems{p} '.mat']);
@@ -216,6 +274,10 @@ function homeworkCompiler(clientId, clientSecret, clientKey)
             [pwd filesep 'release' filesep 'submission' filesep problems{p} '.m']);
         
         % copy over supporting files
+        if numel(dir(fullfile(problemDir, 'submission', 'supportingFiles'))) > 2
+            copyfile(fullfile(problemDir, 'submission', 'supportingFiles', '*'), ...
+                fullfile(pwd, 'release', 'SupportingFiles'));
+        end
         copyfile([problemDir 'submission'], ...
             [pwd filesep 'release' filesep 'submission']);
         supFiles = dir([problemDir 'submission']);
@@ -277,7 +339,7 @@ function homeworkCompiler(clientId, clientSecret, clientKey)
         problemJson(p) = json;
     end
     lines = jsonencode(problemJson);
-    fid = fopen([pwd filesep 'release' filesep 'rubrica.json'], 'wt');
+    fid = fopen([pwd filesep 'release' filesep 'submission.json'], 'wt');
     fwrite(fid, lines);
     fclose(fid);
     
@@ -358,7 +420,7 @@ function homeworkCompiler(clientId, clientSecret, clientKey)
         problemJson(p) = json;
     end
     lines = jsonencode(problemJson);
-    fid = fopen([pwd filesep 'release' filesep 'rubricb.json'], 'wt');
+    fid = fopen([pwd filesep 'release' filesep 'resub.json'], 'wt');
     fwrite(fid, lines);
     fclose(fid);
     
@@ -407,4 +469,3 @@ function runCall(call, loadFile)
     load(loadFile); %#ok<LOAD>
     evalc(call);
 end
-    
