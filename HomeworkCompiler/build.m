@@ -58,23 +58,7 @@ dependencies = [dir(thisDir);
 dependencies(strncmp({dependencies.name}, '.', 1)) = [];
 dependencies(strcmp({dependencies.name}, 'build.m')) = [];
 dependencies(endsWith({dependencies.name}, {'.asv', '.m~', '.prj', '.md'}, 'IgnoreCase', true)) = [];
-% save ID, Secret, Key
-ind = find(endsWith({dependencies.name}, '.token'), 1);
-fid = fopen(fullfile(dependencies(ind).folder, dependencies(ind).name), 'rt');
-lines = char(fread(fid)');
-fclose(fid);
-lines = strsplit(lines, newline);
-[clientId, clientSecret, clientKey] = deal(lines{1:3});
-
-dependencies(endsWith({dependencies.name}, '.token')) = [];
 dependencies([dependencies.isdir]) = [];
-
-newTokenPath = fullfile(buildDir, 'google.token');
-fid = fopen(newTokenPath, 'wt');
-fprintf(fid, '%s\n%s\n%s', clientId, clientSecret, clientKey);
-fclose(fid);
-
-dependencies(end+1) = dir(fullfile(buildDir, 'google.token'));
 
 for d = 1:numel(dependencies)
     dep = dependencies(d);
