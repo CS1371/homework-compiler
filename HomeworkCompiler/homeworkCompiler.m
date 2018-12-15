@@ -18,6 +18,34 @@
 % that all packages within the chosen Google Drive folder be of the
 % testCaseCompiler format. For more information on this format, look at the
 % documentation for testCaseCompiler
+%
+% The structure of the release folder will look like this:
+%
+% release
+%   assets
+%       student.zip
+%       submission.zip
+%       resubmission.zip
+%   student
+%       problemOne_soln.p
+%       problemOne.mat
+%       allSupportingFiles.*
+%   submission
+%       rubric.json
+%       Solutions
+%           problemOne.m
+%           ...
+%       SupportingFiles
+%           problemOne.mat
+%           ...
+%   resub
+%       rubric.json
+%       Solutions
+%           problemOne.m
+%           ...
+%       SupportingFiles
+%           problemOne.mat
+%           ...
 function homeworkCompiler(clientId, clientSecret, clientKey)
     % Add correct path
     fprintf(1, 'Setting up Path...');
@@ -118,16 +146,18 @@ function homeworkCompiler(clientId, clientSecret, clientKey)
     fprintf(1, 'Done\nVerifying Packages...');
     % Verify each package separately
     % collect supporting file names
-    sups = cell(2, numel(problems));
+    sups = cell(3, numel(problems));
     for p = 1:numel(problems)
         problemDir = [pwd filesep problems{p} filesep];
-        sups{1, p} = [dir(fullfile(problemDir, 'submission', 'supportingFiles')); ...
-            dir(fullfile(problemDir, 'resub', 'supportingFiles'))];
-        sups{2, p} = dir(fullfile(problemDir, 'student', 'supportingFiles'));
+        sups{1, p} = dir(fullfile(problemDir, 'submission', 'supportingFiles'));
+        sups{2, p} = dir(fullfile(problemDir, 'resub', 'supportingFiles'));
+        sups{3, p} = dir(fullfile(problemDir, 'student', 'supportingFiles'));
         [~, inds, ~] = unique({sups{1, p}.name});
         sups{1, p} = sups{1, p}(inds);
         [~, inds, ~] = unique({sups{2, p}.name});
         sups{2, p} = sups{2, p}(inds);
+        [~, inds, ~] = unique({sups{3, p}.name});
+        sups{3, p} = sups{3, p}(inds);
         
         isCorrect = verify([problemDir problems{p} '.m'], ...
             [problemDir filesep 'submission']);
@@ -143,7 +173,9 @@ function homeworkCompiler(clientId, clientSecret, clientKey)
     % check that no supporting file is the same as problem name
     % no valid 
     probNames = cellstr(string(problems) + ".m");
-    if ~isDuplicated(vertcat(sups{1, :})) || ~isDuplicated(vertcat(sups{2, :}))
+    if ~isDuplicated(vertcat(sups{1, :})) ...
+            || ~isDuplicated(vertcat(sups{2, :})) ...
+            || ~isDuplicated(vertcat(sups{3, :}))
         return;
     end
     
@@ -190,6 +222,7 @@ function homeworkCompiler(clientId, clientSecret, clientKey)
     % all clear. Create release folder and compile
     mkdir('release');
     fprintf(1, 'Done\nCompiling Student...');
+    
     %% Create Students
     mkdir(['release' filesep 'student']);
     % for each problem, compile student
@@ -208,22 +241,20 @@ function homeworkCompiler(clientId, clientSecret, clientKey)
         
         % copy over supporting files
         if numel(dir(fullfile(problemDir, 'student', 'supportingFiles'))) > 2
-            copyfile(fullfile(problemDir, 'student', 'supportingFiles', '*'), ...
+            movefile(fullfile(problemDir, 'student', 'supportingFiles', '*'), ...
                 fullfile(pwd, 'release', 'student'));
         end
         % rename mat file
-        movefile([pwd filesep 'release' filesep 'student' filesep 'inputs.mat'], ...
-            [pwd filesep 'release' filesep 'student' filesep problems{p} '.mat']);
+        movefile(fullfile(problemDir, 'student', 'inputs.mat'), ...
+            fullfile(pwd, 'release', 'student', [problems{p} '.mat']));
         % parse rubric
-        fid = fopen([pwd filesep 'release' filesep 'student' filesep 'student.json'], 'rt');
+        fid = fopen(fullfile(problemDir, 'student', 'student.json'), 'rt');
         lines = char(fread(fid)');
         fclose(fid);
         json = jsondecode(lines);
         problemInfo(p).calls = json.calls;
         problemInfo(p).banned = json.banned;
         problemInfo(p).isRecursive = json.isRecursive;
-        % delete rubric
-        delete([pwd filesep 'release' filesep 'student' filesep 'student.json']);
     end
     
     % create manifest for student
@@ -232,8 +263,10 @@ function homeworkCompiler(clientId, clientSecret, clientKey)
     fwrite(fid, lines);
     fclose(fid);
     % Copy over any PDFs
-    copyfile([pwd filesep '*.pdf'], ...
-        [pwd filesep 'release' filesep 'student' filesep]);
+    if ~isempty(dir([pwd filesep '*.pdf']))
+        copyfile([pwd filesep '*.pdf'], ...
+            fullfile(pwd, 'release', 'student'));
+    end
     % Copy over any orphan .m files (ABCs)
     if ~isempty(dir([pwd filesep '*.m']))
         copyfile([pwd filesep '*.m'], ...
@@ -253,7 +286,7 @@ function homeworkCompiler(clientId, clientSecret, clientKey)
             catch e
                 % die
                 throw(MException('ASSIGNMENTCOMPILER:verification:studentCallFailure', ...
-                    'Call "%s" failed with error "%s - %s"', problemInfo(p).calls{c}, ...
+                    'Call "%s" failed with error "%s - %s"', call, ...
                     e.identifier, e.message));
             end
         end
@@ -262,6 +295,8 @@ function homeworkCompiler(clientId, clientSecret, clientKey)
     %% Create Submission
     fprintf(1, 'Done\nCompiling Submission...');
     mkdir(['release' filesep 'submission']);
+    mkdir(fullfile(pwd, 'release', 'submission', 'SupportingFiles'));
+    mkdir(fullfile(pwd, 'release', 'submission', 'Solutions'));
     problemInfo = struct('name', problems, ...
         'calls', '', ...
         'banned', '', ...
@@ -271,34 +306,30 @@ function homeworkCompiler(clientId, clientSecret, clientKey)
         problemDir = [pwd filesep problems{p} filesep];
         % copy over soln file
         copyfile([problemDir problems{p} '.m'], ...
-            [pwd filesep 'release' filesep 'submission' filesep problems{p} '.m']);
+            fullfile(pwd, 'release', 'submission', 'Solutions', [problems{p} '.m']));
         
         % copy over supporting files
         if numel(dir(fullfile(problemDir, 'submission', 'supportingFiles'))) > 2
-            copyfile(fullfile(problemDir, 'submission', 'supportingFiles', '*'), ...
-                fullfile(pwd, 'release', 'SupportingFiles'));
+            movefile(fullfile(problemDir, 'submission', 'supportingFiles', '*'), ...
+                fullfile(pwd, 'release', 'submission', 'SupportingFiles'));
         end
-        copyfile([problemDir 'submission'], ...
-            [pwd filesep 'release' filesep 'submission']);
+        % copy over inputs.mat
+        movefile(fullfile(problemDir, 'submission', 'inputs.mat'), ...
+            fullfile(pwd, 'release', 'submission', 'SupportingFiles', [problems{p} '.mat']));
         supFiles = dir([problemDir 'submission']);
         supFiles([supFiles.isdir]) = [];
         supFiles(strncmp({supFiles.name}, '.', 1)) = [];
         supFiles(strcmp({supFiles.name}, 'submission.json')) = [];
         supFiles(strcmp({supFiles.name}, 'inputs.mat')) = [];
         problemInfo(p).supportingFiles = {supFiles.name};
-        % rename mat file
-        movefile([pwd filesep 'release' filesep 'submission' filesep 'inputs.mat'], ...
-            [pwd filesep 'release' filesep 'submission' filesep problems{p} '.mat']);
         % parse rubric
-        fid = fopen([pwd filesep 'release' filesep 'submission' filesep 'submission.json'], 'rt');
+        fid = fopen(fullfile(problemDir, 'submission', 'submission.json'), 'rt');
         lines = char(fread(fid)');
         fclose(fid);
         json = jsondecode(lines);
         problemInfo(p).calls = json.calls;
         problemInfo(p).banned = json.banned;
         problemInfo(p).isRecursive = json.isRecursive;
-        % delete rubric
-        delete([pwd filesep 'release' filesep 'submission' filesep 'submission.json']);
     end
     % Create overarching rubric
     %
@@ -339,7 +370,7 @@ function homeworkCompiler(clientId, clientSecret, clientKey)
         problemJson(p) = json;
     end
     lines = jsonencode(problemJson);
-    fid = fopen([pwd filesep 'release' filesep 'submission.json'], 'wt');
+    fid = fopen(fullfile(pwd, 'release', 'submission', 'rubric.json'), 'wt');
     fwrite(fid, lines);
     fclose(fid);
     
@@ -353,11 +384,14 @@ function homeworkCompiler(clientId, clientSecret, clientKey)
                 call = constructCall(problemInfo(p).name, ...
                     problemInfo(p).calls(c).ins, ...
                     problemInfo(p).calls(c).outs);
-                runCall(call, [problems{p} '.mat']);
+                matFile = fullfile(pwd, 'SupportingFiles', [problems{p} '.mat']);
+                cd('Solutions');
+                runCall(call, matFile);
+                cd('..');
             catch e
                 % die
                 throw(MException('ASSIGNMENTCOMPILER:verification:submissionCallFailure', ...
-                    'Call "%s" failed with error "%s - %s"', problemInfo(p).calls{c}, ...
+                    'Call "%s" failed with error "%s - %s"', call, ...
                     e.identifier, e.message));
             end
         end
@@ -366,6 +400,8 @@ function homeworkCompiler(clientId, clientSecret, clientKey)
     %% Create Resubmission
     fprintf(1, 'Done\nCompiling Resubmission...');
     mkdir(['release' filesep 'resub']);
+    mkdir(fullfile(pwd, 'release', 'resub', 'SupportingFiles'));
+    mkdir(fullfile(pwd, 'release', 'resub', 'Solutions'));
     problemInfo = struct('name', problems, ...
         'calls', '', ...
         'banned', '', ...
@@ -374,30 +410,30 @@ function homeworkCompiler(clientId, clientSecret, clientKey)
         problemDir = [pwd filesep problems{p} filesep];
         % copy over soln file
         copyfile([problemDir problems{p} '.m'], ...
-            [pwd filesep 'release' filesep 'resub' filesep problems{p} '.m']);
+            fullfile(pwd, 'release', 'resub', 'Solutions', [problems{p} '.m']));
         
         % copy over supporting files
-        copyfile([problemDir 'resub'], ...
-            [pwd filesep 'release' filesep 'resub']);
-        supFiles = dir([problemDir 'submission']);
+        if numel(dir(fullfile(problemDir, 'resub', 'supportingFiles'))) > 2
+            movefile(fullfile(problemDir, 'resub', 'supportingFiles'), ...
+                fullfile(pwd, 'release', 'resub', 'SupportingFiles'));
+        end
+        % copy over .mat file
+        movefile(fullfile(problemDir, 'resub', 'inputs.mat'), ...
+            fullfile(pwd, 'release', 'resub', 'SupportingFiles', [problems{p} '.mat']));
+        supFiles = dir([problemDir 'resub']);
         supFiles([supFiles.isdir]) = [];
         supFiles(strncmp({supFiles.name}, '.', 1)) = [];
         supFiles(strcmp({supFiles.name}, 'resub.json')) = [];
         supFiles(strcmp({supFiles.name}, 'inputs.mat')) = [];
         problemInfo(p).supportingFiles = {supFiles.name};
-        % rename mat file
-        movefile([pwd filesep 'release' filesep 'resub' filesep 'inputs.mat'], ...
-            [pwd filesep 'release' filesep 'resub' filesep problems{p} '.mat']);
         % parse rubric
-        fid = fopen([pwd filesep 'release' filesep 'resub' filesep 'resub.json'], 'rt');
+        fid = fopen(fullfile(problemDir, 'resub', 'resub.json'), 'rt');
         lines = char(fread(fid)');
         fclose(fid);
         json = jsondecode(lines);
         problemInfo(p).calls = json.calls;
         problemInfo(p).banned = json.banned;
         problemInfo(p).isRecursive = json.isRecursive;
-        % delete rubric
-        delete([pwd filesep 'release' filesep 'resub' filesep 'resub.json']);
     end
     
     problemJson = struct('name', problems, ...
@@ -420,7 +456,7 @@ function homeworkCompiler(clientId, clientSecret, clientKey)
         problemJson(p) = json;
     end
     lines = jsonencode(problemJson);
-    fid = fopen([pwd filesep 'release' filesep 'resub.json'], 'wt');
+    fid = fopen(fullfile(pwd, 'release', 'resub', 'rubric.json'), 'wt');
     fwrite(fid, lines);
     fclose(fid);
     
@@ -434,17 +470,29 @@ function homeworkCompiler(clientId, clientSecret, clientKey)
                 call = constructCall(problemInfo(p).name, ...
                     problemInfo(p).calls(c).ins, ...
                     problemInfo(p).calls(c).outs);
-                runCall(call, ...
-                    [problems{p} '.mat']);
+                matFile = fullfile(pwd, 'SupportingFiles', [problems{p} '.mat']);
+                cd('Solutions');
+                runCall(call, matFile);
+                cd('..');
             catch e
                 % die
                 throw(MException('ASSIGNMENTCOMPILER:verification:resubmissionCallFailure', ...
-                    'Call "%s" failed with error "%s - %s"', problemInfo(p).calls{c}, ...
+                    'Call "%s" failed with error "%s - %s"', call, ...
                     e.identifier, e.message));
             end
         end
     end
     cd(['..' filesep '..']);
+    %% Create Assets
+    fprintf(1, 'Done\nCreating Assets...');
+    mkdir(fullfile(pwd, 'release', 'assets'));
+    % create zips
+    zip(fullfile(pwd, 'release', 'assets', 'student.zip'), ...
+        fullfile(pwd, 'release', 'student', '*'));
+    zip(fullfile(pwd, 'release', 'assets', 'submission.zip'), ...
+        fullfile(pwd, 'release', 'submission', '*'));
+    zip(fullfile(pwd, 'release', 'assets', 'resub.zip'), ...
+        fullfile(pwd, 'release', 'resub', '*'));
     %% Upload to Drive
     fprintf(1, 'Done\nUploading...');
     uploadToDrive([pwd filesep 'release'], id, token, clientKey);
