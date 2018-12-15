@@ -286,7 +286,14 @@ classdef TestCase < handle
         % Adds the input value edit fields to the function preview.
         function addInputNameEditFields(this)
             value = this.ParentType.Problem.NumInputs;
-            CUSTOM_WIDTH = 8;
+            CUSTOM_WIDTH = 16;
+            DEFAULT_TESTCASE_NUM = 3;
+            TYPE_ABBREVIATIONS = struct('Student', ...
+                {{'student', 'stud'}}, ...
+                'Submission', ...
+                {{}}, ...
+                'Resubmission', ...
+                {{'resub', 'resubmission', 're', 'alt'}});
             % do separate things if auto or not
             % if auto, always out#
             % otherwise, length of each tb? -> 8 chars
@@ -319,6 +326,45 @@ classdef TestCase < handle
                 %                 app.inEdits.(subType) = cell(1, value);
                 %                 app.inCommas.(subType) = cell(1, value - 1);
                 posn = this.RightInputParen.Position;
+                % see if any patterns
+                vars = TestCase.getInputsFromWorkspace();
+                numArgs = value * DEFAULT_TESTCASE_NUM;
+                orders = detectPattern(vars, numArgs);
+                % if nothing, then isAuto = false
+                isAuto = ~isempty(orders);
+                if isAuto
+                    % create load
+                    % likeliest candidate is one with same num vars. If
+                    % multiple, then depends. look for type name (or abbr).
+                    % If all else fails, pick first.
+                    lens = cellfun(@length, orders);
+                    [lens, inds] = sort(lens);
+                    orders = orders(inds);
+                    if any(lens == numArgs)
+                        orders(lens ~= numArgs) = [];
+                    end
+                    % if still more than one, look for type name or abbr.
+                    if numel(orders) > 1
+                        abbr = TYPE_ABBREVIATIONS.(this.ParentType.Name);
+                        % see if any of them contain this
+                        possibleChains = cellfun(@(c)(c{1}), orders, 'uni', false);
+                        % we have representatives from all. See if contains
+                        % any of the possible
+                        mask = contains(possibleChains, abbr, 'IgnoreCase', true);
+                        if any(mask)
+                            orders = orders(mask);
+                        end
+                        
+                        defaultArgs = orders{1};
+                    else
+                        defaultArgs = orders{1};
+                    end
+                    % we have figured out what default args are. Extract
+                    % our own index
+                    startInd = ((this.Index - 1) * value) + 1;
+                    defaultArgs = defaultArgs(startInd:(startInd + value - 1));
+                end
+                % 
                 for e = 1:value
                     if e ~= 1
                         % add comma
@@ -336,16 +382,16 @@ classdef TestCase < handle
                     %                     tmp.Items = baseVars(~strcmp(baseVars, 'ans'));
                     baseVars = TestCase.getInputsFromWorkspace();
                     tmp.Items = baseVars;
-                    
                     if isempty(tmp.Items)
-                        % todo: warning or something here (no variables in
-                        % workspace)
-%                         uiwait(uialert(getParentFigure(this.Parent), 'You need variables in the workspace to use them in test cases.', ...
-%                             'No variables in workspace'));
+                        
+                    elseif isAuto
+                        tmp.Value = defaultArgs{e};
+                        this.InputNames{e} = tmp.Value;
                     else
                         tmp.Value = tmp.Items{mod(e - 1, length(tmp.Items)) + 1};
                         this.InputNames{e} = tmp.Value;
                     end
+                    
                     %                     tmp.ValueChangedFcn = createCallbackFcn(app, @(a, ev)(inputBaseWordEditFieldChanged(a, ev, subType, e)), true);
                     tmp.ValueChangedFcn = @(dropDown, ev)(this.updateInputsList(dropDown.Value, e));
                     % depending on where we are, different. Width = 8 chars

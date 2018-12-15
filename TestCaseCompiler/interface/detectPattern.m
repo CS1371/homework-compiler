@@ -5,6 +5,9 @@
 % P = detectPattern(V) uses variable names V to find patterns, which are
 % returned as a cell array of cell arrays in P.
 %
+% P = detectPattern(V, N) does the same as above, but only returns chains
+% that are at least N elements long
+%
 %%% Remarks
 %
 % detectPattern returns a cell array of cell arrays in case there is more
@@ -23,7 +26,10 @@
 % detectPattern matches regardless of how the number is formatted. However,
 % the formatting must be consistent - the number of leading zeros (if any)
 % must not change
-function ordered = detectPattern(vars)
+function ordered = detectPattern(vars, chainLength)
+    if nargin < 2
+        chainLength = 2;
+    end
     vars = unique(vars);
     
     % get rid of any variables that do not have number
@@ -50,7 +56,7 @@ function ordered = detectPattern(vars)
     for p = 1:numel(pairs)
         % see who in bases match
         mask = strcmp(pairs(p), bases);
-        if sum(mask) > 1
+        if sum(mask) >= chainLength
             % possible list. We need to make sure that the counters match
             counters = counter(mask);
             if all(ismember(1:sum(mask), counters))
