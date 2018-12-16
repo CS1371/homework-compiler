@@ -27,7 +27,7 @@ function build(version)
 % 5. Move mlapp
 % 6. Delete temp
 
-fprintf(1, '[%s] Starting Build\n', datetime);
+fprintf(1, '[%s] Starting Homework Compiler Build\n', datetime);
 
 %% Copy
 fprintf(1, '[%s] Copying Dependencies...', datetime);
@@ -130,70 +130,77 @@ end
 </build-deliverables>
 %}
 fprintf(1, '[%s] Configuring build...', datetime);
-% Read in with xmlread
-doc = xmlread(fullfile(thisDir, 'HomeworkCompiler.prj'));
+try
+    % Read in with xmlread
+    doc = xmlread(fullfile(thisDir, 'HomeworkCompiler.prj'));
 
-%%% configuration
-config = doc.getElementsByTagName('configuration').item(0);
-config.setAttribute('file', fullfile(workDir, 'HomeworkCompiler.prj'));
-config.setAttribute('location', workDir);
+    %%% configuration
+    config = doc.getElementsByTagName('configuration').item(0);
+    config.setAttribute('file', fullfile(workDir, 'HomeworkCompiler.prj'));
+    config.setAttribute('location', workDir);
 
-%%% icon
-icon = doc.getElementsByTagName('param.icon').item(0);
-icon.setTextContent(fullfile(workDir, 'logo_24.png'));
+    %%% icon
+    icon = doc.getElementsByTagName('param.icon').item(0);
+    icon.setTextContent(fullfile(workDir, 'logo_24.png'));
 
-%%% icons
-icons = doc.getElementsByTagName('param.icons').item(0);
-icons = icons.getElementsByTagName('file');
-icons.item(0).setTextContent(fullfile(workDir, 'logo_48.png'));
-icons.item(1).setTextContent(fullfile(workDir, 'logo_24.png'));
-icons.item(2).setTextContent(fullfile(workDir, 'logo_16.png'));
+    %%% icons
+    icons = doc.getElementsByTagName('param.icons').item(0);
+    icons = icons.getElementsByTagName('file');
+    icons.item(0).setTextContent(fullfile(workDir, 'logo_48.png'));
+    icons.item(1).setTextContent(fullfile(workDir, 'logo_24.png'));
+    icons.item(2).setTextContent(fullfile(workDir, 'logo_16.png'));
 
-%%% screenshot
-screen = doc.getElementsByTagName('param.screenshot').item(0);
-screen.setTextContent(fullfile(workDir, 'screenshot.png'));
+    %%% output
+    output = doc.getElementsByTagName('param.output').item(0);
+    output.setTextContent(buildDir);
 
-%%% output
-output = doc.getElementsByTagName('param.output').item(0);
-output.setTextContent(buildDir);
+    %%% main
+    main = doc.getElementsByTagName('fileset.main').item(0);
+    main = main.getElementsByTagName('file').item(0);
+    main.setTextContent(fullfile(workDir, 'homeworkCompiler.m'));
 
-%%% main
-main = doc.getElementsByTagName('fileset.main').item(0);
-main = main.getElementsByTagName('file').item(0);
-main.setTextContent(fullfile(workDir, 'homeworkCompiler.m'));
+    %%% depfuns
+    depfun = doc.getElementsByTagName('fileset.depfun').item(0);
+    for i = 1:depfun.getLength
+        depfun.removeChild(depfun.getFirstChild);
+    end
 
-%%% depfuns
-depfun = doc.getElementsByTagName('fileset.depfun').item(0);
-for i = 1:depfun.getLength
-    depfun.removeChild(depfun.getFirstChild);
+    % for each dep, add full path
+    for d = 1:numel(dependencies)
+        dep = dependencies(d);
+        file = doc.createElement('file');
+        file.setTextContent(fullfile(workDir, dep.name));
+        depfun.appendChild(file);
+    end
+
+    %%% build deliverables
+    devs = doc.getElementsByTagName('build-deliverables').item(0);
+    file = devs.getElementsByTagName('file').item(0);
+    file.setAttribute('location', fileparts(buildDir));
+    file.setAttribute('name', 'build');
+    file.setTextContent(buildDir);
+    xmlwrite(fullfile(workDir, 'HomeworkCompiler.prj'), doc);
+catch e
+    fprintf(2, 'Failed. Encountered exception:\n\t%s: %s\n', ...
+        e.identifier, e.message);
+    return;
 end
-
-% for each dep, add full path
-for d = 1:numel(dependencies)
-    dep = dependencies(d);
-    file = doc.createElement('file');
-    file.setTextContent(fullfile(workDir, dep.name));
-    depfun.appendChild(file);
-end
-
-%%% build deliverables
-devs = doc.getElementsByTagName('build-deliverables').item(0);
-file = devs.getElementsByTagName('file').item(0);
-file.setAttribute('location', fileparts(buildDir));
-file.setAttribute('name', 'build');
-file.setTextContent(buildDir);
-xmlwrite(fullfile(workDir, 'HomeworkCompiler.prj'), doc);
-% write to 
 fprintf(1, 'Done\n');
 
 
 %% Package MLAPP
 fprintf(1, '[%s] Creating installer...', datetime);
-matlab.apputil.package(fullfile(workDir, 'HomeworkCompiler.prj'));
-movefile(fullfile(workDir, 'Homework Compiler.mlappinstall'), buildDir);
+try
+    matlab.apputil.package(fullfile(workDir, 'HomeworkCompiler.prj'));
+    movefile(fullfile(workDir, 'Homework Compiler.mlappinstall'), buildDir);
+catch e
+    fprintf(2, 'Failed. Encountered exception:\n\t%s: %s\n', ...
+        e.identifier, e.message);
+    return;
+end
 fprintf(1, 'Done\n');
 %% Done
-fprintf(1, '[%s] Finished Build\n', datetime);
+fprintf(1, '[%s] Finished Homework Compiler Build\n', datetime);
 end
 
 function cleaner(safe, work)
