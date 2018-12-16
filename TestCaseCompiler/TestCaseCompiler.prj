@@ -10,8 +10,8 @@
       <file>${PROJECT_ROOT}/Test Case Compiler_resources/icon_24.png</file>
       <file>${PROJECT_ROOT}/Test Case Compiler_resources/icon_16.png</file>
     </param.icons>
-    <param.summary>I am a summary</param.summary>
-    <param.description>I am a description</param.description>
+    <param.summary>Compile a single Problem</param.summary>
+    <param.description>The Test Case Compiler compiles together solutions, test case arguments, supporting files, and other information into a single Test Case Package, which can then be uploaded to Google Drive to work with the Homework Compiler</param.description>
     <param.screenshot />
     <param.version>1.0</param.version>
     <param.products.name>
