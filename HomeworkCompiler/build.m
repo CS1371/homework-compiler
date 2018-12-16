@@ -96,9 +96,9 @@ if nargin == 1
     if version(1) == 'v'
         version(1) = [];
     end
-    doc = xmlread(fullfile(thisDir, 'TestCaseCompiler.prj'));
+    doc = xmlread(fullfile(thisDir, 'HomeworkCompiler.prj'));
     doc.getElementsByTagName('param.version').item(0).setTextContent(version);
-    xmlwrite(fullfile(thisDir, 'TestCaseCompiler.prj'), doc);
+    xmlwrite(fullfile(thisDir, 'HomeworkCompiler.prj'), doc);
     fprintf(1, 'Done\n');
 end
 %% Configure MLAPP
@@ -140,22 +140,14 @@ config.setAttribute('location', workDir);
 
 %%% icon
 icon = doc.getElementsByTagName('param.icon').item(0);
-icon.setTextContent(fullfile(workDir, 'logo24.png'));
+icon.setTextContent(fullfile(workDir, 'logo_24.png'));
 
 %%% icons
 icons = doc.getElementsByTagName('param.icons').item(0);
-
-file = doc.createElement('file');
-file.setTextContent(fullfile(workDir, 'logo48.png'));
-icons.appendChild(file);
-
-file = doc.createElement('file');
-file.setTextContent(fullfile(workDir, 'logo24.png'));
-icons.appendChild(file);
-
-file = doc.createElement('file');
-file.setTextContent(fullfile(workDir, 'logo16.png'));
-icons.appendChild(file);
+icons = icons.getElementsByTagName('file');
+icons.item(0).setTextContent(fullfile(workDir, 'logo_48.png'));
+icons.item(1).setTextContent(fullfile(workDir, 'logo_24.png'));
+icons.item(2).setTextContent(fullfile(workDir, 'logo_16.png'));
 
 %%% screenshot
 screen = doc.getElementsByTagName('param.screenshot').item(0);
