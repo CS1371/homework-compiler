@@ -30,16 +30,15 @@ function ordered = detectPattern(vars, chainLength)
     if nargin < 2
         chainLength = 2;
     end
-    if isempty(vars)
-        ordered = {};
-        return;
-    end
     vars = unique(vars);
     
     % get rid of any variables that do not have number
     mask = ~cellfun(@isempty, regexp(vars, '\d'));
     vars = vars(mask);
-    
+    if isempty(vars)
+        ordered = {};
+        return;
+    end
     % Break all variables into pattern:
     %   PREFIX ## SUFFIX
     tokens = regexp(vars, '(\w+)(\d)(\w*)', 'tokens');
