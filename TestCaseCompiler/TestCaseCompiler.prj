@@ -18,7 +18,7 @@
       <param.summary>Compile a single Problem</param.summary>
       <param.description>The Test Case Compiler compiles together solutions, test case arguments, supporting files, and other information into a single Test Case Package, which can then be uploaded to Google Drive to work with the Homework Compiler</param.description>
       <param.screenshot/>
-      <param.version>1.0.0</param.version>
+      <param.version>1.0.1</param.version>
       <param.products.name>
          <item>MATLAB</item>
       </param.products.name>
