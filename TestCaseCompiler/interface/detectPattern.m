@@ -30,6 +30,10 @@ function ordered = detectPattern(vars, chainLength)
     if nargin < 2
         chainLength = 2;
     end
+    if isempty(vars)
+        ordered = {};
+        return;
+    end
     vars = unique(vars);
     
     % get rid of any variables that do not have number
