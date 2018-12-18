@@ -49,7 +49,7 @@
 function homeworkCompiler(clientId, clientSecret, clientKey)
     % Add correct path
     fprintf(1, 'Setting up Path...');
-    addpath(pwd);
+    addpath(fileparts(mfilename('fullpath')));
     % Steps:
     % 
     % 1. Ask for Google Drive Folder

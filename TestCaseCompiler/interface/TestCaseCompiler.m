@@ -345,7 +345,7 @@ classdef TestCaseCompiler < matlab.apps.AppBase
         
         % Code that executes after component creation
         function startupFcn(app)
-            addpath(genpath(fileparts(fileparts(mfilename('fullpath')))));
+            addpath(genpath(fileparts(mfilename('fullpath'))));
             %             cleanUp = onCleanup(@()(cd(pwd)));
             
             % certain fields should start out being disabled before a function is entered
