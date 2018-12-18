@@ -206,7 +206,9 @@ function funcWrapper(toRun, inp)
     for i = 1:length(inp)
         load(inp{i});
     end
-    eval(toRun);
+    f = figure('Visible', 'off');
+    evalc(toRun);
+    close(f);
     afterFiles = dir();
     afterFiles = {afterFiles.name};
     

@@ -515,5 +515,7 @@ end
 
 function runCall(call, loadFile)
     load(loadFile); %#ok<LOAD>
+    f = figure('Visible', 'off');
     evalc(call);
+    close(f);
 end

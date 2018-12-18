@@ -483,13 +483,10 @@ classdef TestCase < handle
             
             % build the function call
             if ~isempty(this.InputNames)
-                call = sprintf('%s(%s);', fnName, strjoin(this.InputNames, ','));
-
-                % eval
-    %             evalin('base', call);
-
+                call = sprintf('%s(%s);', fnName, strjoin(this.InputNames, ',')); %#ok<NASGU>
+                f = figure('Visible', 'off');
                 try
-                    evalin('base', call);
+                    evalc('evalin(''base'', call);');
 
                     % if it worked, then great
     %                 this.Tab.Title = strrep(this.Tab.Title, TestCaseCompiler_Layout.ERROR_ICON, '');
@@ -504,6 +501,7 @@ classdef TestCase < handle
                     this.IsErrored = true;
                     result = false;
                 end
+                close(f);
             else
                 result = false;
             end
