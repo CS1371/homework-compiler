@@ -1013,6 +1013,7 @@ classdef TestCaseCompiler < matlab.apps.AppBase
             
             function DriveOutputClearButtonPressed(~, ~)
                 app.folderId = '';
+                app.folderName = '';
             end
             
             function LocalOutputClearButtonPressed(~, ~)
