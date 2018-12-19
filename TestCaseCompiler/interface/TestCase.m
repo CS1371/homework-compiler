@@ -288,12 +288,6 @@ classdef TestCase < handle
             value = this.ParentType.Problem.NumInputs;
             CUSTOM_WIDTH = 16;
             DEFAULT_TESTCASE_NUM = 3;
-            TYPE_ABBREVIATIONS = struct('Student', ...
-                {{'student', 'stud'}}, ...
-                'Submission', ...
-                {{}}, ...
-                'Resubmission', ...
-                {{'resub', 'resubmission', 're', 'alt'}});
             % do separate things if auto or not
             % if auto, always out#
             % otherwise, length of each tb? -> 8 chars
@@ -337,23 +331,82 @@ classdef TestCase < handle
                     % likeliest candidate is one with same num vars. If
                     % multiple, then depends. look for type name (or abbr).
                     % If all else fails, pick first.
+                    % if still more than one, look for type name or abbr.
+                    if numel(orders) > 1
+                        % see if any of them contain this
+                        possibleChains = cellfun(@(c)(c{1}), orders, 'uni', false);
+                        % we have representatives from all. See if contains
+                        % any of the possible
+                        % this gets... tricky. For resubmission, it contain
+                        % any of the following:
+                        %   resub, resubmission, re, alt, _b
+                        % For submission, it contains any of the following:
+                        %   sub, submission, _a
+                        % For student, this is going to be the default, so
+                        % it might not even HAVE anything useful. However,
+                        % look for the following:
+                        %   stud, student
+                        %
+                        % Here's where it gets tricky. Suppose we have the
+                        % following order:
+                        %   in1_submission, ...
+                        %   in1_resubmission, ...
+                        %
+                        % obviously, in1_submission -> sub,
+                        % in1_resubmission -> resub. However, sub is in
+                        % resubmission, and so is submission! the word is
+                        % contained within the word - theoretically,
+                        % in1_resubmission could be in1_re + submission, or
+                        % in1_ + resubmission
+                        %
+                        % to a human, this is obviously resubmission. So
+                        % what's the rule behind it?
+                        %
+                        % So we have to care what we're looking at. If we
+                        % are looking at the word "submission", we want to
+                        % make sure it doesn't ALSO say "resubmission"
+                        %
+                        % If we are in resubmission, look for resub,
+                        % resubmission, re, alt, _b.
+                        if strcmp(this.ParentType.Name, 'Resubmission')
+                            % look for:
+                            %   resub
+                            %
+                            % We don't need to worry about containment here
+                            % - resub won't be inside!
+                            mask = contains(possibleChains, 'resub', 'IgnoreCase', true);
+                        elseif strcmp(this.ParentType.Name, 'Submission')
+                            % look for:
+                            %   sub, orig.
+                            %
+                            % We DO need to worry about containment here.
+                            % If we find submission, make sure we ALSO
+                            % don't find resubmission!
+                            mask = contains(possibleChains, {'sub', 'orig'}, 'IgnoreCase', true);
+                            % for original and orig, who cares. For
+                            % submission, make sure we don't find
+                            % resubmission. Because sub is in submission,
+                            % and resub is in resubmission, as long as we
+                            % don't find resub, good to go.
+                            mask = mask & ~contains(possibleChains, 'resub', 'IgnoreCase', true);
+                        else
+                            % look for:
+                            %   stud, student
+                            % don't' need to worry about containment!
+                            mask = contains(possibleChains, 'stud', 'IgnoreCase', true);
+                        end
+                        if any(mask)
+                            orders = orders(mask);
+                        end
+                        
+                    % if we still have more, then only save any with
+                    % exact same # of args
                     lens = cellfun(@length, orders);
                     [lens, inds] = sort(lens);
                     orders = orders(inds);
                     if any(lens == numArgs)
                         orders(lens ~= numArgs) = [];
                     end
-                    % if still more than one, look for type name or abbr.
-                    if numel(orders) > 1
-                        abbr = TYPE_ABBREVIATIONS.(this.ParentType.Name);
-                        % see if any of them contain this
-                        possibleChains = cellfun(@(c)(c{1}), orders, 'uni', false);
-                        % we have representatives from all. See if contains
-                        % any of the possible
-                        mask = contains(possibleChains, abbr, 'IgnoreCase', true);
-                        if any(mask)
-                            orders = orders(mask);
-                        end
                         
                         defaultArgs = orders{1};
                     else
