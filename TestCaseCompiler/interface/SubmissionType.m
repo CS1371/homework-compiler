@@ -89,17 +89,19 @@ classdef SubmissionType < handle
         % allowed submission type names. If it is not, a
         % TESTCASE:SubmissionType:ctor:invalidSubmissionType exception is
         % thrown.
-        function this = SubmissionType(name, parent, parentTabGroup)
+        function this = SubmissionType(name, parent, parentTabGroup, outBase)
+            if nargin < 4
+                outBase = {'out'};
+            end
             this.Name = name;
             this.Problem = parent;
             %             this.tabGroup = testCaseTabGroup;
             %             delete(parentTabGroup.Children);
             
             % default base word is 'out'
-            defaultWord = 'out';
             if this.Problem.NumOutputs <= 1
-                this.OutputBaseWords = {defaultWord};
-            else
+                this.OutputBaseWords = outBase;
+            elseif this.Problem.NumOutputs > 1 && numel(outBase) == 1
                 this.OutputBaseWords = cell(1, this.Problem.NumOutputs);
                 for i = 1:this.Problem.NumOutputs
                     % FIX: this assumes that there won't be any problems
@@ -108,12 +110,15 @@ classdef SubmissionType < handle
                     % not going to account for an arbitrary number of
                     % outputs. If anyone has to fix this then you can go fuck
                     % yourself.
-                    this.OutputBaseWords{i} = [defaultWord, char('A' + i - 1)];
+                    this.OutputBaseWords{i} = [outBase{1}, char('A' + i - 1)];
                 end
+            else
+                % we have correct outs; just assign
+                this.OutputBaseWords = outBase;
             end
 
 
-            this.createSubmissionTab(parentTabGroup, parent.Layout);
+            this.createSubmissionTab(parentTabGroup, parent.Layout, strjoin(outBase, ', '));
 
             % create the default number of test case tabs
             for i = 1:this.MIN_NUM_TEST_CASES
@@ -172,7 +177,10 @@ classdef SubmissionType < handle
         % words, and add/remove buttons).
         %
         % Everything is created blank.
-        function createSubmissionTab(this, parentTabGroup, layout)
+        function createSubmissionTab(this, parentTabGroup, layout, outBase)
+            if nargin < 4
+                outBase = '';
+            end
             % Create the tab
             this.createTab(parentTabGroup);
             
@@ -180,7 +188,7 @@ classdef SubmissionType < handle
             this.createSupportingFilesPanel(layout, {});
                                     
             % Create OutputBaseWordsPanel
-            this.createOutputBaseWordsPanel(layout, '');
+            this.createOutputBaseWordsPanel(layout, outBase);
             
             % Create SubmissionValuesTabGroup
             this.createSubmissionValuesTabGroup(layout);

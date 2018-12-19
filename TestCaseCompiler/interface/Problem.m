@@ -53,11 +53,24 @@ classdef Problem < handle
             
             % set the layout
             this.Layout = layout;
+            
+            % read in code
+            info = mtree(funcPath, '-file');
+            
+            % get output name(s) to get default
+            out = info.Outs;
+            outs = cell(1, nargout(funcPath));
+            ind = 1;
+            while ~out.isnull
+                outs{ind} = char(out.stringval);
+                ind = ind + 1;
+                out = out.Next;
+            end
 
             % add the submission type objects
-            this.addSubmissionType('Student', rubricTabGroup);
-            this.addSubmissionType('Submission', rubricTabGroup);
-            this.addSubmissionType('Resubmission', rubricTabGroup);
+            this.addSubmissionType('Student', rubricTabGroup, outs);
+            this.addSubmissionType('Submission', rubricTabGroup, outs);
+            this.addSubmissionType('Resubmission', rubricTabGroup, outs);
 
             this.SelectedSubmission = this.SubmissionTypes(1);
 
@@ -171,8 +184,8 @@ classdef Problem < handle
         
         %% addSubmissionType Add a submission type to this problem
         %
-        function addSubmissionType(this, name, parentTabGroup)
-            this.SubmissionTypes = [this.SubmissionTypes, SubmissionType(name, this, parentTabGroup)];
+        function addSubmissionType(this, name, parentTabGroup, outBase)
+            this.SubmissionTypes = [this.SubmissionTypes, SubmissionType(name, this, parentTabGroup, outBase)];
         end
         
         
