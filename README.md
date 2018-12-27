@@ -10,11 +10,11 @@ MATLAB R2018 or higher is strongly recommended. Versions of R2017 have seen appa
 
 ### Test Case Compiler
 
-Run `build.m` in the Test Case Compiler directory. Once it finishes, double-click the resulting `.mlapp` file to install the Test Case Compiler as a MATLAB app. It should then show up in the apps list and be runnable from there.
+Run `build.m` in the Test Case Compiler directory. Once it finishes, double-click the resulting `.mlappintall` file to install the Test Case Compiler as a MATLAB app. It should then show up in the apps list and be runnable from there.
 
 ### Homework Compiler
 
-Run `build.m` in the Homework Compiler directory. Double-click the resulting `.mlapp` file and run from the app toolbar.
+Run `build.m` in the Homework Compiler directory. Double-click the resulting `.mlappinstall` file and run from the app toolbar.
 
 ## Usage
 
