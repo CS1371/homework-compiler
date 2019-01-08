@@ -23,15 +23,6 @@ classdef ProblemChooser < matlab.apps.AppBase
         Names
     end
 
-    methods (Static)
-    
-        function func(check, ~, app, ind)
-            app.Points(ind).Visible = check.Value;
-            % app.Points(ind).Visible = en;
-        end
-        
-    end
-
 
     methods (Access = private)
 
@@ -41,20 +32,27 @@ classdef ProblemChooser < matlab.apps.AppBase
             app.Problems.ItemsData = 1:numel(problemNames);
             y = 230;
             problemNames = problemNames(end:-1:1);
+            dist = floor(100 / numel(problemNames));
+            extra = mod(100, numel(problemNames));
             % for each problem, create check box and corresponding edit field
             for p = numel(problemNames):-1:1
+                if p == 1
+                    val = dist + extra;
+                else
+                    val = dist;
+                end
                 % Create Name, Check box, Point box
                 names(p) = uilabel(app.UIFigure, 'FontName', 'Courier New', ...
                     'Position', [18 y 125 25], 'Text', problemNames{p}, ...
                     'Parent', app.PointDistributionPanel);
                 checks(p) = uicheckbox(app.UIFigure, ...
                     'Position', [150 y 100 25], 'Value', false, ...
-                    'Text', 'Extra Credit?', 'Parent', app.PointDistributionPanel, ...
-                    'ValueChangedFcn', {@ProblemChooser.func, app, numel(problemNames) - p + 1});
+                    'Text', 'Extra Credit?', 'Parent', app.PointDistributionPanel);
                 points(p) = uieditfield(app.UIFigure, 'numeric', ...
                     'FontName', 'Courier New', 'Position', [300 y 81 25], ...
-                    'Parent', app.PointDistributionPanel, 'Visible', 'off', ...
-                    'LowerLimitInclusive', 'on', 'Limits', [0 Inf]);
+                    'Parent', app.PointDistributionPanel, 'Visible', 'on', ...
+                    'LowerLimitInclusive', 'on', 'Limits', [0 Inf], ...
+                    'Value', val);
                 y = y - 30;
             end
             names = names(end:-1:1);
@@ -91,8 +89,6 @@ classdef ProblemChooser < matlab.apps.AppBase
                 tmp = app.Checks(ind);
                 app.Checks(ind) = app.Checks(ind-1);
                 app.Checks(ind-1) = tmp;
-                app.Checks(ind).ValueChangedFcn = {@ProblemChooser.func, app, ind};
-                app.Checks(ind-1).ValueChangedFcn = {@ProblemChooser.func, app, ind-1};
                 
                 tmpPosn = app.Checks(ind).Position;
                 app.Checks(ind).Position = app.Checks(ind-1).Position;
@@ -158,6 +154,20 @@ classdef ProblemChooser < matlab.apps.AppBase
         function ConfirmPushed(app, ~)
             if isempty(app.Topic.Value)
                 app.Topic.BackgroundColor = [.95 .75 .75];
+                return;
+            end
+            
+            % Check points
+            % for each one, look at point value, if not extra credit. It
+            % should add up to exactly 100%.
+            
+            inds = [app.Checks.Value];
+            pts = app.Points(~inds);
+            if sum([pts.Value]) ~= 100
+                uialert(app.UIFigure, ...
+                    sprintf('Regular (not EC) points should sum to 100 - currently, they sum to %d', ...
+                    sum([pts.Value])), ...
+                    'Homework Compiler');
                 return;
             end
             uiresume(app.UIFigure);
