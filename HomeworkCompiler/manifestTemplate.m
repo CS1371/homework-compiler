@@ -30,7 +30,7 @@
 % * load
 % * figure
 % * imshow
-% * imread
+% * image
 %
 %% Files to Submit
 % 
