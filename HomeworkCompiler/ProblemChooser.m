@@ -13,7 +13,7 @@ classdef ProblemChooser < matlab.apps.AppBase
         AssignmentTopicEditFieldLabel  matlab.ui.control.Label
         Topic                          matlab.ui.control.EditField
         PointDistributionPanel         matlab.ui.container.Panel
-        Cance                          matlab.ui.control.Button
+        Cancel                         matlab.ui.control.Button
     end
 
 
@@ -163,8 +163,8 @@ classdef ProblemChooser < matlab.apps.AppBase
             uiresume(app.UIFigure);
         end
 
-        % Button pushed function: Cance
-        function CanceButtonPushed(app, ~)
+        % Button pushed function: Cancel
+        function CancelButtonPushed(app, ~)
             close(app.UIFigure);
         end
     end
@@ -244,13 +244,13 @@ classdef ProblemChooser < matlab.apps.AppBase
             app.PointDistributionPanel.Position = [348 98 413 303];
 
             % Create Cance
-            app.Cance = uibutton(app.UIFigure, 'push');
-            app.Cance.ButtonPushedFcn = createCallbackFcn(app, @CanceButtonPushed, true);
-            app.Cance.BackgroundColor = [0.6392 0.0784 0.1804];
-            app.Cance.FontSize = 24;
-            app.Cance.FontColor = [1 1 1];
-            app.Cance.Position = [431 17 130 66];
-            app.Cance.Text = 'Cancel';
+            app.Cancel = uibutton(app.UIFigure, 'push');
+            app.Cancel.ButtonPushedFcn = createCallbackFcn(app, @CancelButtonPushed, true);
+            app.Cancel.BackgroundColor = [0.6392 0.0784 0.1804];
+            app.Cancel.FontSize = 24;
+            app.Cancel.FontColor = [1 1 1];
+            app.Cancel.Position = [431 17 130 66];
+            app.Cancel.Text = 'Cancel';
         end
     end
 
