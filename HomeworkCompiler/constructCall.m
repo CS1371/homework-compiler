@@ -4,5 +4,5 @@
 % Outputs O into function call F.
 %
 function call = constructCall(name, ins, outs)
-    call = ['[' strjoin(outs, ', ') '] = ' name '(' strjoin(ins, ', ') ');'];
+    call = ['[' strjoin(outs, ', ') '] = ' name '(' strjoin(ins, ', ') ')'];
 end
