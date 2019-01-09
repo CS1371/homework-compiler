@@ -21,5 +21,5 @@ function solnCall = orig2soln(studCall)
         outs = strsplit(outs, ', ');
         outs = [strjoin(outs, '_soln, ') '_soln'];
     end
-    solnCall = ['[' outs '] = ' call '(' ins ')'];
+    solnCall = ['[' outs '] = ' call '_soln(' ins ')'];
 end
