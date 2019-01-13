@@ -19,8 +19,8 @@ function lines = createManifest(num, topic, problems)
     fclose(fid);
     lines = strrep(lines, '<<NUM>>', sprintf('%02d', num));
     lines = strrep(lines, '<<TOPIC>>', topic);
-    
-    filesToSubmit = ['% - ' strjoin({problems.name}, '.m\n% - ') '.m'];
+    firstFile = sprintf('hw%02d', num);
+    filesToSubmit = ['% - ' strjoin([{firstFile} {problems.name}], '.m\n% - ') '.m'];
     lines = strrep(lines, '% <<PROBLEMS>>', filesToSubmit);
     
     % create test cases
@@ -38,7 +38,7 @@ function lines = createManifest(num, topic, problems)
     testCases = cell(1, numel(problems));
     for p = 1:numel(problems)
         probStatement = cell(1, 5 + (3 * numel(problems(p).calls)));
-        probStatement{1} = ['%%% ' problems(p).name];
+        probStatement{1} = ['%% ' problems(p).name];
         probStatement{2} = '%';
         probStatement{3} = ['%    load(''' problems(p).name '.mat'');'];
         probStatement{4} = '%';
