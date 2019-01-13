@@ -129,6 +129,7 @@ function homeworkCompiler(clientId, clientSecret, clientKey)
     flds(~[flds.isdir]) = [];
     flds(strncmp({flds.name}, '.', 1)) = [];
     flds(strcmp({flds.name}, 'release')) = [];
+    flds(strncmpi({flds.name}, 'abc', 3)) = [];
     % flds are folders that are actually packages; names are those
     problems = {flds.name};
     chooser = ProblemChooser(problems);
@@ -268,8 +269,8 @@ function homeworkCompiler(clientId, clientSecret, clientKey)
             fullfile(pwd, 'release', 'student'));
     end
     % Copy over any orphan .m files (ABCs)
-    if ~isempty(dir([pwd filesep '*.m']))
-        copyfile([pwd filesep '*.m'], ...
+    if ~isempty(dir([pwd filesep 'abcs']))
+        copyfile([pwd filesep 'abcs' filesep '*'], ...
             [pwd filesep 'release' filesep 'student' filesep]);
     end
     
