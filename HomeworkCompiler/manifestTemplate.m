@@ -17,8 +17,8 @@
 %
 % In general, you are allowed to use any function you see fit. However, 
 % there are a few functions you are NOT allowed to ever use. Additionally, 
-% specific homework files may specify that you cannot use a certain
-% function. Code that uses any of these functions will automatically 
+% specific homework problems may specify that you cannot use certain
+% functions. Code that uses any of these functions will automatically 
 % receive a 0.
 %
 % NEVER use the following functions in your function code:
