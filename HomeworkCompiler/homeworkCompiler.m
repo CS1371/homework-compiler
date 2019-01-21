@@ -495,6 +495,11 @@ function homeworkCompiler(clientId, clientSecret, clientKey)
         fullfile(pwd, 'release', 'submission', '*'));
     zip(fullfile(pwd, 'release', 'assets', 'resub.zip'), ...
         fullfile(pwd, 'release', 'resub', '*'));
+    zip(fullfile(pwd, 'release', 'assets', 'submission_tests.zip'), ...
+        fullfile(pwd, 'release', 'submission', 'SupportingFiles', '*.mat'));
+    zip(fullfile(pwd, 'release', 'assets', 'resub_tests.zip'), ...
+        fullfile(pwd, 'release', 'resub', 'SupportingFiles', '*.mat'));
+    
     %% Upload to Drive
     fprintf(1, 'Done\nUploading...');
     uploadToDrive([pwd filesep 'release'], id, token, clientKey);
