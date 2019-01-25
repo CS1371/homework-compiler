@@ -176,7 +176,11 @@ classdef TestCaseCompiler < matlab.apps.AppBase
             % compile button
             app.CompileButton.Enable = 'on';
             %             app.RefreshVariablesButton.Enable = 'on';
-            
+            ind1 = find(contains({app.RubricTabGroup.Children.Title}, 'Student'));
+            ind2 = find(contains({app.RubricTabGroup.Children.Title}, 'Submission'));
+            ind3 = find(contains({app.RubricTabGroup.Children.Title}, 'Resubmission'));
+            app.RubricTabGroup.Children = app.RubricTabGroup.Children([ind1 ind2 ind3]);
+            app.RubricTabGroup.SelectedTab = app.RubricTabGroup.Children(1);
             % problem settings panel
             app.enableAllChildren(app.ProblemSettingsPanel);
             app.enableAllChildren(app.SaveLocationPanel);
