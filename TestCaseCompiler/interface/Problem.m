@@ -62,7 +62,8 @@ classdef Problem < handle
             outs = cell(1, nargout(funcPath));
             ind = 1;
             while ~out.isnull
-                outs{ind} = char(out.stringval);
+                tmp = out.stringvals;
+                outs{ind} = char(tmp(1));
                 ind = ind + 1;
                 out = out.Next;
             end
@@ -224,4 +225,3 @@ classdef Problem < handle
         end
     end
 end
-
