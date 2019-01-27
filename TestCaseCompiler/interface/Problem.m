@@ -58,13 +58,10 @@ classdef Problem < handle
             info = mtree(funcPath, '-file');
             
             % get output name(s) to get default
-            out = info.Outs;
+            out = info.first().Outs;
             outs = cell(1, nargout(funcPath));
-            ind = 1;
-            while ~out.isnull
-                tmp = out.stringvals;
-                outs{ind} = char(tmp(1));
-                ind = ind + 1;
+            for o = 1:numel(outs)
+                outs{o} = char(out.stringval);
                 out = out.Next;
             end
 
