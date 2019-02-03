@@ -33,7 +33,6 @@
       <param.guid>4e7561e7-af47-4812-ab26-9538c5e4673e</param.guid>
       <unset>
          <param.screenshot/>
-         <param.version/>
          <param.platforms/>
          <param.output/>
       </unset>
