@@ -657,7 +657,9 @@ classdef TestCase < handle
             tc = TestCase(tabGroup, parentType);
             value = parentType.Problem.NumInputs;
             tcInputs = infoSt.ins((value*(tc.Index - 1) + 1):(tc.Index*value));
+            tc.InputNames = tcInputs;
             tc.autofillDropdowns(tcInputs);
+            tc.verifySelf();
         end
     end
 end
