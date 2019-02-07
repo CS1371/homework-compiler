@@ -495,16 +495,17 @@ classdef SubmissionType < handle
             value = cell(1, numel(this.TestCases));
             for t = 1:numel(this.TestCases)
                 tc = this.TestCases(t);
-                value{t} = tc.InputNames;
+                value{t} = tc.InputNames(:)';
             end
             value = [value{:}];
-            
+            % Make SURE it is row vector!
+            value = value(:)';
         end
         
         function value = get.InputValues(this)
             names = this.InputNames;
-            value = cell(1, length(names));
-            for i = 1:length(names)
+            value = cell(1, numel(names));
+            for i = 1:numel(names)
                 try
 %                     for j = 1:length(names{i})
 %                         temp{j} = evalin('base', names{i}{j});
