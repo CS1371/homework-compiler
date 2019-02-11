@@ -486,19 +486,57 @@ function homeworkCompiler(clientId, clientSecret, clientKey)
     end
     cd(['..' filesep '..']);
     %% Create Assets
+    % Assets include:
+    % * submission_grader.zip - submission grading archive
+    % * resubmission_grader.zip - resubmission grading archive
+    % * HW##.zip - Student redistributable
+    % * HW##_Submission.zip - Submission Test Case redistributable
+    % * HW##_Resubmission.zip - Resubmission Test Case redistributable
+    % * HW##_Solutions.zip - Solution file redistributable
+    % * HW##_TAs.zip - Complete test case redistributable
     fprintf(1, 'Done\nCreating Assets...');
     mkdir(fullfile(pwd, 'release', 'assets'));
     % create zips
-    zip(fullfile(pwd, 'release', 'assets', 'student.zip'), ...
+    zip(fullfile(pwd, 'release', 'assets', sprintf('HW%02d.zip', num)), ...
         fullfile(pwd, 'release', 'student', '*'));
-    zip(fullfile(pwd, 'release', 'assets', 'submission.zip'), ...
+    zip(fullfile(pwd, 'release', 'assets', 'submission_grader.zip'), ...
         fullfile(pwd, 'release', 'submission', '*'));
-    zip(fullfile(pwd, 'release', 'assets', 'resub.zip'), ...
+    zip(fullfile(pwd, 'release', 'assets', 'resubmission_grader.zip'), ...
         fullfile(pwd, 'release', 'resub', '*'));
-    zip(fullfile(pwd, 'release', 'assets', 'submission_tests.zip'), ...
+    zip(fullfile(pwd, 'release', 'assets', sprintf('HW%02d_Submission.zip', num)), ...
         fullfile(pwd, 'release', 'submission', 'SupportingFiles', '*.mat'));
-    zip(fullfile(pwd, 'release', 'assets', 'resub_tests.zip'), ...
+    zip(fullfile(pwd, 'release', 'assets', sprintf('HW%02d_Resubmission.zip', num)), ...
         fullfile(pwd, 'release', 'resub', 'SupportingFiles', '*.mat'));
+    zip(fullfile(pwd, 'release', 'assets', sprintf('HW%02d_Solutions.zip', num)), ...
+        fullfile(pwd, 'release', 'submission', 'Solutions', '*.m'));
+    % copy over all test case MAT files
+    testCaseTmpDir = tempname;
+    mkdir(testCaseTmpDir);
+    % copy over all mat files
+    % copy students
+    mats = dir(fullfile(pwd, 'release', 'student', '*.mat'));
+    for m = 1:numel(mats)
+        % guaranteed to end in .mat
+        copyfile(fullfile(mats(m).folder, mats(m).name), ...
+            fullfile(testCaseTmpDir, [mats(m).name(1:end-4) '_student.mat']));
+    end
+    mats = dir(fullfile(pwd, 'release', 'submission', 'SupportingFiles', '*.mat'));
+    for m = 1:numel(mats)
+        % guaranteed to end in .mat
+        copyfile(fullfile(mats(m).folder, mats(m).name), ...
+            fullfile(testCaseTmpDir, [mats(m).name(1:end-4) '_submission.mat']));
+    end
+    mats = dir(fullfile(pwd, 'release', 'resub', 'SupportingFiles', '*.mat'));
+    for m = 1:numel(mats)
+        % guaranteed to end in .mat
+        copyfile(fullfile(mats(m).folder, mats(m).name), ...
+            fullfile(testCaseTmpDir, [mats(m).name(1:end-4) '_resub.mat']));
+    end
+    
+    zip(fullfile(pwd, 'release', 'assets', sprintf('HW%02d_TAs.zip', num)), ...
+        fullfile(testCaseTmpDir, '*.mat'));
+    rmdir(testCaseTmpDir, 's');
+    
     
     %% Upload to Drive
     fprintf(1, 'Done\nUploading...');
