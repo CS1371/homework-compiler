@@ -523,7 +523,10 @@ classdef TestCase < handle
             mkdir(tempdir);
             orig = cd(tempdir);
             cleanup = onCleanup(@()(cleaner(orig, tempdir)));
-            
+            % create web
+            fid = fopen('./web.m', 'wt');
+            fprintf(fid, 'function varargout = web(varargin)\n\tvarargout=cell(1, nargout);\nend');
+            fclose(fid);
             % copy supporting files to temp directory
             for ind = 1:length(this.ParentType.SupportingFiles)
                 fi = this.ParentType.SupportingFiles{ind};
