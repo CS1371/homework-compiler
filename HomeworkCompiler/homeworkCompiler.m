@@ -514,12 +514,8 @@ function homeworkCompiler(clientId, clientSecret, clientKey)
     mkdir(testCaseTmpDir);
     % copy over all mat files
     % copy students
-    mats = dir(fullfile(pwd, 'release', 'student', '*.mat'));
-    for m = 1:numel(mats)
-        % guaranteed to end in .mat
-        copyfile(fullfile(mats(m).folder, mats(m).name), ...
-            fullfile(testCaseTmpDir, [mats(m).name(1:end-4) '_student.mat']));
-    end
+    copyfile(fullfile(pwd, 'release', 'student', '*'), ...
+        testCaseTmpDir);
     mats = dir(fullfile(pwd, 'release', 'submission', 'SupportingFiles', '*.mat'));
     for m = 1:numel(mats)
         % guaranteed to end in .mat
@@ -534,7 +530,7 @@ function homeworkCompiler(clientId, clientSecret, clientKey)
     end
     
     zip(fullfile(pwd, 'release', 'assets', sprintf('HW%02d_TAs.zip', num)), ...
-        fullfile(testCaseTmpDir, '*.mat'));
+        fullfile(testCaseTmpDir, '*'));
     rmdir(testCaseTmpDir, 's');
     
     
