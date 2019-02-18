@@ -166,7 +166,12 @@ cd(sandboxDir);
 for i = length(calls):-1:1
     try
         % create call
-        call = ['[' strjoin(calls(i).outs, ', ') '] = ' rubricSt.name '(' strjoin(calls(i).ins, ', ') ');'];
+        % if no outputs, no []
+        if isempty(calls(i).outs)
+            call = [rubricSt.name '(' strjoin(calls(i).ins, ', ') ');'];
+        else
+            call = ['[' strjoin(calls(i).outs, ', ') '] = ' rubricSt.name '(' strjoin(calls(i).ins, ', ') ');'];
+        end
         funcWrapper(call, inputFiles);
     catch ME
         failedCases(i) = i;
