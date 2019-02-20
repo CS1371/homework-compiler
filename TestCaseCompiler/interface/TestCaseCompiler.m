@@ -131,6 +131,8 @@ classdef TestCaseCompiler < matlab.apps.AppBase
             clear TestCase;
             try
                 delete(app.RubricTabGroup.Children);
+                app.BannedFunctionsListBox.Items = {};
+                app.RecursiveCheckBox.Value = false;
                 if app.ispackage(cd())
                     % load the package
                     app.problem = Problem(path, app.RubricTabGroup, app.Layout);
