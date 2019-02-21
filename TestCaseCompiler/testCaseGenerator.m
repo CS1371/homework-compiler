@@ -24,6 +24,7 @@
 % (c) 2018 CS1371 (J. Htay, D. Profili, A. Rao, H. White)
 function testCaseGenerator(app)
     % get the three packages
+    tic;
     progress = ProgressBar(app.UIFigure, ...
         'Cancelable', 'on', 'Indeterminate', 'on', ...
         'Message', 'Preparing to create archive', ...
@@ -145,7 +146,10 @@ function testCaseGenerator(app)
 %         delete(fullfile(app.LocalOutputDir, '*'));
         copyfile([workDir, filesep, solnFunction, filesep, '*'], app.LocalOutputDir, 'f');
     end
-    
+    uialert(app.UIFigure, ...
+        sprintf('Compilation Completed Successfully in %0.2f second(s)', toc), ...
+        'Success!', ...
+        'Icon', 'success');
 end
 
 function msg = failureMsg(exceptions, nums)

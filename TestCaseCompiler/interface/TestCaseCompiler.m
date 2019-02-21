@@ -42,22 +42,22 @@ classdef TestCaseCompiler < matlab.apps.AppBase
         %         FunctionLabel                  matlab.ui.control.Label
         
         % Where the function saves to
-        SaveLocationPanel            matlab.ui.container.Panel
+        SaveLocationPanel              matlab.ui.container.Panel
         LocalBrowseButton              matlab.ui.control.Button
         OutputFolderBrowseButton       matlab.ui.control.Button
         
         % Function browse panel
-        FunctionBrowsePanel          matlab.ui.container.Panel
-        FunctionBrowseButton         matlab.ui.control.Button
-        FunctionDriveBrowseButton    matlab.ui.control.Button
+        FunctionBrowsePanel            matlab.ui.container.Panel
+        FunctionBrowseButton           matlab.ui.control.Button
+        FunctionDriveBrowseButton      matlab.ui.control.Button
         
         % Status bar stuff
-        LocalOutputLabel             matlab.ui.control.Label
-        LocalOutputEditField         matlab.ui.control.EditField
-        GoogleDriveLabel             matlab.ui.control.Label
-        GoogleDriveEditField         matlab.ui.control.EditField
-        DriveOutputClearButton       matlab.ui.control.Button
-        LocalOutputClearButton       matlab.ui.control.Button
+        LocalOutputLabel               matlab.ui.control.Label
+        LocalOutputEditField           matlab.ui.control.EditField
+        GoogleDriveLabel               matlab.ui.control.Label
+        GoogleDriveEditField           matlab.ui.control.EditField
+        DriveOutputClearButton         matlab.ui.control.Button
+        LocalOutputClearButton         matlab.ui.control.Button
 
         
     end
