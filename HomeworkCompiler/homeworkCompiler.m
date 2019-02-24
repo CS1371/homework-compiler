@@ -256,6 +256,14 @@ function homeworkCompiler(clientId, clientSecret, clientKey)
         problemInfo(p).calls = json.calls;
         problemInfo(p).banned = json.banned;
         problemInfo(p).isRecursive = json.isRecursive;
+        if ~iscell(json.supportingFiles) && isstring(json.supportingFiles)
+            json.supportingFiles = cellstr(json.supportingFiles);
+        elseif ~iscell(json.supportingFiles) && ~isempty(json.supportingFiles)
+            json.supportingFiles = {json.supportingFiles};
+        elseif ~iscell(json.supportingFiles)
+            json.supportingFiles = {};
+        end
+        problemInfo(p).supportingFiles = json.supportingFiles;
     end
     
     % create manifest for student
@@ -283,7 +291,7 @@ function homeworkCompiler(clientId, clientSecret, clientKey)
         for c = 1:numel(calls)
             try
                 call = constructCall([problems{p} '_soln'], calls(c).ins, calls(c).outs);
-                runCall(call, [problems{p} '.mat']);
+                caller(call, [problems{p} '.mat']);
             catch e
                 % die
                 throw(MException('ASSIGNMENTCOMPILER:verification:studentCallFailure', ...
@@ -331,6 +339,14 @@ function homeworkCompiler(clientId, clientSecret, clientKey)
         problemInfo(p).calls = json.calls;
         problemInfo(p).banned = json.banned;
         problemInfo(p).isRecursive = json.isRecursive;
+        if ~iscell(json.supportingFiles) && isstring(json.supportingFiles)
+            json.supportingFiles = cellstr(json.supportingFiles);
+        elseif ~iscell(json.supportingFiles) && ~isempty(json.supportingFiles)
+            json.supportingFiles = {json.supportingFiles};
+        elseif ~iscell(json.supportingFiles)
+            json.supportingFiles = {};
+        end
+        problemInfo(p).supportingFiles = json.supportingFiles;
     end
     % Create overarching rubric
     %
@@ -387,9 +403,9 @@ function homeworkCompiler(clientId, clientSecret, clientKey)
                     problemInfo(p).calls(c).ins, ...
                     problemInfo(p).calls(c).outs);
                 matFile = fullfile(pwd, 'SupportingFiles', [problems{p} '.mat']);
-                cd('Solutions');
-                runCall(call, matFile);
-                cd('..');
+                mFile = fullfile(pwd, 'Solutions', [problems{p} '.m']);
+                sups = fullfile(pwd, 'SupportingFiles', problemInfo(p).supportingFiles);
+                runCall(call, mFile, matFile, sups);
             catch e
                 % die
                 throw(MException('ASSIGNMENTCOMPILER:verification:submissionCallFailure', ...
@@ -416,7 +432,7 @@ function homeworkCompiler(clientId, clientSecret, clientKey)
         
         % copy over supporting files
         if numel(dir(fullfile(problemDir, 'resub', 'supportingFiles'))) > 2
-            movefile(fullfile(problemDir, 'resub', 'supportingFiles'), ...
+            movefile(fullfile(problemDir, 'resub', 'supportingFiles', '*'), ...
                 fullfile(pwd, 'release', 'resub', 'SupportingFiles'));
         end
         % copy over .mat file
@@ -436,6 +452,14 @@ function homeworkCompiler(clientId, clientSecret, clientKey)
         problemInfo(p).calls = json.calls;
         problemInfo(p).banned = json.banned;
         problemInfo(p).isRecursive = json.isRecursive;
+        if ~iscell(json.supportingFiles) && isstring(json.supportingFiles)
+            json.supportingFiles = cellstr(json.supportingFiles);
+        elseif ~iscell(json.supportingFiles) && ~isempty(json.supportingFiles)
+            json.supportingFiles = {json.supportingFiles};
+        elseif ~iscell(json.supportingFiles)
+            json.supportingFiles = {};
+        end
+        problemInfo(p).supportingFiles = json.supportingFiles;
     end
     
     problemJson = struct('name', problems, ...
@@ -473,9 +497,9 @@ function homeworkCompiler(clientId, clientSecret, clientKey)
                     problemInfo(p).calls(c).ins, ...
                     problemInfo(p).calls(c).outs);
                 matFile = fullfile(pwd, 'SupportingFiles', [problems{p} '.mat']);
-                cd('Solutions');
-                runCall(call, matFile);
-                cd('..');
+                mFile = fullfile(pwd, 'Solutions', [problems{p} '.m']);
+                sups = fullfile(pwd, 'SupportingFiles', problemInfo(p).supportingFiles);
+                runCall(call, mFile, matFile, sups);
             catch e
                 % die
                 throw(MException('ASSIGNMENTCOMPILER:verification:resubmissionCallFailure', ...
@@ -553,8 +577,23 @@ function dist = pointAllocate(points, num)
     dist(1:num) = base;
     dist(end) = dist(end) + extra;
 end
-
-function runCall(call, loadFile)
+function runCall(call, mFile, loadFile, supportingFiles)
+    workDir = tempname;
+    mkdir(workDir);
+    safeDir = cd(workDir);
+    cleaner = onCleanup(@()(cd(safeDir)));
+    % create loadFile
+    copyfile(mFile, workDir);
+    if nargin == 4
+        for s = 1:numel(supportingFiles)
+            copyfile(supportingFiles{s}, workDir);
+        end
+    end
+    caller(call, loadFile);
+    cd(safeDir);
+    rmdir(workDir, 's');
+end
+function caller(call, loadFile)
     load(loadFile); %#ok<LOAD>
     f = figure('Visible', 'off');
     evalc(call);
