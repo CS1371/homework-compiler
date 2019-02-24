@@ -673,6 +673,8 @@ classdef TestCaseCompiler < matlab.apps.AppBase
                 mkdir(workFolder);
                 cd(workFolder);
                 downloadFromDrive(tmp, accessToken, workFolder, app.clientKey);
+                delete(browser);
+                p.Message = 'Parsing Package Information...';
                 app.loadFunction(fullfile(pwd, [name '.m']));
                 % set name in status bar
                 app.folderId = parentId;
@@ -681,8 +683,8 @@ classdef TestCaseCompiler < matlab.apps.AppBase
             else
                 app.GoogleDriveEditField.Value = app.Layout.GoogleDriveEditField.Value;
                 app.GoogleDriveEditField.BackgroundColor = app.Layout.GoogleDriveEditField.BackgroundColor;
+                delete(browser);
             end
-            delete(browser);
             
         end
         
