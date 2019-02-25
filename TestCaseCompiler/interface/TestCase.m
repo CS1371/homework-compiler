@@ -122,7 +122,7 @@ classdef TestCase < handle
             % TODO: look at slowdowns from this
             % big functions could take a long time if they are run 9 times
             % on app startup
-            this.verifySelf();
+            % this.verifySelf();
             
         end
         
