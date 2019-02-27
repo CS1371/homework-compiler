@@ -106,6 +106,7 @@ function homeworkCompiler(clientId, clientSecret, clientKey)
     clean = onCleanup(@()(cleaner(workDir, currDir)));
     
     browser = GoogleDriveBrowser(token);
+    browser.UIFigure.Name = 'Select Homework Archive';
     uiwait(browser.UIFigure);
     if ~isvalid(browser)
         return;
