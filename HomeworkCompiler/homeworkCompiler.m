@@ -287,7 +287,6 @@ function homeworkCompiler(clientId, clientSecret, clientKey)
     % for each call, call it!
     fprintf(1, 'Done\nVerifying Student...');
     cd(['release' filesep 'student']);
-    cd(['release' filesep 'student']);
     for p = 1:numel(problemInfo)
         calls = problemInfo(p).calls;
         for c = 1:numel(calls)
@@ -548,19 +547,30 @@ function homeworkCompiler(clientId, clientSecret, clientKey)
     % copy students
     copyfile(fullfile(pwd, 'release', 'student', '*'), ...
         testCaseTmpDir);
-    mats = dir(fullfile(pwd, 'release', 'submission', 'SupportingFiles', '*.mat'));
-    for m = 1:numel(mats)
-        % guaranteed to end in .mat
-        copyfile(fullfile(mats(m).folder, mats(m).name), ...
-            fullfile(testCaseTmpDir, [mats(m).name(1:end-4) '_submission.mat']));
+    files = dir(fullfile(pwd, 'release', 'submission', 'SupportingFiles'));
+    files([files.isdir]) = [];
+    for f = 1:numel(files)
+        % if a mat file, deal with separately
+        if endsWith(files(f).name, '.mat')
+            copyfile(fullfile(files(f).folder, files(f).name), ...
+                fullfile(testCaseTmpDir, [files(f).name(1:end-4) '_submission.mat']));
+        else
+            copyfile(fullfile(files(f).folder, files(f).name), ...
+                fullfile(testCaseTmpDir, files(f).name));
+        end
     end
-    mats = dir(fullfile(pwd, 'release', 'resub', 'SupportingFiles', '*.mat'));
-    for m = 1:numel(mats)
-        % guaranteed to end in .mat
-        copyfile(fullfile(mats(m).folder, mats(m).name), ...
-            fullfile(testCaseTmpDir, [mats(m).name(1:end-4) '_resub.mat']));
+    files = dir(fullfile(pwd, 'release', 'resub', 'SupportingFiles'));
+    files([files.isdir]) = [];
+    for f = 1:numel(files)
+        % if a mat file, deal with separately
+        if endsWith(files(f).name, '.mat')
+            copyfile(fullfile(files(f).folder, files(f).name), ...
+                fullfile(testCaseTmpDir, [files(f).name(1:end-4) '_submission.mat']));
+        else
+            copyfile(fullfile(files(f).folder, files(f).name), ...
+                fullfile(testCaseTmpDir, files(f).name));
+        end
     end
-    
     zip(fullfile(pwd, 'release', 'assets', sprintf('HW%02d_TAs.zip', num)), ...
         fullfile(testCaseTmpDir, '*'));
     rmdir(testCaseTmpDir, 's');
