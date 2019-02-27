@@ -286,12 +286,19 @@ function homeworkCompiler(clientId, clientSecret, clientKey)
     % for each call, call it!
     fprintf(1, 'Done\nVerifying Student...');
     cd(['release' filesep 'student']);
+    cd(['release' filesep 'student']);
     for p = 1:numel(problemInfo)
         calls = problemInfo(p).calls;
         for c = 1:numel(calls)
             try
                 call = constructCall([problems{p} '_soln'], calls(c).ins, calls(c).outs);
+                files = dir;
                 caller(call, [problems{p} '.mat']);
+                newFiles = dir;
+                toDelete = setdiff({newFiles.name}, {files.name});
+                for i = 1:numel(toDelete)
+                    delete(fullfile(pwd, toDelete{i}));
+                end
             catch e
                 % die
                 throw(MException('ASSIGNMENTCOMPILER:verification:studentCallFailure', ...
