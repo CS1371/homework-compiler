@@ -565,7 +565,7 @@ function homeworkCompiler(clientId, clientSecret, clientKey)
         % if a mat file, deal with separately
         if endsWith(files(f).name, '.mat')
             copyfile(fullfile(files(f).folder, files(f).name), ...
-                fullfile(testCaseTmpDir, [files(f).name(1:end-4) '_submission.mat']));
+                fullfile(testCaseTmpDir, [files(f).name(1:end-4) '_resub.mat']));
         else
             copyfile(fullfile(files(f).folder, files(f).name), ...
                 fullfile(testCaseTmpDir, files(f).name));

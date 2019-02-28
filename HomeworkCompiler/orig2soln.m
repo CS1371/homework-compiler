@@ -21,7 +21,7 @@ function solnCall = orig2soln(studCall)
         call = studCall(1:strfind(studCall, '(') - 1);
         solnCall = [call '_soln(' ins ')'];
     else
-       outs = studCall(2:strfind(studCall, ']') - 1);
+        outs = studCall(2:strfind(studCall, ']') - 1);
         ins = studCall(strfind(studCall, '(') + 1:strfind(studCall, ')') - 1);
         call = studCall(strfind(studCall, '=') + 2:strfind(studCall, '(') - 1);
         outs = strsplit(outs, ', ');
