@@ -31,6 +31,7 @@
 % * figure
 % * imshow
 % * image
+% * global
 %
 %% Files to Submit
 % 
