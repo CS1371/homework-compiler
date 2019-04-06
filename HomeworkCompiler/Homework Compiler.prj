@@ -18,7 +18,7 @@
       <param.summary>Compile Homework onto Google Drive</param.summary>
       <param.description>The Homework Compiler compiles all of the separate homework problems, as well as the PDF, into one Homework Package</param.description>
       <param.screenshot/>
-      <param.version>2.3.8</param.version>
+      <param.version>2.3.9</param.version>
       <param.products.name>
          <item>MATLAB</item>
       </param.products.name>
