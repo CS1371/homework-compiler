@@ -160,13 +160,16 @@ function homeworkCompiler(clientId, clientSecret, clientKey)
         sups{2, p} = sups{2, p}(inds);
         [~, inds, ~] = unique({sups{3, p}.name});
         sups{3, p} = sups{3, p}(inds);
-        
+        % Change to problem directory for correct verification
+        origDir = cd(problemDir);
         isCorrect = verify([problemDir problems{p} '.m'], ...
             [problemDir filesep 'submission']);
         isCorrect = isCorrect && verify([problemDir problems{p} '.m'], ...
             [problemDir filesep 'resub']);
         isCorrect = isCorrect && verify([problemDir problems{p} '.m'], ...
             [problemDir filesep 'student']);
+        % Change back!
+        cd(origDir);
         if ~isCorrect
             throw(MException('ASSIGNMENTCOMPILER:verify:verificationError', ...
                 'Problem %s failed verification', problems{p}));
