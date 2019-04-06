@@ -2,7 +2,7 @@
 <deployment-project plugin="plugin.apptool" plugin-version="1.0">
   <configuration file="/Users/alexhrao/Documents/homework-compiler/TestCaseCompiler/TestCaseCompiler.prj"
                   location="/Users/alexhrao/Documents/homework-compiler/TestCaseCompiler"
-                  name="TestCaseCompiler"
+                  name="Homework Compiler"
                   target="target.mlapps"
                   target-name="Package App">
       <param.appname>Homework Compiler</param.appname>
@@ -54,8 +54,8 @@
       <fileset.resources/>
       <fileset.package/>
       <build-deliverables>
-         <file location="/Users/alexhrao/Documents/homework-compiler" name="TestCaseCompiler"
-               optional="false">/Users/alexhrao/Documents/homework-compiler/TestCaseCompiler</file>
+         <file location="/Users/alexhrao/Documents/homework-compiler" name="Homework Compiler"
+               optional="false">/Users/alexhrao/Documents/homework-compiler/Homework Compiler</file>
       </build-deliverables>
       <workflow/>
       <matlab>

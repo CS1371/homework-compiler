@@ -132,11 +132,11 @@ end
 fprintf(1, '[%s] Configuring build...', datetime);
 try
     % Read in with xmlread
-    doc = xmlread(fullfile(thisDir, 'HomeworkCompiler.prj'));
+    doc = xmlread(fullfile(thisDir, 'Homework Compiler.prj'));
 
     %%% configuration
     config = doc.getElementsByTagName('configuration').item(0);
-    config.setAttribute('file', fullfile(workDir, 'HomeworkCompiler.prj'));
+    config.setAttribute('file', fullfile(workDir, 'Homework Compiler.prj'));
     config.setAttribute('location', workDir);
 
     %%% icon
@@ -177,9 +177,9 @@ try
     devs = doc.getElementsByTagName('build-deliverables').item(0);
     file = devs.getElementsByTagName('file').item(0);
     file.setAttribute('location', fileparts(buildDir));
-    file.setAttribute('name', 'build');
-    file.setTextContent(buildDir);
-    xmlwrite(fullfile(workDir, 'HomeworkCompiler.prj'), doc);
+    file.setAttribute('name', 'Homework Compiler');
+    file.setTextContent(fullfile(buildDir, 'Homework Compiler'));
+    xmlwrite(fullfile(workDir, 'Homework Compiler.prj'), doc);
 catch e
     fprintf(2, 'Failed. Encountered exception:\n\t%s: %s\n', ...
         e.identifier, e.message);
@@ -191,7 +191,7 @@ fprintf(1, 'Done\n');
 %% Package MLAPP
 fprintf(1, '[%s] Creating installer...', datetime);
 try
-    matlab.apputil.package(fullfile(workDir, 'HomeworkCompiler.prj'));
+    matlab.apputil.package(fullfile(workDir, 'Homework Compiler.prj'));
     movefile(fullfile(workDir, 'Homework Compiler.mlappinstall'), buildDir);
 catch e
     fprintf(2, 'Failed. Encountered exception:\n\t%s: %s\n', ...

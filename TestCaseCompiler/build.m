@@ -122,7 +122,7 @@ end
 try
     fprintf(1, '[%s] Configuring build...', datetime);
     % Read in with xmlread
-    doc = xmlread(fullfile(thisDir, 'TestCaseCompiler.prj'));
+    doc = xmlread(fullfile(thisDir, 'Test Case Compiler.prj'));
 
     %%% configuration
     config = doc.getElementsByTagName('configuration').item(0);
@@ -167,9 +167,9 @@ try
     devs = doc.getElementsByTagName('build-deliverables').item(0);
     file = devs.getElementsByTagName('file').item(0);
     file.setAttribute('location', fileparts(buildDir));
-    file.setAttribute('name', 'build');
-    file.setTextContent(buildDir);
-    xmlwrite(fullfile(workDir, 'TestCaseCompiler.prj'), doc);
+    file.setAttribute('name', 'Test Case Compiler');
+    file.setTextContent(fullfile(buildDir, 'Test Case Compiler'));
+    xmlwrite(fullfile(workDir, 'Test Case Compiler.prj'), doc);
 catch e
     fprintf(2, 'Failed. Encountered exception:\n\t%s: %s\n', ...
         e.identifier, e.message);
@@ -182,7 +182,7 @@ fprintf(1, 'Done\n');
 %% Package MLAPP
 fprintf(1, '[%s] Creating installer...', datetime);
 try
-    matlab.apputil.package(fullfile(workDir, 'TestCaseCompiler.prj'));
+    matlab.apputil.package(fullfile(workDir, 'Test Case Compiler.prj'));
     movefile(fullfile(workDir, 'Test Case Compiler.mlappinstall'), buildDir);
 catch e
     fprintf(2, 'Failed. Encountered exception:\n\t%s: %s\n', ...
