@@ -96,9 +96,9 @@ if nargin == 1
     if version(1) == 'v'
         version(1) = [];
     end
-    doc = xmlread(fullfile(thisDir, 'HomeworkCompiler.prj'));
+    doc = xmlread(fullfile(thisDir, 'Homework Compiler.prj'));
     doc.getElementsByTagName('param.version').item(0).setTextContent(version);
-    xmlwrite(fullfile(thisDir, 'HomeworkCompiler.prj'), doc);
+    xmlwrite(fullfile(thisDir, 'Homework Compiler.prj'), doc);
     fprintf(1, 'Done\n');
 end
 %% Configure MLAPP
