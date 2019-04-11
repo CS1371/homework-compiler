@@ -374,7 +374,6 @@ function homeworkCompiler(clientId, clientSecret, clientKey)
     %
     % points split evenly over problems; i.e, if 10 problems, each PROBLEM
     % worth 10 points.later problems get more points if necessary
-    problemPoints = ecPoints; %#ok<NASGU>
     problemPoints = zeros(1, numel(problems));
     problemPoints(ecProblems) = ecPoints(ecProblems);
     problemPoints(~ecProblems) = pointAllocate(100, sum(~ecProblems));
@@ -592,6 +591,10 @@ end
 
 %%% pointAllocate: Allocate points to a distribution
 function dist = pointAllocate(points, num)
+    if num == 0
+        dist = [];
+        return;
+    end
     base = floor(points / num);
     extra = points - (base * num);
     % add extra to end

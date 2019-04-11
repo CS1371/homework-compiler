@@ -135,8 +135,8 @@ classdef ProblemChooser < matlab.apps.AppBase
                 tmpPosn = app.Checks(ind).Position;
                 app.Checks(ind).Position = app.Checks(ind+1).Position;
                 app.Checks(ind+1).Position = tmpPosn;
-                app.Checks(ind).ValueChangedFcn = {@ProblemChooser.func, app, ind};
-                app.Checks(ind+1).ValueChangedFcn = {@ProblemChooser.func, app, ind+1};
+                %app.Checks(ind).ValueChangedFcn = {@ProblemChooser.func, app, ind};
+                %app.Checks(ind+1).ValueChangedFcn = {@ProblemChooser.func, app, ind+1};
                 
                 tmp = app.Points(ind);
                 app.Points(ind) = app.Points(ind+1);
@@ -160,10 +160,10 @@ classdef ProblemChooser < matlab.apps.AppBase
             % Check points
             % for each one, look at point value, if not extra credit. It
             % should add up to exactly 100%.
-            
+            % UNLESS, all are EC. Then all are EC we literally don't care.
             inds = [app.Checks.Value];
             pts = app.Points(~inds);
-            if sum([pts.Value]) ~= 100
+            if ~all(inds) && sum([pts.Value]) ~= 100
                 uialert(app.UIFigure, ...
                     sprintf('Regular (not EC) points should sum to 100 - currently, they sum to %d', ...
                     sum([pts.Value])), ...
