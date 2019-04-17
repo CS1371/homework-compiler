@@ -95,6 +95,7 @@ classdef TestCaseCompiler < matlab.apps.AppBase
         
         % default name for the window
         DefaultName char = 'CS1371 Test Case Compiler';
+        shouldQuit logical = false;
     end
     
     methods (Access = protected)
@@ -363,10 +364,63 @@ classdef TestCaseCompiler < matlab.apps.AppBase
             % add variable refreshing on focus gained
             ww = mlapptools.getWebWindow(app.UIFigure);
             ww.FocusGained = @(type, data)(app.windowFocusGainedCallback);
+            % get github token
+            txt = fileread(fullfile(fileparts(mfilename('fullpath')), 'google.token'));
+            github = strsplit(txt, newline);
             app.makeVisible();
+            if numel(github) >= 5 && app.updateAvailable(github{5})
+                % tell the user. UICONFIRM, not error, because if they
+                % choose not to, we can't stop them.
+                resp = uiconfirm(app.UIFigure, ...
+                    'A new version of the Test Case Compiler is available. Would you like to upgrade?', ...
+                    'Update Available', ...
+                    'Options', {'OK', 'Not Right Now'}, ...
+                    'CancelOption', 'Not Right Now', ...
+                    'DefaultOption', 'Not Right Now', ...
+                    'Icon', 'warning');
+                if strcmp(resp, 'OK')
+                    fprintf(1, ['To upgrade the Test Case Compiler:\n  ', ...
+                        '1. Quit the Test Case Compiler\n  ', ...
+                        '2. Uninstall the current Test Case Compiler ', ...
+                        '(right click the app icon and click uninstall)\n  ', ...
+                        '3. Download the latest version <a href="%s">here</a>', ...
+                        '\n  4. Open it in MATLAB and it should automatically install\n'], ...
+                        'https://github.gatech.edu/CS1371/homework-compiler/releases/latest');
+                end
+            end
             
         end
-        
+        function isAvailable = updateAvailable(app, githubToken)
+            uiprogressdlg(app.UIFigure, ...
+                'Message', 'Checking for new Releases', ...
+                'Title', 'Update', ...
+                'Indeterminate', 'on');
+            ENDPOINT = 'https://github.gatech.edu/api/v3/repos/CS1371/homework-compiler/releases/latest';
+            opts = weboptions;
+            opts.HeaderFields = {'Authorization', ['Bearer ' githubToken]};
+            latest = webread(ENDPOINT, opts);
+            p = fileparts(mfilename('fullpath'));
+            p = fullfile(p, 'resources', 'addons_core.xml');
+            if isfile(p)
+                xml = xmlread(p);
+                current = char(xml.getDocumentElement().getElementsByTagName('version').item(0).item(0).getData());
+                % compare. first compare major, then minor, then patch
+                current = strsplit(current, '.');
+                latest = strsplit(latest.tag_name(2:end), '.');
+                current = cellfun(@str2num, current);
+                latest = cellfun(@str2num, latest);
+                isAvailable = false;
+                if latest(1) > current(1)
+                    isAvailable = true;
+                elseif latest(1) == current(1) && latest(2) > current(2)
+                    isAvailable = true;
+                elseif latest(1) == current(1) && latest(2) == current(2) && latest(3) > current(3)
+                    isAvailable = true;
+                end
+            else
+                isAvailable = false;
+            end
+        end
         % Close request function: UIFigure
         function UIFigureCloseRequest(app, ~)
             % reset the path
@@ -1039,7 +1093,7 @@ classdef TestCaseCompiler < matlab.apps.AppBase
             
             % Execute the startup function
             runStartupFcn(app, @startupFcn)
-            
+
             if nargout == 0
                 clear app
             end
