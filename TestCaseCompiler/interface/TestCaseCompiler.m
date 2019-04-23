@@ -617,7 +617,7 @@ classdef TestCaseCompiler < matlab.apps.AppBase
                     fwrite(fid, strjoin(lines, newline));
                     fclose(fid);
                 else
-                    [app.clientId, app.clientSecret, app.clientKey, app.token] = deal(lines{:});
+                    [app.clientId, app.clientSecret, app.clientKey, app.token] = deal(lines{1:4});
                 end
             end
             accessToken = refresh2access(app.token, app.clientId, app.clientSecret);
