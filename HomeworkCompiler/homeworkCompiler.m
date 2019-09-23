@@ -94,7 +94,7 @@ function homeworkCompiler(clientId, clientSecret, clientKey)
             fwrite(fid, strjoin(lines, newline));
             fclose(fid);
         else
-            [clientId, clientSecret, clientKey, token] = deal(lines{:});
+            [clientId, clientSecret, clientKey, token] = deal(lines{1:4});
         end
     end
     token = refresh2access(token, clientId, clientSecret);
