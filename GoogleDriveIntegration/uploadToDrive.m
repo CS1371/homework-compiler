@@ -54,6 +54,8 @@ function uploadFile(path, newId, token)
 
     % upload the file
     request = matlab.net.http.RequestMessage;
+    opts = matlab.net.http.HTTPOptions;
+    opts.ConnectTimeout = 30;
     auth = matlab.net.http.HeaderField;
     auth.Name = 'Authorization';
     auth.Value  = ['Bearer ' token];
@@ -68,7 +70,7 @@ function uploadFile(path, newId, token)
     body = matlab.net.http.MessageBody;
     body.Payload = bytes;
     request.Body = body;
-    file = request.send(UPLOAD_API);
+    file = request.send(UPLOAD_API, opts);
     id = file.Body.Data.id;
 
     % Renaming the File
@@ -84,7 +86,7 @@ function uploadFile(path, newId, token)
     data.name = [name ext];
     body.Data = data;
     request.Body = body;
-    request.send([DRIVE_API id '?addParents=' newId '&removeParents=root']);
+    request.send([DRIVE_API id '?addParents=' newId '&removeParents=root'], opts);
 end
 
 function newId = createFolder(parent, folderName, token, key)
@@ -94,6 +96,7 @@ function newId = createFolder(parent, folderName, token, key)
     % If it already exists, kill it
     opts = weboptions();
     opts.HeaderFields = {'Authorization', ['Bearer ' token]};
+    opts.Timeout = 30;
     contents = webread(API, 'q', ['''' parent ''' in parents and name = ''' folderName ''''], 'key', key, opts);
     if ~isempty(contents.files)
         deleteFolder(contents.files(1).id, token, key);
@@ -102,7 +105,7 @@ function newId = createFolder(parent, folderName, token, key)
     opts.HeaderFields = {'Authorization', ['Bearer ' token]};
     opts.ContentType = 'json';
     opts.RequestMethod = 'POST';
-   
+    opts.Timeout = 30;
     data.name = folderName;
     data.parents = {parent};
     data.mimeType  = TYPE;
