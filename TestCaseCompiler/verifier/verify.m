@@ -162,7 +162,6 @@ failedCases = [];
 msg = {};
 cd(sandboxDir);
 
-
 for i = length(calls):-1:1
     try
         % create call
@@ -172,7 +171,16 @@ for i = length(calls):-1:1
         else
             call = ['[' strjoin(calls(i).outs, ', ') '] = ' rubricSt.name '(' strjoin(calls(i).ins, ', ') ');'];
         end
+        % Save number of files currently open
+        num = length(fopen('all'));
         funcWrapper(call, inputFiles);
+        if length(fopen('all')) > num
+            throw(MException('TESTCASE:verifier:verify:invalidPackage', ...
+                'Solution function did not close its files!'));
+        elseif length(fopen('all')) < num
+            throw(MException('TESTCASE:verifier:verify:invalidPackage', ...
+                'Solution function used fclose(''all'')'));
+        end
     catch ME
         failedCases(i) = i;
         msg{i} = ME;
