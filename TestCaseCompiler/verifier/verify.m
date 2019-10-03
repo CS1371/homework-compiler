@@ -174,10 +174,12 @@ for i = length(calls):-1:1
         % Save number of files currently open
         num = length(fopen('all'));
         funcWrapper(call, inputFiles);
-        % Throw exception if the solution function left files open
         if length(fopen('all')) > num
             throw(MException('TESTCASE:verifier:verify:invalidPackage', ...
                 'Solution function did not close its files!'));
+        elseif length(fopen('all')) < num
+            throw(MException('TESTCASE:verifier:verify:invalidPackage', ...
+                'Solution function used fclose(''all'')'));
         end
     catch ME
         failedCases(i) = i;
