@@ -163,6 +163,9 @@ msg = {};
 cd(sandboxDir);
 
 
+% Save number of files currently open
+num = length(fopen('all'));
+
 for i = length(calls):-1:1
     try
         % create call
@@ -181,6 +184,12 @@ for i = length(calls):-1:1
 end
 failedCases(failedCases == 0) = [];
 msg(cellfun(@isempty, msg)) = [];
+
+% Throw exception if the solution function left files open
+if length(fopen('all')) > num
+    throw(MException('TESTCASE:verifier:verify:invalidPackage', ...
+        'Solution function did not close its files!'));
+end
 
 cd(initialDir);
 % done verifying
