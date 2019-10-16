@@ -88,7 +88,7 @@ function downloadPDF(file, token, key, path, attemptNum)
         attemptNum = 1;
     end
     API = 'https://www.googleapis.com/drive/v3/files/';
-    opts = weboptions('Timeout', 10);
+    opts = weboptions('Timeout', 20);
     opts.HeaderFields = {'Authorization', ['Bearer ' token]};
     url = [API file.id '/export?mimeType=application%2Fpdf&alt=media&key=' key];
     try
