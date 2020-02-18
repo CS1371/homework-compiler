@@ -54,7 +54,7 @@ function lines = createManifest(num, topic, problems)
             probStatement{counter} = ['%    ' call ';'];
             probStatement{counter+1} = ['%    ' orig2soln(call) ';'];
             check = constructCheck(c.outs);
-            probStatement{counter+2} = sprintf('%    check%d = %s;', t, check);
+            probStatement{counter+2} = ['%    ' sprintf('check%d = %s;', t, check)];
             probStatement{counter+3} = '%';
             counter = counter + LINES_PER_CALL;
         end
