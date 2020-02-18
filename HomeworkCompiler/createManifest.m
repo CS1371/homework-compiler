@@ -31,26 +31,32 @@ function lines = createManifest(num, topic, problems)
     %
     %   call1
     %   solnCall1
+    %   isequalCheck1
     %
     %   call2
     %   solnCall2
+    %   isequalCheck2
     %
     testCases = cell(1, numel(problems));
     for p = 1:numel(problems)
-        probStatement = cell(1, 5 + (3 * numel(problems(p).calls)));
+        HEADER_LINES = 5;
+        LINES_PER_CALL = 4;
+        probStatement = cell(1, HEADER_LINES + (LINES_PER_CALL * numel(problems(p).calls)));
         probStatement{1} = ['%% ' problems(p).name];
         probStatement{2} = '%';
         probStatement{3} = ['%    load(''' problems(p).name '.mat'');'];
         probStatement{4} = '%';
         % for each test case, engage
-        counter = 5;
+        counter = HEADER_LINES;
         for t = 1:numel(problems(p).calls)
             c = problems(p).calls(t);
             call = constructCall(problems(p).name, c.ins, c.outs);
             probStatement{counter} = ['%    ' call ';'];
             probStatement{counter+1} = ['%    ' orig2soln(call) ';'];
-            probStatement{counter+2} = '%';
-            counter = counter + 3;
+            check = constructCheck(c.outs);
+            probStatement{counter+2} = sprintf('check%d = %s;', t, check);
+            probStatement{counter+3} = '%';
+            counter = counter + LINES_PER_CALL;
         end
         probStatement{end} = '%';
         testCases{p} = strjoin(probStatement, newline);
