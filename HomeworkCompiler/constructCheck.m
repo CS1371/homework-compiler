@@ -17,6 +17,3 @@ for o = 1:numel(outs)
 end
 check = strjoin(check, ' & ');
 end
-
-
-
