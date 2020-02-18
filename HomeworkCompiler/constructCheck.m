@@ -16,6 +16,7 @@ for o = 1:numel(outs)
     check{o} = ['isequal(' outs{o} ', ' outs{o} '_soln)'];
 end
 check = strjoin(check, ' & ');
+end
 
 
 
